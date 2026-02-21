@@ -1,6 +1,7 @@
 const fs = require("fs");
 const xlsx = require("xlsx");
 
+
 // baca excel dari folder dashboard
 const workbook = xlsx.readFile("./dashboard/template1.xlsx");
 console.log("📑 Semua sheet:", workbook.SheetNames);
@@ -16,6 +17,14 @@ function parseTanggal(str) {
   const d = new Date(str);
   if (!isNaN(d)) return d.toISOString().slice(0, 10);
   return null;
+}
+
+function cleanRow(row) {
+  const newRow = {};
+  Object.keys(row).forEach(key => {
+    newRow[key.trim()] = row[key];
+  });
+  return newRow;
 }
 
 function expandRange(start, end) {
