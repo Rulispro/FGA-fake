@@ -2236,7 +2236,7 @@ const groupInfo = await page.evaluate(() => {
     document.querySelector("img");
 
   return {
-    name: title,
+    name: name,
     photo: img ? img.src : null
   };
 });
