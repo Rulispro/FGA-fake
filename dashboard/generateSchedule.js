@@ -3,9 +3,15 @@ const xlsx = require("xlsx");
 
 // baca excel dari folder dashboard
 const workbook = xlsx.readFile("./dashboard/template1.xlsx");
+console.log("📑 Semua sheet:", workbook.SheetNames);
 const sheet = workbook.Sheets["postGroup"];
+if (!sheet) {
+  console.log("❌ Sheet postGroup tidak ditemukan!");
+  process.exit(1);
+}
 const rows = xlsx.utils.sheet_to_json(sheet);
-
+console.log("📋 Total row postGroup:", rows.length);
+console.log("📋 Contoh row pertama:", rows[0]);
 function parseTanggal(str) {
   const d = new Date(str);
   if (!isNaN(d)) return d.toISOString().slice(0, 10);
