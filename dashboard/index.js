@@ -2161,7 +2161,7 @@ function readTemplate(file) {
 
 //--FUNGSI RUN ACCOUNT--//
 
-async function runAccount(page, row, accountName) {
+async function runAccount(page, row, accountName, today) {
  console.log("\n🧪 runAccount row:", row);
   const account = row.account;
   const caption = row.caption;
@@ -2243,7 +2243,7 @@ const groupInfo = await page.evaluate(() => {
 // push 
 docsData.push({
   account: accountName,
- // tanggal: today,
+  tanggal: today,
   mode: "group",
   group_link: groupUrl,
   group_name: groupInfo.name,
@@ -3098,7 +3098,7 @@ else if (mode === "group") {
 //  }
 ///$BARU YANG PAKAI DOLAR
   for (const row of rowsForAccount) {
-  await runAccount(page, row, acc.account);
+  await runAccount(page, row, acc.account, today);
     
   }
 }
