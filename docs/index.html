@@ -12,6 +12,17 @@ body {
   padding: 20px;
 }
 
+h2 {
+  margin-bottom: 10px;
+}
+
+.section-title {
+  margin-top: 40px;
+  margin-bottom: 10px;
+  font-size: 18px;
+  opacity: 0.8;
+}
+
 .filters {
   display: flex;
   gap: 15px;
@@ -68,6 +79,10 @@ select, input[type="date"] {
 
 <h2>🤖 Dashboard Bot</h2>
 
+<!-- ================== HASIL POSTING (data.json) ================== -->
+
+<div class="section-title">📌 Hasil Posting</div>
+
 <div class="filters">
   <select id="accountFilter">
     <option value="all">Semua Akun</option>
@@ -78,7 +93,17 @@ select, input[type="date"] {
 
 <div id="list"></div>
 
+<!-- ================== JADWAL SCHEDULE (schedule.json) ================== -->
+
+<div class="section-title">📅 Jadwal Posting (Dari Excel)</div>
+
+<input type="date" id="calendar">
+
+<div id="schedule-list"></div>
+
 <script>
+// ======================== DATA.JSON ========================
+
 fetch("data.json")
   .then(res => res.json())
   .then(data => {
@@ -87,11 +112,9 @@ fetch("data.json")
     const dropdown = document.getElementById("accountFilter");
     const dateInput = document.getElementById("dateFilter");
 
-    // 🔥 Set default tanggal = hari ini
     const today = new Date().toISOString().slice(0, 10);
     dateInput.value = today;
 
-    // 🔥 Ambil akun unik
     const accounts = [...new Set(data.map(item => item.account))];
 
     accounts.forEach(acc => {
@@ -118,11 +141,8 @@ fetch("data.json")
       });
 
       if (filtered.length === 0) {
-        container.innerHTML = `
-          <div class="empty">
-            Tidak ada postingan di tanggal ini.
-          </div>
-        `;
+        container.innerHTML =
+          `<div class="empty">Tidak ada postingan di tanggal ini.</div>`;
         return;
       }
 
@@ -139,14 +159,59 @@ fetch("data.json")
       });
     }
 
-    // Render pertama kali (hari ini)
     render();
-
-    // Event listener
     dropdown.addEventListener("change", render);
     dateInput.addEventListener("change", render);
 
   });
+
+
+// ======================== SCHEDULE.JSON ========================
+
+fetch("schedule.json")
+  .then(res => res.json())
+  .then(scheduleData => {
+
+    const calendar = document.getElementById("calendar");
+    const list = document.getElementById("schedule-list");
+
+    const today = new Date().toISOString().slice(0, 10);
+    calendar.value = today;
+
+    function renderSchedule(date) {
+      list.innerHTML = "";
+
+      if (scheduleData[date]) {
+
+        scheduleData[date].forEach(item => {
+          list.innerHTML += `
+            <div class="card">
+              <img src="${item.photo}" class="group-img">
+              <div class="group-info">
+                <div class="group-name">${item.group_name}</div>
+                <div class="caption">
+                  <b>Akun:</b> ${item.account}<br>
+                  ${item.caption}
+                </div>
+              </div>
+            </div>
+          `;
+        });
+
+      } else {
+        list.innerHTML =
+          `<div class="empty">Tidak ada jadwal di tanggal ini.</div>`;
+      }
+    }
+
+    renderSchedule(today);
+
+    calendar.addEventListener("change", function() {
+      renderSchedule(this.value);
+    });
+
+  });
+
 </script>
 
 </body>
