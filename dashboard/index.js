@@ -3185,6 +3185,14 @@ console.log(
 
 console.log("✅ data.json berhasil dibuat");
     //$
+    //cek buat lihat schedule 
+    fs.writeFileSync(
+  "./docs/schedule.json",
+  JSON.stringify(groupRows, null, 2)
+);
+    console.log("✅ schedule.json berhasil dibuat");
+    
+    //sampai sini
     await browser.close();
     console.log("🎉 Semua akun selesai");
   } catch (err) {
