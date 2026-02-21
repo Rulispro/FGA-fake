@@ -1,24 +1,25 @@
 const fs = require("fs");
 const xlsx = require("xlsx");
 
-
-// baca excel dari folder dashboard
+// ===============================
+// READ EXCEL
+// ===============================
 const workbook = xlsx.readFile("./dashboard/template1.xlsx");
 console.log("📑 Semua sheet:", workbook.SheetNames);
+
 const sheet = workbook.Sheets["postGroup"];
 if (!sheet) {
   console.log("❌ Sheet postGroup tidak ditemukan!");
   process.exit(1);
 }
-const rows = xlsx.utils.sheet_to_json(sheet);
+
+let rows = xlsx.utils.sheet_to_json(sheet);
 console.log("📋 Total row postGroup:", rows.length);
 console.log("📋 Contoh row pertama:", rows[0]);
-function parseTanggal(str) {
-  const d = new Date(str);
-  if (!isNaN(d)) return d.toISOString().slice(0, 10);
-  return null;
-}
 
+// ===============================
+// CLEAN HEADER (hapus spasi)
+// ===============================
 function cleanRow(row) {
   const newRow = {};
   Object.keys(row).forEach(key => {
@@ -27,6 +28,30 @@ function cleanRow(row) {
   return newRow;
 }
 
+rows = rows.map(cleanRow);
+
+// ===============================
+// PARSE TANGGAL (support Excel serial)
+// ===============================
+function parseTanggal(value) {
+  if (!value) return null;
+
+  // Jika angka (Excel serial date)
+  if (typeof value === "number") {
+    const excelDate = new Date((value - 25569) * 86400 * 1000);
+    return excelDate.toISOString().slice(0, 10);
+  }
+
+  // Jika string biasa
+  const d = new Date(value);
+  if (!isNaN(d)) return d.toISOString().slice(0, 10);
+
+  return null;
+}
+
+// ===============================
+// EXPAND RANGE TANGGAL
+// ===============================
 function expandRange(start, end) {
   const dates = [];
   const current = new Date(start);
@@ -40,9 +65,13 @@ function expandRange(start, end) {
   return dates;
 }
 
+// ===============================
+// GENERATE SCHEDULE
+// ===============================
 const schedule = {};
 
 rows.forEach(row => {
+
   if (!row.tanggal || !row.account) return;
 
   let dates = [];
@@ -69,11 +98,19 @@ rows.forEach(row => {
     }
 
     schedule[date].push({
-      account: row.account,
+      account: String(row.account).trim(),
       group_name: row.group_name || "-",
       caption: row.caption || "-",
       group_link: row.grup_link || "-",
-      photo: "",
+      jam: row.jam || "12:00",
+      delay_grup: row.delay_grup || "5000,7000",
+      delay_akun: row.delay_akun || 10000,
+      delay_mikir: row.delay_mikir || 500,
+      ketik_min: row.ketik_min || 100,
+      ketik_max: row.ketik_max || 120,
+      pause_chance: row.pause_chance || 0,
+      pause_min: row.pause_min || 0,
+      pause_max: row.pause_max || 0,
       status: "scheduled"
     });
 
@@ -81,7 +118,13 @@ rows.forEach(row => {
 
 });
 
-// tulis ke folder docs
+// ===============================
+// SAVE JSON
+// ===============================
+if (!fs.existsSync("./docs")) {
+  fs.mkdirSync("./docs");
+}
+
 fs.writeFileSync(
   "./docs/schedule.json",
   JSON.stringify(schedule, null, 2)
