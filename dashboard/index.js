@@ -2243,7 +2243,7 @@ const groupInfo = await page.evaluate(() => {
 // push 
 docsData.push({
   account: accountName,
-  tanggal: today,
+ // tanggal: today,
   mode: "group",
   group_link: groupUrl,
   group_name: groupInfo.name,
