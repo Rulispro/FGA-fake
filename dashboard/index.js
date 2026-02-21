@@ -2404,7 +2404,7 @@ console.log(
 
 
   // ===== 3️⃣ Download + upload media
- const today = process.env.DATE || new Date().toISOString().split("T")[0];
+ const todayEv = process.env.DATE || new Date().toISOString().split("T")[0];
  // HARUS sama dengan nama file di Release!
 
 const originalName = mediaUrl.split("?")[0].split("/").pop();
