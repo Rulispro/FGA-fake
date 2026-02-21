@@ -3204,12 +3204,31 @@ for (const row of groupRows) {
   });
 }
 
+const scheduleByDate = {};
+
+groupRows.forEach(row => {
+  const date = parseTanggalXLSX(row.tanggal);
+
+  if (!scheduleByDate[date]) {
+    scheduleByDate[date] = [];
+  }
+
+  scheduleByDate[date].push({
+    account: row.account,
+    group_name: row.group_name || "Unknown Group",
+    caption: row.caption || "",
+    group_link: row.grup_link,
+    photo: row.group_photo || ""
+  });
+});
+
 fs.writeFileSync(
   "./docs/schedule.json",
-  JSON.stringify(scheduleData, null, 2)
+  JSON.stringify(scheduleByDate, null, 2)
 );
 
-console.log("✅ schedule.json siap untuk kalender");
+console.log("✅ schedule.json berhasil dibuat (group by date)");
+
     //sampai sini
     await browser.close();
     console.log("🎉 Semua akun selesai");
