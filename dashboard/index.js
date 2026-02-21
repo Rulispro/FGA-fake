@@ -2851,7 +2851,7 @@ accounts.forEach((a, i) => {
     
     
     // ✅ BACA TEMPLATE SEKALI DI AWAL
-    const TEMPLATE_PATH = "./docs/template1.xlsx";
+    const TEMPLATE_PATH = "./dashboard/template1.xlsx";
 
     if (!fs.existsSync(TEMPLATE_PATH)) {
       throw new Error("❌ template1.xlsx tidak ditemukan");
@@ -3179,7 +3179,7 @@ console.log(
 //BARU $
     fs.writeFileSync(
   "./docs/data.json",
-  JSON.stringify(dashboardData, null, 2)
+  JSON.stringify(docsData, null, 2)
 );
 
 console.log("✅ data.json berhasil dibuat");
