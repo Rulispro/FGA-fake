@@ -12,8 +12,8 @@ const { PuppeteerScreenRecorder } = require("puppeteer-screen-recorder");
 puppeteer.use(StealthPlugin())
 //$BARU
 const docsDir = path.join(__dirname, "docs");
-
-if (!fs.existsSync(docsdDir)) {
+let docsData = [];
+if (!fs.existsSync(docsDir)) {
   fs.mkdirSync(docsDir);
 }
 
@@ -2161,7 +2161,7 @@ function readTemplate(file) {
 
 //--FUNGSI RUN ACCOUNT--//
 
-async function runAccount(page, row) {
+async function runAccount(page, row, accountName, today) {
  console.log("\n🧪 runAccount row:", row);
   const account = row.account;
   const caption = row.caption;
@@ -2868,9 +2868,7 @@ accounts.forEach((a, i) => {
     const undFriendRows = templates.undFriend || [];
     const confirmRows = templates.confirm || [];
     const likeLinkPostRows = templates.likelinkpost || [];
-    const likeGroupRows= templates.likeGroup || [];
-    //$BARU BUAT TESTING
-    let docsData = [];
+    const likeGroupRows= templates.likeGroup || []; 
     const browser = await puppeteer.launch({
       headless: "new",
       defaultViewport: { width: 390, height: 844, isMobile: true, hasTouch: true },
@@ -3100,7 +3098,7 @@ else if (mode === "group") {
 //  }
 ///$BARU YANG PAKAI DOLAR
   for (const row of rowsForAccount) {
-  await runAccount(page, row, accountname, today);
+  await runAccount(page, row, acc.account, today);
     
   }
 }
