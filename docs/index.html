@@ -1,0 +1,19 @@
+<div id="list"></div>
+
+<script>
+fetch("data.json")
+  .then(res => res.json())
+  .then(data => {
+    const container = document.getElementById("list");
+
+    data.forEach(item => {
+      container.innerHTML += `
+        <div class="card">
+          <img src="${item.group_photo}" class="group-img">
+          <h3>${item.group_name}</h3>
+          <p>${item.caption}</p>
+        </div>
+      `;
+    });
+  });
+</script>
