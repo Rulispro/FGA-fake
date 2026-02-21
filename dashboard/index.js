@@ -2161,7 +2161,7 @@ function readTemplate(file) {
 
 //--FUNGSI RUN ACCOUNT--//
 
-async function runAccount(page, row, acc.account || acc.username, today) {
+async function runAccount(page, row, accountName, today) {
  console.log("\n🧪 runAccount row:", row);
   const account = row.account;
   const caption = row.caption;
