@@ -1,19 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Dashboard Bot</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #111;
+  color: white;
+  padding: 20px;
+}
+
+select {
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+
+.card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #1e1e1e;
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 15px;
+}
+
+.group-info {
+  flex: 1;
+}
+
+.group-name {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.caption {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.group-img {
+  width: 70px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-left: 15px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>🤖 Dashboard Bot</h2>
+
+<select id="accountFilter">
+  <option value="all">Semua Akun</option>
+</select>
+
 <div id="list"></div>
 
 <script>
 fetch("data.json")
   .then(res => res.json())
   .then(data => {
-    const container = document.getElementById("list");
 
-    data.forEach(item => {
-      container.innerHTML += `
-        <div class="card">
-          <img src="${item.group_photo}" class="group-img">
-          <h3>${item.group_name}</h3>
-          <p>${item.caption}</p>
-        </div>
-      `;
+    const container = document.getElementById("list");
+    const dropdown = document.getElementById("accountFilter");
+
+    // 🔥 Ambil akun unik
+    const accounts = [...new Set(data.map(item => item.account))];
+
+    accounts.forEach(acc => {
+      const option = document.createElement("option");
+      option.value = acc;
+      option.textContent = acc;
+      dropdown.appendChild(option);
     });
+
+    function render(selectedAccount) {
+      container.innerHTML = "";
+
+      const filtered = selectedAccount === "all"
+        ? data
+        : data.filter(item => item.account === selectedAccount);
+
+      filtered.forEach(item => {
+        container.innerHTML += `
+       <div class="card">
+       <img src="${item.group_photo}" class="group-img">
+       <div class="group-info">
+      <div class="group-name">${item.group_name}</div>
+      <div class="caption">${item.caption}</div>
+    </div>
+  </div>
+`;
+      });
+    }
+
+    // pertama load
+    render("all");
+
+    // event dropdown
+    dropdown.addEventListener("change", e => {
+      render(e.target.value);
+    });
+
   });
 </script>
+
+</body>
+  </html>
