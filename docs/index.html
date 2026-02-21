@@ -12,21 +12,34 @@ body {
   padding: 20px;
 }
 
-select {
+.filters {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+select, input[type="date"] {
   padding: 10px;
   border-radius: 8px;
-  margin-bottom: 20px;
   font-size: 16px;
+  border: none;
 }
 
 .card {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   background: #1e1e1e;
   padding: 15px;
   border-radius: 12px;
   margin-bottom: 15px;
+}
+
+.group-img {
+  width: 70px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-right: 15px;
 }
 
 .group-info {
@@ -44,12 +57,9 @@ select {
   opacity: 0.8;
 }
 
-.group-img {
-  width: 70px;
-  height: 70px;
-  object-fit: cover;
-  border-radius: 10px;
-  margin-left: 15px;
+.empty {
+  opacity: 0.6;
+  margin-top: 20px;
 }
 </style>
 </head>
@@ -58,9 +68,13 @@ select {
 
 <h2>🤖 Dashboard Bot</h2>
 
-<select id="accountFilter">
-  <option value="all">Semua Akun</option>
-</select>
+<div class="filters">
+  <select id="accountFilter">
+    <option value="all">Semua Akun</option>
+  </select>
+
+  <input type="date" id="dateFilter">
+</div>
 
 <div id="list"></div>
 
@@ -71,6 +85,11 @@ fetch("data.json")
 
     const container = document.getElementById("list");
     const dropdown = document.getElementById("accountFilter");
+    const dateInput = document.getElementById("dateFilter");
+
+    // 🔥 Set default tanggal = hari ini
+    const today = new Date().toISOString().slice(0, 10);
+    dateInput.value = today;
 
     // 🔥 Ambil akun unik
     const accounts = [...new Set(data.map(item => item.account))];
@@ -82,36 +101,53 @@ fetch("data.json")
       dropdown.appendChild(option);
     });
 
-    function render(selectedAccount) {
+    function render() {
       container.innerHTML = "";
 
-      const filtered = selectedAccount === "all"
-        ? data
-        : data.filter(item => item.account === selectedAccount);
+      const selectedAccount = dropdown.value;
+      const selectedDate = dateInput.value;
+
+      const filtered = data.filter(item => {
+        const matchAccount =
+          selectedAccount === "all" || item.account === selectedAccount;
+
+        const matchDate =
+          !selectedDate || item.tanggal === selectedDate;
+
+        return matchAccount && matchDate;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="empty">
+            Tidak ada postingan di tanggal ini.
+          </div>
+        `;
+        return;
+      }
 
       filtered.forEach(item => {
         container.innerHTML += `
-       <div class="card">
-       <img src="${item.group_photo}" class="group-img">
-       <div class="group-info">
-      <div class="group-name">${item.group_name}</div>
-      <div class="caption">${item.caption}</div>
-    </div>
-  </div>
-`;
+          <div class="card">
+            <img src="${item.group_photo}" class="group-img">
+            <div class="group-info">
+              <div class="group-name">${item.group_name}</div>
+              <div class="caption">${item.caption}</div>
+            </div>
+          </div>
+        `;
       });
     }
 
-    // pertama load
-    render("all");
+    // Render pertama kali (hari ini)
+    render();
 
-    // event dropdown
-    dropdown.addEventListener("change", e => {
-      render(e.target.value);
-    });
+    // Event listener
+    dropdown.addEventListener("change", render);
+    dateInput.addEventListener("change", render);
 
   });
 </script>
 
 </body>
-  </html>
+</html>
