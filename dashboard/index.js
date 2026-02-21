@@ -2225,11 +2225,12 @@ async function runAccount(page, row, accountName, today) {
     //BARU YANG PAKAI DOLAR
 // ambil info grup DI SINI
 const groupInfo = await page.evaluate(() => {
-  const title =
-    document.querySelector("h1")?.innerText ||
-    document.title ||
-    "Unknown Group";
+  const rawTitle = document.title || "Unknown Group";
 
+  const name = rawTitle
+    .replace(/\s*\|\s*Facebook/i, "")
+    .trim();
+  
   const img =
     document.querySelector('img[src*="scontent"]') ||
     document.querySelector("img");
