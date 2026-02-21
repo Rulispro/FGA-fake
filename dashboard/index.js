@@ -3186,12 +3186,30 @@ console.log(
 console.log("✅ data.json berhasil dibuat");
     //$
     //cek buat lihat schedule 
-    fs.writeFileSync(
+    const scheduleData = {};
+
+for (const row of groupRows) {
+  const date = parseTanggalXLSX(row.tanggal);
+
+  if (!scheduleData[date]) {
+    scheduleData[date] = [];
+  }
+
+  scheduleData[date].push({
+    account: row.account,
+    group_name: row.nama_grup || row.group_name || "-",
+    group_link: row.link || row.group_link || "-",
+    caption: row.caption || "-",
+    photo: row.foto || row.photo || ""
+  });
+}
+
+fs.writeFileSync(
   "./docs/schedule.json",
-  JSON.stringify(groupRows, null, 2)
+  JSON.stringify(scheduleData, null, 2)
 );
-    console.log("✅ schedule.json berhasil dibuat");
-    
+
+console.log("✅ schedule.json siap untuk kalender");
     //sampai sini
     await browser.close();
     console.log("🎉 Semua akun selesai");
