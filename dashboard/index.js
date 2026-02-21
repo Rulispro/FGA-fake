@@ -2161,7 +2161,7 @@ function readTemplate(file) {
 
 //--FUNGSI RUN ACCOUNT--//
 
-async function runAccount(page, row, accountName, today) {
+async function runAccount(page, row, accountName) {
  console.log("\n🧪 runAccount row:", row);
   const account = row.account;
   const caption = row.caption;
@@ -2240,7 +2240,7 @@ const groupInfo = await page.evaluate(() => {
   };
 });
 
-// push dashboard
+// push 
 docsData.push({
   account: accountName,
   tanggal: today,
@@ -2253,7 +2253,7 @@ docsData.push({
   delay_akun: row.delay_akun,
   status: "done"
 });
-  }  //$ SAMPAI SINI
+    //$ SAMPAI SINI
 
   await page.evaluate(() => {
   const hits = [];
@@ -3098,7 +3098,7 @@ else if (mode === "group") {
 //  }
 ///$BARU YANG PAKAI DOLAR
   for (const row of rowsForAccount) {
-  await runAccount(page, row, acc.account, today);
+  await runAccount(page, row, acc.account);
     
   }
 }
