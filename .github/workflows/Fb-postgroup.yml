@@ -34,7 +34,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: recordings
-          path: recording_*.mp4
+          path: dashboard/recording_*.mp4
 
       - name: Commit dashboard update
         run: |
