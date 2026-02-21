@@ -1,1 +1,70 @@
-{}
+{
+  "2026-02-21": [
+    {
+      "account": "ayu Wulandari",
+      "group_name": "-",
+      "caption": "malam semuanya ",
+      "group_link": "https://m.facebook.com/groups/1660422537357236/,https://m.facebook.com/groups/663419820413851/",
+      "jam": "12:00",
+      "delay_grup": "7000,9000",
+      "delay_akun": 10000,
+      "delay_mikir": "500",
+      "ketik_min": "100",
+      "ketik_max": "120",
+      "pause_chance": "0.10",
+      "pause_min": "500",
+      "pause_max": "900",
+      "status": "scheduled"
+    },
+    {
+      "account": "Fitri Yunita Sari",
+      "group_name": "-",
+      "caption": "hai",
+      "group_link": "https://m.facebook.com/groups/353403068755140/",
+      "jam": "10:00",
+      "delay_grup": "7000,9000",
+      "delay_akun": 10000,
+      "delay_mikir": "5000",
+      "ketik_min": "100",
+      "ketik_max": "130",
+      "pause_chance": "0.15",
+      "pause_min": 400,
+      "pause_max": "900",
+      "status": "scheduled"
+    }
+  ],
+  "2026-01-31": [
+    {
+      "account": "ayu Wulandari",
+      "group_name": "-",
+      "caption": "Alhamdulillah lancar ",
+      "group_link": "https://m.facebook.com/groups/570540757316658/,https://m.facebook.com/groups/663419820413851/,https://m.facebook.com/groups/1660422537357236/",
+      "jam": "12:00",
+      "delay_grup": "7000,9000",
+      "delay_akun": 12000,
+      "delay_mikir": 500,
+      "ketik_min": 100,
+      "ketik_max": 120,
+      "pause_chance": 0,
+      "pause_min": 0,
+      "pause_max": 0,
+      "status": "scheduled"
+    },
+    {
+      "account": "Fitri Yunita Sari",
+      "group_name": "-",
+      "caption": "yuk gais ",
+      "group_link": "https://m.facebook.com/groups/574870830947581/,https://m.facebook.com/groups/353403068755140/",
+      "jam": "12:00",
+      "delay_grup": "7000,9000",
+      "delay_akun": 12000,
+      "delay_mikir": 500,
+      "ketik_min": 100,
+      "ketik_max": 120,
+      "pause_chance": 0,
+      "pause_min": 0,
+      "pause_max": 0,
+      "status": "scheduled"
+    }
+  ]
+}
