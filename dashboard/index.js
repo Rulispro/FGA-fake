@@ -2253,7 +2253,7 @@ docsData.push({
   delay_akun: row.delay_akun,
   status: "done"
 });
-    //$ SAMPAI SINI
+  }  //$ SAMPAI SINI
 
   await page.evaluate(() => {
   const hits = [];
