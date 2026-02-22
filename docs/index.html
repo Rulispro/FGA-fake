@@ -164,37 +164,19 @@ fetch("schedule.json?nocache=" + new Date().getTime())
         list.innerHTML = `<div class="empty">Tidak ada jadwal di tanggal ini.</div>`;
         return;
       }
-
-      // Group by account
-      const accounts = [...new Set(scheduleData[date].map(item => item.account))];
-      accounts.forEach(acc => {
-        // tampilkan header akun
-        const accountItem = scheduleData[date].find(item => item.account === acc);
-        list.innerHTML += `
-          <div class="card">
-            <img src="${accountItem.account_photo || 'https://via.placeholder.com/70'}" class="group-img">
-            <div class="group-info">
-              <div class="group-name">${acc}</div>
-            </div>
-          </div>
-        `;
-
-        // tampilkan grup per akun
-        scheduleData[date]
-          .filter(item => item.account === acc)
-          .forEach(group => {
-            list.innerHTML += `
-              <div class="card">
-                <img src="${group.group_photo || 'https://via.placeholder.com/70'}" class="group-img">
-                <div class="group-info">
-                  <div class="group-name">${group.group_name}</div>
-                  <div class="caption">${group.caption}</div>
-                </div>
-              </div>
-            `;
-          });
-      });
-    }
+     scheduleData[date].forEach(item => {
+    list.innerHTML += `
+      <div class="card">
+        <img src="${item.group_photo || 'https://via.placeholder.com/70'}" class="group-img">
+        <div class="group-info">
+          <div class="group-name">${item.group_name}</div>
+          <div class="caption">${item.caption}</div>
+        </div>
+      </div>
+    `;
+  });
+  
+  }
 
     renderSchedule(today);
 
