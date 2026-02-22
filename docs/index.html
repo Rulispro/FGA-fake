@@ -211,10 +211,7 @@ body{flex-direction:column;}
 <select id="accountFilter">
 <option value="all">Semua Akun</option>
 </select>
-
 <input type="date" id="dateFilter">
-
-<input class="search" id="searchBox" placeholder="Cari group...">
 </div>
 
 <div id="list"></div>
@@ -263,7 +260,6 @@ fetch("data.json?"+Date.now())
 const container=document.getElementById("list");
 const dropdown=document.getElementById("accountFilter");
 const dateInput=document.getElementById("dateFilter");
-const search=document.getElementById("searchBox");
 
 dateInput.value=new Date().toISOString().slice(0,10);
 
@@ -295,11 +291,7 @@ const filtered=data.filter(item=>{
 const acc=dropdown.value==="all"||item.account===dropdown.value;
 const date=!dateInput.value||item.tanggal===dateInput.value;
 
-const searchMatch=item.group_name
-.toLowerCase()
-.includes(search.value.toLowerCase());
-
-return acc&&date&&searchMatch;
+return acc && date;
 });
 
 if(!filtered.length){
@@ -324,7 +316,7 @@ render();
 
 dropdown.addEventListener("change",render);
 dateInput.addEventListener("change",render);
-search.addEventListener("input",render);
+
 
 });
 
