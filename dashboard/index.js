@@ -10,6 +10,9 @@ const StealthPlugin = require("puppeteer-extra-plugin-stealth");
 const { PuppeteerScreenRecorder } = require("puppeteer-screen-recorder");
 
 puppeteer.use(StealthPlugin())
+const groupsDB = JSON.parse(
+  fs.readFileSync("./groups.json", "utf8")
+);
 //$BARU
 const docsDir = path.join(__dirname, "docs");
 let docsData = [];
@@ -2200,7 +2203,9 @@ async function runAccount(page, row, accountName, today) {
     
   for (let i = 0; i < groups.length; i++) {
     let groupUrl = groups[i];
-   
+    
+    const groupData = groupsDB[groupUrl] || {};
+
     console.log(`\n📌 [${account}] Grup ${i + 1}/${groups.length}`);
     console.log(`➡️ ${groupUrl}`);
     
@@ -2251,8 +2256,8 @@ async function runAccount(page, row, accountName, today) {
   //group_name: groupInfo.name,
  // group_photo: groupInfo.photo,
    ///===INI JIKA TANPA SCRAPE===//
-  group_name: groupUrl,
-  group_photo: null,
+  group_name: groupData.name || groupUrl,
+  group_photo: groupData.photo || null,
   caption: row.caption,
   delay_group: row.delay_grup,
   delay_akun: row.delay_akun,
