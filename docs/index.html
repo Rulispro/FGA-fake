@@ -213,161 +213,183 @@ animation:skeleton 1.2s infinite;
 
 <script>
 
-/* NAVIGATION */
+/* =========================
+   ELEMENT BINDING (WAJIB)
+========================= */
+
+const resultPage = document.getElementById("resultPage");
+const schedulePage = document.getElementById("schedulePage");
+
+const accountFilter = document.getElementById("accountFilter");
+const dateFilter = document.getElementById("dateFilter");
+const searchBox = document.getElementById("searchBox");
+
+const totalPost = document.getElementById("totalPost");
+const totalGroup = document.getElementById("totalGroup");
+const totalAccount = document.getElementById("totalAccount");
+
+const calendar = document.getElementById("calendar");
+const scheduleAccountFilter =
+document.getElementById("scheduleAccountFilter");
+
+const container = document.getElementById("resultContainer");
+
+
+/* =========================
+   NAVIGATION
+========================= */
 
 function showPage(page){
-resultPage.style.display=page==="result"?"block":"none";
-schedulePage.style.display=page==="schedule"?"block":"none";
+
+if(page==="result"){
+resultPage.style.display="block";
+schedulePage.style.display="none";
+}else{
+resultPage.style.display="none";
+schedulePage.style.display="block";
 }
 
-/* ================= RESULT ================= */
+}
 
-const container=document.getElementById("list");
 
-/* SKELETON */
-container.innerHTML=
-Array(6).fill('<div class="skeleton"></div>').join('');
+/* =========================
+   SKELETON LOADING
+========================= */
 
-fetch("data.json?"+Date.now(),{cache:"no-store"})
-.then(r=>r.json())
-.then(data=>{
-
-const dropdown=accountFilter;
-const dateInput=dateFilter;
-const search=searchBox;
-
-dateInput.value=new Date().toISOString().slice(0,10);
-
-[...new Set(data.map(i=>i.account))]
-.forEach(acc=>{
-const o=document.createElement("option");
-o.value=acc;
-o.textContent=acc;
-dropdown.appendChild(o);
-});
-
-totalPost.textContent=data.length;
-totalGroup.textContent=new Set(data.map(i=>i.group_name)).size;
-totalAccount.textContent=new Set(data.map(i=>i.account)).size;
-
-function render(){
-
-container.style.opacity=0;
-
-setTimeout(()=>{
+function showSkeleton(){
 
 container.innerHTML="";
 
-const filtered=data.filter(item=>{
-
-const acc=dropdown.value==="all"||item.account===dropdown.value;
-const date=!dateInput.value||item.tanggal===dateInput.value;
-const searchMatch=item.group_name.toLowerCase()
-.includes(search.value.toLowerCase());
-
-return acc&&date&&searchMatch;
-});
-
-if(!filtered.length){
-container.innerHTML=`<div class="empty">Tidak ada posting.</div>`;
-}else{
-
-filtered.forEach((item,index)=>{
-container.innerHTML+=`
-<div class="card" style="animation-delay:${index*80}ms">
-<img src="${item.group_photo||'https://via.placeholder.com/70'}" class="group-img">
-<div>
-<div class="group-name">${item.group_name}</div>
-<div class="caption">${item.caption}</div>
-</div>
-</div>`;
-});
+for(let i=0;i<6;i++){
+const sk=document.createElement("div");
+sk.className="card skeleton";
+container.appendChild(sk);
 }
 
-container.style.opacity=1;
-
-},120);
 }
 
-render();
 
-dropdown.onchange=render;
-dateInput.onchange=render;
-search.oninput=render;
+/* =========================
+   LOAD DATA
+========================= */
 
-});
+async function loadData(){
 
-/* ================= SCHEDULE ================= */
+showSkeleton();
 
-const scheduleContainer=document.getElementById("schedule-list");
+try{
 
-scheduleContainer.innerHTML=
-Array(6).fill('<div class="skeleton"></div>').join('');
+const res = await fetch("data.json");
+const data = await res.json();
 
-fetch("schedule.json?"+Date.now(),{cache:"no-store"})
-.then(r=>r.json())
-.then(scheduleData=>{
+renderData(data);
 
-calendar.value=new Date().toISOString().slice(0,10);
+}catch(err){
 
-const allItems=Object.values(scheduleData).flat();
+container.innerHTML=
+"<p style='color:red'>Gagal load data</p>";
 
-[...new Set(allItems.map(i=>i.account))]
-.forEach(acc=>{
-const o=document.createElement("option");
-o.value=acc;
-o.textContent=acc;
-scheduleAccountFilter.appendChild(o);
-});
+}
 
-function renderSchedule(){
+}
 
-scheduleContainer.style.opacity=0;
 
+/* =========================
+   RENDER DATA
+========================= */
+
+function renderData(data){
+
+container.innerHTML="";
+
+let accounts=new Set();
+let groups=new Set();
+
+data.forEach((item,index)=>{
+
+accounts.add(item.account);
+groups.add(item.group);
+
+const card=document.createElement("div");
+card.className="card";
+
+card.style.opacity="0";
+card.style.transform="translateY(20px)";
+
+card.innerHTML=`
+
+<h3>${item.group}</h3>
+<p>${item.account}</p>
+<p>${item.date}</p>
+
+`;
+
+container.appendChild(card);
+
+/* CARD MASUK SATU SATU */
 setTimeout(()=>{
-
-scheduleContainer.innerHTML="";
-
-const date=calendar.value;
-
-if(!scheduleData[date]){
-scheduleContainer.innerHTML=`<div class="empty">Tidak ada jadwal.</div>`;
-scheduleContainer.style.opacity=1;
-return;
-}
-
-const filtered=scheduleData[date].filter(i=>
-scheduleAccountFilter.value==="all"||
-i.account===scheduleAccountFilter.value
-);
-
-if(!filtered.length){
-scheduleContainer.innerHTML=`<div class="empty">Tidak ada jadwal akun ini.</div>`;
-}else{
-
-filtered.forEach((item,index)=>{
-scheduleContainer.innerHTML+=`
-<div class="card" style="animation-delay:${index*80}ms">
-<img src="${item.group_photo||'https://via.placeholder.com/70'}" class="group-img">
-<div>
-<div class="group-name">${item.group_name}</div>
-<div class="caption">${item.caption}</div>
-</div>
-</div>`;
-});
-}
-
-scheduleContainer.style.opacity=1;
-
-},120);
-}
-
-renderSchedule();
-
-calendar.onchange=renderSchedule;
-scheduleAccountFilter.onchange=renderSchedule;
+card.style.transition="0.4s ease";
+card.style.opacity="1";
+card.style.transform="translateY(0)";
+},index*120);
 
 });
+
+
+/* =========================
+   UPDATE STATS
+========================= */
+
+totalPost.textContent=data.length;
+totalGroup.textContent=groups.size;
+totalAccount.textContent=accounts.size;
+
+}
+
+
+/* =========================
+   FILTER (REALTIME)
+========================= */
+
+function applyFilter(){
+
+const account=accountFilter.value.toLowerCase();
+const keyword=searchBox.value.toLowerCase();
+
+const cards=document.querySelectorAll(".card");
+
+cards.forEach(card=>{
+
+const text=card.innerText.toLowerCase();
+
+const matchAccount=
+!account || text.includes(account);
+
+const matchSearch=
+!keyword || text.includes(keyword);
+
+card.style.display=
+(matchAccount && matchSearch)
+?"block":"none";
+
+});
+
+}
+
+
+/* =========================
+   EVENT LISTENER
+========================= */
+
+accountFilter?.addEventListener("change",applyFilter);
+searchBox?.addEventListener("input",applyFilter);
+
+
+/* =========================
+   INIT
+========================= */
+
+loadData();
 
 </script>
 
