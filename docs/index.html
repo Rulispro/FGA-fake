@@ -91,7 +91,12 @@ select, input[type="date"] {
 
 <!-- ================== JADWAL SCHEDULE ================== -->
 <div class="section-title">📅 Jadwal Posting (Dari Excel)</div>
-<input type="date" id="calendar">
+<div class="filters">
+  <select id="scheduleAccountFilter">
+    <option value="all">Semua Akun</option>
+  </select>
+  <input type="date" id="calendar">
+</div>
 <div id="schedule-list"></div>
 
 <script>
@@ -149,41 +154,66 @@ fetch("data.json?nocache=" + new Date().getTime())
 
 // ======================== SCHEDULE.JSON ========================
 fetch("schedule.json?nocache=" + new Date().getTime())
-  .then(res => res.json())
-  .then(scheduleData => {
-    const calendar = document.getElementById("calendar");
-    const list = document.getElementById("schedule-list");
+.then(scheduleData => {
 
-    const today = new Date().toISOString().slice(0, 10);
-    calendar.value = today;
+  const calendar = document.getElementById("calendar");
+  const list = document.getElementById("schedule-list");
+  const accountFilter = document.getElementById("scheduleAccountFilter");
 
-    function renderSchedule(date) {
-      list.innerHTML = "";
+  const today = new Date().toISOString().slice(0,10);
+  calendar.value = today;
 
-      if (!scheduleData[date]) {
-        list.innerHTML = `<div class="empty">Tidak ada jadwal di tanggal ini.</div>`;
-        return;
-      }
-     scheduleData[date].forEach(item => {
-    list.innerHTML += `
-      <div class="card">
-        <img src="${item.group_photo || 'https://via.placeholder.com/70'}" class="group-img">
-        <div class="group-info">
-          <div class="group-name">${item.group_name}</div>
-          <div class="caption">${item.caption}</div>
-        </div>
-      </div>
-    `;
+  // ambil semua akun dari schedule
+  const allItems = Object.values(scheduleData).flat();
+  const accounts = [...new Set(allItems.map(i => i.account))];
+
+  accounts.forEach(acc => {
+    const opt = document.createElement("option");
+    opt.value = acc;
+    opt.textContent = acc;
+    accountFilter.appendChild(opt);
   });
-  
+
+  function renderSchedule() {
+
+    const date = calendar.value;
+    const selectedAccount = accountFilter.value;
+
+    list.innerHTML = "";
+
+    if (!scheduleData[date]) {
+      list.innerHTML = `<div class="empty">Tidak ada jadwal di tanggal ini.</div>`;
+      return;
+    }
+
+    const filtered = scheduleData[date].filter(item =>
+      selectedAccount === "all" || item.account === selectedAccount
+    );
+
+    if (filtered.length === 0) {
+      list.innerHTML = `<div class="empty">Tidak ada jadwal untuk akun ini.</div>`;
+      return;
+    }
+
+    filtered.forEach(item => {
+      list.innerHTML += `
+        <div class="card">
+          <img src="${item.group_photo || 'https://via.placeholder.com/70'}" class="group-img">
+          <div class="group-info">
+            <div class="group-name">${item.group_name}</div>
+            <div class="caption">${item.caption}</div>
+          </div>
+        </div>
+      `;
+    });
   }
 
-    renderSchedule(today);
+  renderSchedule();
 
-    calendar.addEventListener("change", function() {
-      renderSchedule(this.value);
-    });
-  });
+  calendar.addEventListener("change", renderSchedule);
+  accountFilter.addEventListener("change", renderSchedule);
+});
+
 </script>
 
 </body>
