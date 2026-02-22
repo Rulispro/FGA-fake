@@ -8,14 +8,14 @@ puppeteer.use(StealthPlugin());
 // ===============================
 // RANDOM DELAY
 // ===============================
-function randomDelay(min = 2000, max = 5000) {
+function randomDelay(min = 2000, max = 7000) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 (async () => {
 
 let scrapeCount = 0;
-const MAX_SCRAPE_PER_RUN = 10;
+const MAX_SCRAPE_PER_RUN = 20;
 
 // ===============================
 // READ EXCEL
