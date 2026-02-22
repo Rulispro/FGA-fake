@@ -8,7 +8,7 @@ puppeteer.use(StealthPlugin());
 // ===============================
 // RANDOM DELAY
 // ===============================
-function randomDelay(min = 2000, max = 7000) {
+function randomDelay(min = 2000, max = 9000) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
