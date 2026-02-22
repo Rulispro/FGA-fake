@@ -2161,7 +2161,7 @@ function readTemplate(file) {
 
 //--FUNGSI RUN ACCOUNT--//
 
-async function runAccount(page, row, accountName, today) {
+async function runAccount(page, row) {//, accountName, today) {
  console.log("\n🧪 runAccount row:", row);
   const account = row.account;
   const caption = row.caption;
@@ -2224,36 +2224,36 @@ async function runAccount(page, row, accountName, today) {
     // DEBUG SETELAH PAGE SIAP
     //BARU YANG PAKAI DOLAR
 // ambil info grup DI SINI
-const groupInfo = await page.evaluate(() => {
-  const rawTitle = document.title || "Unknown Group";
+//const groupInfo = await page.evaluate(() => {
+ // const rawTitle = document.title || "Unknown Group";
 
-  const name = rawTitle
-    .replace(/\s*\|\s*Facebook/i, "")
-    .trim();
+ // const name = rawTitle
+   // .replace(/\s*\|\s*Facebook/i, "")
+ //   .trim();
   
-  const img =
-    document.querySelector('img[src*="scontent"]') ||
-    document.querySelector("img");
+ // const img =
+   /// document.querySelector('img[src*="scontent"]') ||
+   /// document.querySelector("img");
 
-  return {
-    name: name,
-    photo: img ? img.src : null
-  };
-});
+///  return {
+  ///  name: name,
+  ////  photo: img ? img.src : null
+ /// };
+///});
 
 // push 
-docsData.push({
-  account: row.account,
-  tanggal: today,
-  mode: "group",
-  group_link: groupUrl,
-  group_name: groupInfo.name,
-  group_photo: groupInfo.photo,
-  caption: row.caption,
-  delay_group: row.delay_grup,
-  delay_akun: row.delay_akun,
-  status: "done"
-});
+///docsData.push({
+////  account: row.account,
+ //// tanggal: today,
+///  mode: "group",
+//  group_link: groupUrl,
+ // group_name: groupInfo.name,
+///  group_photo: groupInfo.photo,
+ /// caption: row.caption,
+///  delay_group: row.delay_grup,
+//  delay_akun: row.delay_akun,
+ /// status: "done"
+////});
     //$ SAMPAI SINI
 
   await page.evaluate(() => {
@@ -3094,12 +3094,12 @@ else if (mode === "group") {
   console.log("📌 MODE GROUP");
 
  //lama tapi jalan
-  //for(const row of rowsForAccount) {
-    //await runAccount(page, row);
+  for(const row of rowsForAccount) {
+    await runAccount(page, row);
 //  }
 ///$BARU YANG PAKAI DOLAR
-  for (const row of rowsForAccount) {
-  await runAccount(page, row, acc.account || acc.username, today);
+  //for (const row of rowsForAccount) {
+  //await runAccount(page, row acc.account || acc.username, today);
     
   }
 }
