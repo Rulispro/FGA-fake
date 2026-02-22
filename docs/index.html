@@ -93,16 +93,30 @@ border-radius:8px;
 
 /* ================= CARD ================= */
 
+/* ================= CARD ANIMATION ================= */
+
 .card{
-display:flex;
-align-items:center;
-background:#101010;
-padding:15px;
-border-radius:14px;
-margin-bottom:12px;
-transition:.3s;
-border:1px solid #1f1f1f;
+  display:flex;
+  align-items:center;
+  background:rgba(30,30,30,.7);
+  backdrop-filter:blur(14px);
+  padding:15px;
+  border-radius:14px;
+  margin-bottom:14px;
+  border:1px solid rgba(255,255,255,.05);
+
+  opacity:0;
+  transform:translateY(20px) scale(.98);
+  animation:cardReveal .5s ease forwards;
 }
+
+@keyframes cardReveal{
+  to{
+    opacity:1;
+    transform:translateY(0) scale(1);
+  }
+}
+
 
 .card:hover{
 transform:translateY(-3px);
@@ -269,9 +283,9 @@ container.innerHTML=`<div class="empty">Tidak ada posting.</div>`;
 return;
 }
 
-filtered.forEach(item=>{
+filtered.forEach((item,index)=>{
 container.innerHTML+=`
-<div class="card">
+<div class="card" style="animation-delay:${index*0.05}s">
 <img src="${item.group_photo||'https://via.placeholder.com/70'}" class="group-img">
 <div>
 <div class="group-name">${item.group_name}</div>
@@ -334,9 +348,9 @@ list.innerHTML=`<div class="empty">Tidak ada jadwal akun ini.</div>`;
 return;
 }
 
-filtered.forEach(item=>{
+filtered.forEach((item,index)=>{
 list.innerHTML+=`
-<div class="card">
+<div class="card" style="animation-delay:${index*0.05}s"
 <img src="${item.group_photo||'https://via.placeholder.com/70'}" class="group-img">
 <div>
 <div class="group-name">${item.group_name}</div>
