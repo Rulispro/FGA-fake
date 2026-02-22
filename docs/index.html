@@ -14,9 +14,10 @@ background:#070707;
 color:white;
 display:flex;
 min-height:100vh;
+overflow-x:hidden;
 }
 
-/* SIDEBAR */
+/* ================= SIDEBAR ================= */
 
 .sidebar{
 width:230px;
@@ -39,15 +40,21 @@ padding:12px;
 border-radius:10px;
 cursor:pointer;
 margin-bottom:10px;
+transition:.3s;
 }
 
-.menu div:hover{background:#1b1b1b;}
+.menu div:hover{
+background:#1b1b1b;
+}
 
-/* MAIN */
+/* ================= MAIN ================= */
 
-.main{flex:1;padding:25px;}
+.main{
+flex:1;
+padding:25px;
+}
 
-/* STATS */
+/* ================= STATS ================= */
 
 .stats{
 display:flex;
@@ -64,17 +71,19 @@ border-radius:14px;
 border:1px solid #222;
 }
 
+.stat h3{opacity:.7;font-size:14px;}
 .stat span{font-size:26px;font-weight:bold;}
 
-/* FILTER */
+/* ================= FILTER ================= */
 
 .filters{
 display:flex;
 gap:12px;
 margin-bottom:20px;
+flex-wrap:wrap;
 }
 
-select{
+select,input{
 background:#141414;
 border:none;
 color:white;
@@ -82,24 +91,50 @@ padding:10px;
 border-radius:8px;
 }
 
-/* CARD */
+/* ================= CARD ================= */
 
 .card{
+display:flex;
+align-items:center;
 background:#101010;
 padding:15px;
 border-radius:14px;
 margin-bottom:12px;
+transition:.3s;
 border:1px solid #1f1f1f;
-opacity:0;
-transform:translateY(20px);
-animation:cardIn .4s ease forwards;
 }
 
-@keyframes cardIn{
-to{
-opacity:1;
-transform:translateY(0);
+.card:hover{
+transform:translateY(-3px);
+background:#181818;
 }
+
+.group-img{
+width:65px;
+height:65px;
+border-radius:12px;
+margin-right:15px;
+object-fit:cover;
+}
+
+.group-name{font-weight:bold;}
+.caption{opacity:.7;font-size:14px;}
+
+.section-title{
+margin:25px 0 12px;
+font-size:20px;
+}
+
+.empty{opacity:.5;margin-top:20px;}
+
+.search{
+width:220px;
+}
+
+/* MOBILE */
+@media(max-width:900px){
+.sidebar{display:none;}
+body{flex-direction:column;}
 }
 
 </style>
@@ -117,149 +152,211 @@ transform:translateY(0);
 </div>
 </div>
 
+
 <!-- MAIN -->
 <div class="main">
 
+<!-- ===== STATS ===== -->
 <div class="stats">
 <div class="stat"><h3>Total Posting</h3><span id="totalPost">0</span></div>
+<div class="stat"><h3>Total Group</h3><span id="totalGroup">0</span></div>
 <div class="stat"><h3>Akun Aktif</h3><span id="totalAccount">0</span></div>
 </div>
 
-<!-- RESULT -->
+
+<!-- ================= HASIL ================= -->
 <div id="resultPage">
+
+<div class="section-title">📌 Hasil Posting</div>
 
 <div class="filters">
 <select id="accountFilter">
 <option value="all">Semua Akun</option>
 </select>
+
+<input type="date" id="dateFilter">
+
+<input class="search" id="searchBox" placeholder="Cari group...">
 </div>
 
 <div id="list"></div>
 
 </div>
 
-<!-- SCHEDULE -->
+
+<!-- ================= SCHEDULE ================= -->
 <div id="schedulePage" style="display:none">
-<h2>Schedule Coming Soon...</h2>
+
+<div class="section-title">📅 Jadwal Posting</div>
+
+<div class="filters">
+<select id="scheduleAccountFilter">
+<option value="all">Semua Akun</option>
+</select>
+
+<input type="date" id="calendar">
+</div>
+
+<div id="schedule-list"></div>
+
 </div>
 
 </div>
 
 <script>
 
-const resultPage=document.getElementById("resultPage");
-const schedulePage=document.getElementById("schedulePage");
-
-const accountFilter=document.getElementById("accountFilter");
-
-const totalPost=document.getElementById("totalPost");
-const totalAccount=document.getElementById("totalAccount");
-
-const container=document.getElementById("list");
-
-
-/* NAVIGATION */
+/* ================= NAVIGATION ================= */
 
 function showPage(page){
-if(page==="result"){
-resultPage.style.display="block";
-schedulePage.style.display="none";
-}else{
-resultPage.style.display="none";
-schedulePage.style.display="block";
-}
+document.getElementById("resultPage").style.display=
+page==="result"?"block":"none";
+
+document.getElementById("schedulePage").style.display=
+page==="schedule"?"block":"none";
 }
 
 
-/* LOAD DATA */
+/* ================= RESULT ================= */
 
-async function loadData(){
+fetch("data.json?"+Date.now())
+.then(r=>r.json())
+.then(data=>{
 
-container.innerHTML="Loading...";
+const container=document.getElementById("list");
+const dropdown=document.getElementById("accountFilter");
+const dateInput=document.getElementById("dateFilter");
+const search=document.getElementById("searchBox");
 
-try{
+dateInput.value=new Date().toISOString().slice(0,10);
 
-const res=await fetch("data.json");
-const data=await res.json();
+/* dropdown akun */
+[...new Set(data.map(i=>i.account))]
+.forEach(acc=>{
+const o=document.createElement("option");
+o.value=acc;
+o.textContent=acc;
+dropdown.appendChild(o);
+});
 
-renderData(data);
+/* stats */
+document.getElementById("totalPost").textContent=data.length;
 
-}catch{
-container.innerHTML="<p style='color:red'>Gagal load data</p>";
-}
+document.getElementById("totalGroup").textContent=
+new Set(data.map(i=>i.group_name)).size;
 
-}
+document.getElementById("totalAccount").textContent=
+new Set(data.map(i=>i.account)).size;
 
 
-/* RENDER */
-
-function renderData(data){
+function render(){
 
 container.innerHTML="";
 
-let accounts=new Set();
+const filtered=data.filter(item=>{
 
-/* isi dropdown akun */
-accountFilter.innerHTML=
-`<option value="all">Semua Akun</option>`;
+const acc=dropdown.value==="all"||item.account===dropdown.value;
+const date=!dateInput.value||item.tanggal===dateInput.value;
 
-data.forEach((item,index)=>{
+const searchMatch=item.group_name
+.toLowerCase()
+.includes(search.value.toLowerCase());
 
-accounts.add(item.account);
-
-const card=document.createElement("div");
-card.className="card";
-
-card.innerHTML=`
-<h3>Posting Berhasil</h3>
-<p>Akun : ${item.account}</p>
-<p>Tanggal : ${item.date}</p>
-`;
-
-container.appendChild(card);
-
+return acc&&date&&searchMatch;
 });
 
-/* dropdown akun */
-accounts.forEach(acc=>{
-const opt=document.createElement("option");
-opt.value=acc.toLowerCase();
-opt.textContent=acc;
-accountFilter.appendChild(opt);
-});
+if(!filtered.length){
+container.innerHTML=`<div class="empty">Tidak ada posting.</div>`;
+return;
+}
 
-totalPost.textContent=data.length;
-totalAccount.textContent=accounts.size;
+filtered.forEach(item=>{
+container.innerHTML+=`
+<div class="card">
+<img src="${item.group_photo||'https://via.placeholder.com/70'}" class="group-img">
+<div>
+<div class="group-name">${item.group_name}</div>
+<div class="caption">${item.caption}</div>
+</div>
+</div>`;
+});
 
 }
 
+render();
 
-/* FILTER */
-
-accountFilter.addEventListener("change",()=>{
-
-const value=accountFilter.value.toLowerCase();
-const cards=document.querySelectorAll(".card");
-
-cards.forEach(card=>{
-
-const text=card.innerText.toLowerCase();
-
-card.style.display=
-(value==="all" || text.includes(value))
-?"block":"none";
-
-});
+dropdown.addEventListener("change",render);
+dateInput.addEventListener("change",render);
+search.addEventListener("input",render);
 
 });
 
 
-/* INIT */
+/* ================= SCHEDULE ================= */
 
-loadData();
+fetch("schedule.json?"+Date.now())
+.then(r=>r.json())
+.then(scheduleData=>{
+
+const calendar=document.getElementById("calendar");
+const list=document.getElementById("schedule-list");
+const accountFilter=document.getElementById("scheduleAccountFilter");
+
+calendar.value=new Date().toISOString().slice(0,10);
+
+const allItems=Object.values(scheduleData).flat();
+
+[...new Set(allItems.map(i=>i.account))]
+.forEach(acc=>{
+const o=document.createElement("option");
+o.value=acc;
+o.textContent=acc;
+accountFilter.appendChild(o);
+});
+
+function renderSchedule(){
+
+list.innerHTML="";
+
+const date=calendar.value;
+
+if(!scheduleData[date]){
+list.innerHTML=`<div class="empty">Tidak ada jadwal.</div>`;
+return;
+}
+
+const filtered=scheduleData[date].filter(i=>
+accountFilter.value==="all"||
+i.account===accountFilter.value
+);
+
+if(!filtered.length){
+list.innerHTML=`<div class="empty">Tidak ada jadwal akun ini.</div>`;
+return;
+}
+
+filtered.forEach(item=>{
+list.innerHTML+=`
+<div class="card">
+<img src="${item.group_photo||'https://via.placeholder.com/70'}" class="group-img">
+<div>
+<div class="group-name">${item.group_name}</div>
+<div class="caption">${item.caption}</div>
+</div>
+</div>`;
+});
+
+}
+
+renderSchedule();
+
+calendar.addEventListener("change",renderSchedule);
+accountFilter.addEventListener("change",renderSchedule);
+
+});
 
 </script>
 
+
+
 </body>
-   </html>
-   
+</html>
