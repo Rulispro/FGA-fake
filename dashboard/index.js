@@ -3060,9 +3060,9 @@ else if (mode === "group") {
   console.log("📌 MODE GROUP");
 
  //lama tapi jalan
-//  for(const row of rowsForAccount) {
-   // await runAccount(page, row);
-//  }
+ for(const row of rowsForAccount) {
+   await runAccount(page, row);
+ }
 ///$BARU YANG PAKAI DOLAR
   //for (const row of rowsForAccount) {
   //await runAccount(page, row acc.account || acc.username, today);
