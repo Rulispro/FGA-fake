@@ -5,73 +5,121 @@
 <title>Dashboard Bot</title>
 
 <style>
-body {
-  font-family: Arial, sans-serif;
-  background: #111;
-  color: white;
-  padding: 20px;
+
+*{box-sizing:border-box;}
+
+body{
+  font-family:system-ui,Arial;
+  background:radial-gradient(circle at top,#1a1a1a,#090909);
+  color:white;
+  padding:20px;
+  animation:fadePage .6s ease;
 }
 
-h2 {
-  margin-bottom: 10px;
+@keyframes fadePage{
+  from{opacity:0;transform:translateY(10px)}
+  to{opacity:1;transform:translateY(0)}
 }
 
-.section-title {
-  margin-top: 40px;
-  margin-bottom: 10px;
-  font-size: 18px;
-  opacity: 0.8;
+h2{
+  font-size:26px;
+  background:linear-gradient(90deg,#00ffd5,#4da3ff);
+  -webkit-background-clip:text;
+  color:transparent;
 }
 
-.filters {
-  display: flex;
-  gap: 15px;
-  margin-bottom: 20px;
+/* ===== SECTION ===== */
+.section-title{
+  margin-top:40px;
+  margin-bottom:12px;
+  font-size:18px;
+  opacity:.8;
 }
 
-select, input[type="date"] {
-  padding: 10px;
-  border-radius: 8px;
-  font-size: 16px;
-  border: none;
+/* ===== FILTER ===== */
+.filters{
+  display:flex;
+  gap:12px;
+  margin-bottom:20px;
 }
 
-.card {
-  display: flex;
-  align-items: center;
-  background: #1e1e1e;
-  padding: 15px;
-  border-radius: 12px;
-  margin-bottom: 15px;
+select,input[type="date"]{
+  padding:10px 14px;
+  border-radius:10px;
+  border:none;
+  background:#1e1e1e;
+  color:white;
+  transition:.3s;
 }
 
-.group-img {
-  width: 70px;
-  height: 70px;
-  object-fit: cover;
-  border-radius: 10px;
-  margin-right: 15px;
+select:hover,input:hover{
+  background:#2a2a2a;
 }
 
-.group-info {
-  flex: 1;
+/* ===== CARD ===== */
+.card{
+  display:flex;
+  align-items:center;
+  background:rgba(30,30,30,.7);
+  backdrop-filter:blur(10px);
+  padding:15px;
+  border-radius:14px;
+  margin-bottom:15px;
+  border:1px solid rgba(255,255,255,.05);
+
+  transform:translateY(10px);
+  opacity:0;
+  animation:cardIn .4s ease forwards;
 }
 
-.group-name {
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 5px;
+.card:hover{
+  transform:translateY(-4px) scale(1.01);
+  background:#242424;
+  box-shadow:0 10px 25px rgba(0,0,0,.6);
 }
 
-.caption {
-  font-size: 14px;
-  opacity: 0.8;
+@keyframes cardIn{
+  to{transform:translateY(0);opacity:1;}
 }
 
-.empty {
-  opacity: 0.6;
-  margin-top: 20px;
+/* IMAGE */
+.group-img{
+  width:70px;
+  height:70px;
+  object-fit:cover;
+  border-radius:12px;
+  margin-right:15px;
+  transition:.3s;
 }
+
+.card:hover .group-img{
+  transform:scale(1.05);
+}
+
+/* INFO */
+.group-info{flex:1;}
+
+.group-name{
+  font-size:18px;
+  font-weight:bold;
+  margin-bottom:6px;
+}
+
+.caption{
+  font-size:14px;
+  opacity:.75;
+}
+
+.empty{
+  opacity:.5;
+  margin-top:20px;
+}
+
+/* SMOOTH RELOAD */
+#list,#schedule-list{
+  transition:.3s;
+}
+
 </style>
 </head>
 
@@ -79,143 +127,170 @@ select, input[type="date"] {
 
 <h2>🤖 Dashboard Bot</h2>
 
-<!-- ================== HASIL POSTING ================== -->
+<!-- ================= HASIL POSTING ================= -->
 <div class="section-title">📌 Hasil Posting</div>
+
 <div class="filters">
-  <select id="accountFilter">
-    <option value="all">Semua Akun</option>
-  </select>
-  <input type="date" id="dateFilter">
+<select id="accountFilter">
+<option value="all">Semua Akun</option>
+</select>
+
+<input type="date" id="dateFilter">
 </div>
+
 <div id="list"></div>
 
-<!-- ================== JADWAL SCHEDULE ================== -->
+
+<!-- ================= SCHEDULE ================= -->
 <div class="section-title">📅 Jadwal Posting (Dari Excel)</div>
+
 <div class="filters">
-  <select id="scheduleAccountFilter">
-    <option value="all">Semua Akun</option>
-  </select>
-  <input type="date" id="calendar">
+<select id="scheduleAccountFilter">
+<option value="all">Semua Akun</option>
+</select>
+
+<input type="date" id="calendar">
 </div>
+
 <div id="schedule-list"></div>
 
+
 <script>
+
 // ======================== DATA.JSON ========================
-fetch("data.json?nocache=" + new Date().getTime())
-  .then(res => res.json())
-  .then(data => {
-    const container = document.getElementById("list");
-    const dropdown = document.getElementById("accountFilter");
-    const dateInput = document.getElementById("dateFilter");
+fetch("data.json?nocache="+Date.now())
+.then(res=>res.json())
+.then(data=>{
 
-    const today = new Date().toISOString().slice(0, 10);
-    dateInput.value = today;
+const container=document.getElementById("list");
+const dropdown=document.getElementById("accountFilter");
+const dateInput=document.getElementById("dateFilter");
 
-    const accounts = [...new Set(data.map(item => item.account))];
-    accounts.forEach(acc => {
-      const option = document.createElement("option");
-      option.value = acc;
-      option.textContent = acc;
-      dropdown.appendChild(option);
-    });
+const today=new Date().toISOString().slice(0,10);
+dateInput.value=today;
 
-    function render() {
-      container.innerHTML = "";
-      const selectedAccount = dropdown.value;
-      const selectedDate = dateInput.value;
-      const filtered = data.filter(item => {
-        const matchAccount = selectedAccount === "all" || item.account === selectedAccount;
-        const matchDate = !selectedDate || item.tanggal === selectedDate;
-        return matchAccount && matchDate;
-      });
+// dropdown akun
+[...new Set(data.map(i=>i.account))]
+.forEach(acc=>{
+ const opt=document.createElement("option");
+ opt.value=acc;
+ opt.textContent=acc;
+ dropdown.appendChild(opt);
+});
 
-      if (filtered.length === 0) {
-        container.innerHTML = `<div class="empty">Tidak ada postingan di tanggal ini.</div>`;
-        return;
-      }
+function render(){
 
-      filtered.forEach(item => {
-        container.innerHTML += `
-          <div class="card">
-            <img src="${item.group_photo || 'https://via.placeholder.com/70'}" class="group-img">
-            <div class="group-info">
-              <div class="group-name">${item.group_name}</div>
-              <div class="caption">${item.caption}</div>
-            </div>
-          </div>
-        `;
-      });
-    }
+container.style.opacity=0;
 
-    render();
-    dropdown.addEventListener("change", render);
-    dateInput.addEventListener("change", render);
-  });
+setTimeout(()=>{
+
+container.innerHTML="";
+
+const filtered=data.filter(item=>{
+ const matchAccount=dropdown.value==="all"||item.account===dropdown.value;
+ const matchDate=!dateInput.value||item.tanggal===dateInput.value;
+ return matchAccount&&matchDate;
+});
+
+if(!filtered.length){
+ container.innerHTML=`<div class="empty">Tidak ada postingan.</div>`;
+}else{
+ filtered.forEach(item=>{
+ container.innerHTML+=`
+ <div class="card">
+   <img src="${item.group_photo||'https://via.placeholder.com/70'}" class="group-img">
+   <div class="group-info">
+     <div class="group-name">${item.group_name}</div>
+     <div class="caption">${item.caption}</div>
+   </div>
+ </div>`;
+ });
+}
+
+container.style.opacity=1;
+
+},150);
+}
+
+render();
+dropdown.addEventListener("change",render);
+dateInput.addEventListener("change",render);
+
+});
+
 
 // ======================== SCHEDULE.JSON ========================
-fetch("schedule.json?nocache=" + new Date().getTime())
-   .then(res => res.json())
-   .then(scheduleData => {
+fetch("schedule.json?nocache="+Date.now())
+.then(res=>res.json())
+.then(scheduleData=>{
 
-  const calendar = document.getElementById("calendar");
-  const list = document.getElementById("schedule-list");
-  const accountFilter = document.getElementById("scheduleAccountFilter");
+const calendar=document.getElementById("calendar");
+const list=document.getElementById("schedule-list");
+const accountFilter=document.getElementById("scheduleAccountFilter");
 
-  const today = new Date().toISOString().slice(0,10);
-  calendar.value = today;
+const today=new Date().toISOString().slice(0,10);
+calendar.value=today;
 
-  // ambil semua akun dari schedule
-  const allItems = Object.values(scheduleData).flat();
-  const accounts = [...new Set(allItems.map(i => i.account))];
+// dropdown akun schedule
+const allItems=Object.values(scheduleData).flat();
+[...new Set(allItems.map(i=>i.account))]
+.forEach(acc=>{
+ const opt=document.createElement("option");
+ opt.value=acc;
+ opt.textContent=acc;
+ accountFilter.appendChild(opt);
+});
 
-  accounts.forEach(acc => {
-    const opt = document.createElement("option");
-    opt.value = acc;
-    opt.textContent = acc;
-    accountFilter.appendChild(opt);
-  });
+function renderSchedule(){
 
-  function renderSchedule() {
+list.style.opacity=0;
 
-    const date = calendar.value;
-    const selectedAccount = accountFilter.value;
+setTimeout(()=>{
 
-    list.innerHTML = "";
+list.innerHTML="";
 
-    if (!scheduleData[date]) {
-      list.innerHTML = `<div class="empty">Tidak ada jadwal di tanggal ini.</div>`;
-      return;
-    }
+const date=calendar.value;
 
-    const filtered = scheduleData[date].filter(item =>
-      selectedAccount === "all" || item.account === selectedAccount
-    );
+if(!scheduleData[date]){
+ list.innerHTML=`<div class="empty">Tidak ada jadwal.</div>`;
+ list.style.opacity=1;
+ return;
+}
 
-    if (filtered.length === 0) {
-      list.innerHTML = `<div class="empty">Tidak ada jadwal untuk akun ini.</div>`;
-      return;
-    }
+const filtered=scheduleData[date].filter(item=>
+ accountFilter.value==="all"||
+ item.account===accountFilter.value
+);
 
-    filtered.forEach(item => {
-      list.innerHTML += `
-        <div class="card">
-          <img src="${item.group_photo || 'https://via.placeholder.com/70'}" class="group-img">
-          <div class="group-info">
-            <div class="group-name">${item.group_name}</div>
-            <div class="caption">${item.caption}</div>
-          </div>
-        </div>
-      `;
-    });
-  }
+if(!filtered.length){
+ list.innerHTML=`<div class="empty">Tidak ada jadwal akun ini.</div>`;
+}else{
+ filtered.forEach(item=>{
+ list.innerHTML+=`
+ <div class="card">
+   <img src="${item.group_photo||'https://via.placeholder.com/70'}" class="group-img">
+   <div class="group-info">
+     <div class="group-name">${item.group_name}</div>
+     <div class="caption">${item.caption}</div>
+   </div>
+ </div>`;
+ });
+}
 
-  renderSchedule();
+list.style.opacity=1;
 
-  calendar.addEventListener("change", renderSchedule);
-  accountFilter.addEventListener("change", renderSchedule);
+},150);
+}
+
+renderSchedule();
+
+calendar.addEventListener("change",renderSchedule);
+accountFilter.addEventListener("change",renderSchedule);
+
 });
 
 </script>
 
 </body>
-</html>
+  </html>
+  
