@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Bot Dashboard Pro</title>
+<title>BOT DASHBOARD PRO</title>
 
 <style>
 
@@ -203,7 +203,6 @@ body{flex-direction:column;}
 
 </div>
 
-
 <script>
 
 /* ================= NAVIGATION ================= */
@@ -223,10 +222,10 @@ fetch("data.json?"+Date.now())
 .then(r=>r.json())
 .then(data=>{
 
-const container=list;
-const dropdown=accountFilter;
-const dateInput=dateFilter;
-const search=searchBox;
+const container=document.getElementById("list");
+const dropdown=document.getElementById("accountFilter");
+const dateInput=document.getElementById("dateFilter");
+const search=document.getElementById("searchBox");
 
 dateInput.value=new Date().toISOString().slice(0,10);
 
@@ -234,16 +233,18 @@ dateInput.value=new Date().toISOString().slice(0,10);
 [...new Set(data.map(i=>i.account))]
 .forEach(acc=>{
 const o=document.createElement("option");
-o.value=acc;o.textContent=acc;
+o.value=acc;
+o.textContent=acc;
 dropdown.appendChild(o);
 });
 
 /* stats */
-totalPost.textContent=data.length;
-totalGroup.textContent=
+document.getElementById("totalPost").textContent=data.length;
+
+document.getElementById("totalGroup").textContent=
 new Set(data.map(i=>i.group_name)).size;
 
-totalAccount.textContent=
+document.getElementById("totalAccount").textContent=
 new Set(data.map(i=>i.account)).size;
 
 
@@ -283,9 +284,9 @@ container.innerHTML+=`
 
 render();
 
-dropdown.onchange=render;
-dateInput.onchange=render;
-search.oninput=render;
+dropdown.addEventListener("change",render);
+dateInput.addEventListener("change",render);
+search.addEventListener("input",render);
 
 });
 
@@ -296,6 +297,10 @@ fetch("schedule.json?"+Date.now())
 .then(r=>r.json())
 .then(scheduleData=>{
 
+const calendar=document.getElementById("calendar");
+const list=document.getElementById("schedule-list");
+const accountFilter=document.getElementById("scheduleAccountFilter");
+
 calendar.value=new Date().toISOString().slice(0,10);
 
 const allItems=Object.values(scheduleData).flat();
@@ -303,28 +308,34 @@ const allItems=Object.values(scheduleData).flat();
 [...new Set(allItems.map(i=>i.account))]
 .forEach(acc=>{
 const o=document.createElement("option");
-o.value=acc;o.textContent=acc;
-scheduleAccountFilter.appendChild(o);
+o.value=acc;
+o.textContent=acc;
+accountFilter.appendChild(o);
 });
 
 function renderSchedule(){
 
-scheduleList.innerHTML="";
+list.innerHTML="";
 
 const date=calendar.value;
 
 if(!scheduleData[date]){
-scheduleList.innerHTML=`<div class="empty">Tidak ada jadwal.</div>`;
+list.innerHTML=`<div class="empty">Tidak ada jadwal.</div>`;
 return;
 }
 
 const filtered=scheduleData[date].filter(i=>
-scheduleAccountFilter.value==="all"||
-i.account===scheduleAccountFilter.value
+accountFilter.value==="all"||
+i.account===accountFilter.value
 );
 
+if(!filtered.length){
+list.innerHTML=`<div class="empty">Tidak ada jadwal akun ini.</div>`;
+return;
+}
+
 filtered.forEach(item=>{
-scheduleList.innerHTML+=`
+list.innerHTML+=`
 <div class="card">
 <img src="${item.group_photo||'https://via.placeholder.com/70'}" class="group-img">
 <div>
@@ -338,12 +349,14 @@ scheduleList.innerHTML+=`
 
 renderSchedule();
 
-calendar.onchange=renderSchedule;
-scheduleAccountFilter.onchange=renderSchedule;
+calendar.addEventListener("change",renderSchedule);
+accountFilter.addEventListener("change",renderSchedule);
 
 });
 
 </script>
+
+
 
 </body>
 </html>
