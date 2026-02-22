@@ -5,6 +5,9 @@
 <title>BOT DASHBOARD PRO</title>
 
 <style>
+html{
+  scroll-behavior:smooth;
+}
 
 *{margin:0;padding:0;box-sizing:border-box;}
 
@@ -15,6 +18,11 @@ color:white;
 display:flex;
 min-height:100vh;
 overflow-x:hidden;
+}
+
+body{
+  background:
+  radial-gradient(circle at 20% 20%,#1f1f1f,#070707);
 }
 
 /* ================= SIDEBAR ================= */
@@ -119,17 +127,33 @@ border-radius:8px;
 
 
 .card:hover{
-transform:translateY(-3px);
-background:#181818;
+  transform:translateY(-5px) scale(1.01);
+  box-shadow:
+     0 0 0 1px rgba(255,255,255,.05),
+     0 10px 35px rgba(0,0,0,.7),
+     0 0 25px rgba(0,255,213,.15);
 }
 
+
 .group-img{
-width:65px;
-height:65px;
-border-radius:12px;
-margin-right:15px;
-object-fit:cover;
+  width:70px;
+  height:70px;
+  border-radius:12px;
+  object-fit:cover;
+  margin-right:15px;
+
+  opacity:0;
+  transform:scale(.8);
+  animation:imgIn .6s ease forwards;
 }
+
+@keyframes imgIn{
+  to{
+    opacity:1;
+    transform:scale(1);
+  }
+}
+
 
 .group-name{font-weight:bold;}
 .caption{opacity:.7;font-size:14px;}
