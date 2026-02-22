@@ -184,19 +184,19 @@ fetch("schedule.json")
       if (scheduleData[date]) {
 
         scheduleData[date].forEach(item => {
-          list.innerHTML += `
-            <div class="card">
-              <img src="${item.photo}" class="group-img">
-              <div class="group-info">
-                <div class="group-name">${item.group_name}</div>
-                <div class="caption">
-                  <b>Akun:</b> ${item.account}<br>
-                  ${item.caption}
-                </div>
-              </div>
-            </div>
-          `;
-        });
+  list.innerHTML += `
+    <div class="card">
+      <img src="${item.group_photo || 'https://via.placeholder.com/70'}" class="group-img">
+      <div class="group-info">
+        <div class="group-name">${item.group_name}</div>
+        <div class="caption">
+          <b>Akun:</b> ${item.account}<br>
+          ${item.caption}
+        </div>
+      </div>
+    </div>
+  `;
+});
 
       } else {
         list.innerHTML =
