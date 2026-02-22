@@ -1,1 +1,26 @@
-[]
+[
+  {
+    "account": "ayu Wulandari",
+    "tanggal": "2026-02-22",
+    "mode": "group",
+    "group_link": "https://m.facebook.com/groups/1660422537357236/",
+    "group_name": "https://m.facebook.com/groups/1660422537357236/",
+    "group_photo": null,
+    "caption": "malam semuanya",
+    "delay_group": "7000,9000",
+    "delay_akun": "10000",
+    "status": "done"
+  },
+  {
+    "account": "ayu Wulandari",
+    "tanggal": "2026-02-22",
+    "mode": "group",
+    "group_link": "https://m.facebook.com/groups/663419820413851/",
+    "group_name": "https://m.facebook.com/groups/663419820413851/",
+    "group_photo": null,
+    "caption": "malam semuanya",
+    "delay_group": "7000,9000",
+    "delay_akun": "10000",
+    "status": "done"
+  }
+]
