@@ -1,24 +1,28 @@
 const fs = require("fs");
 const xlsx = require("xlsx");
+const puppeteer = require("puppeteer");
+
+// ===============================
+// RANDOM DELAY
+// ===============================
+function randomDelay(min = 2000, max = 5000) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+// ===============================
+(async () => {
 
 // ===============================
 // READ EXCEL
 // ===============================
 const workbook = xlsx.readFile("./dashboard/template1.xlsx");
-console.log("📑 Semua sheet:", workbook.SheetNames);
-
 const sheet = workbook.Sheets["postGroup"];
-if (!sheet) {
-  console.log("❌ Sheet postGroup tidak ditemukan!");
-  process.exit(1);
-}
+if (!sheet) process.exit(1);
 
 let rows = xlsx.utils.sheet_to_json(sheet);
-console.log("📋 Total row postGroup:", rows.length);
-console.log("📋 Contoh row pertama:", rows[0]);
 
 // ===============================
-// CLEAN HEADER (hapus spasi)
+// CLEAN HEADER
 // ===============================
 function cleanRow(row) {
   const newRow = {};
@@ -31,18 +35,16 @@ function cleanRow(row) {
 rows = rows.map(cleanRow);
 
 // ===============================
-// PARSE TANGGAL (support Excel serial)
+// PARSE TANGGAL
 // ===============================
 function parseTanggal(value) {
   if (!value) return null;
 
-  // Jika angka (Excel serial date)
   if (typeof value === "number") {
     const excelDate = new Date((value - 25569) * 86400 * 1000);
     return excelDate.toISOString().slice(0, 10);
   }
 
-  // Jika string biasa
   const d = new Date(value);
   if (!isNaN(d)) return d.toISOString().slice(0, 10);
 
@@ -50,84 +52,132 @@ function parseTanggal(value) {
 }
 
 // ===============================
-// EXPAND RANGE TANGGAL
+// LOAD CACHE GROUP
 // ===============================
-function expandRange(start, end) {
-  const dates = [];
-  const current = new Date(start);
-  const last = new Date(end);
-
-  while (current <= last) {
-    dates.push(current.toISOString().slice(0, 10));
-    current.setDate(current.getDate() + 1);
-  }
-
-  return dates;
+let groupCache = {};
+if (fs.existsSync("./docs/groups.json")) {
+  groupCache = JSON.parse(fs.readFileSync("./docs/groups.json"));
 }
 
-// ===============================
-// GENERATE SCHEDULE
-// ===============================
 const schedule = {};
 
-rows.forEach(row => {
+// ===============================
+// START BROWSER
+// ===============================
+const browser = await puppeteer.launch({
+  headless: true,
+  args: ["--no-sandbox", "--disable-setuid-sandbox"]
+});
 
-  if (!row.tanggal || !row.account) return;
+const page = await browser.newPage();
 
-  let dates = [];
+// MOBILE USER AGENT
+await page.setUserAgent(
+  "Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
+);
 
-  if (typeof row.tanggal === "string" && row.tanggal.includes("-")) {
+// LOAD COOKIE
+const accountData = JSON.parse(
+  fs.readFileSync("./dashboard/accounts.json")
+);
 
-    const [startRaw, endRaw] = row.tanggal.split("-");
-    const start = parseTanggal(startRaw.trim());
-    const end = parseTanggal(endRaw.trim());
+await page.setCookie(...accountData.cookies);
 
-    if (start && end) {
-      dates = expandRange(start, end);
+// ===============================
+// PROCESS ROWS
+// ===============================
+for (const row of rows) {
+
+  if (!row.tanggal || !row.account || !row.grup_link) continue;
+
+  const date = parseTanggal(row.tanggal);
+  if (!date) continue;
+
+  const links = row.grup_link.split(",").map(l => l.trim());
+
+  for (const groupUrl of links) {
+
+    let groupInfo;
+
+    // ===============================
+    // CHECK CACHE
+    // ===============================
+    if (groupCache[groupUrl]) {
+
+      console.log("Cache hit:", groupUrl);
+      groupInfo = groupCache[groupUrl];
+
+    } else {
+
+      console.log("Scraping:", groupUrl);
+
+      await page.goto(groupUrl, {
+        waitUntil: "networkidle2",
+        timeout: 60000
+      });
+
+      await page.waitForTimeout(randomDelay());
+
+      groupInfo = await page.evaluate(() => {
+
+        const rawTitle = document.title || "Unknown Group";
+
+        const name = rawTitle
+          .replace(/\s*\|\s*Facebook/i, "")
+          .trim();
+
+        const img =
+          document.querySelector('img[src*="scontent"]') ||
+          document.querySelector("img");
+
+        return {
+          name: name,
+          photo: img ? img.src : null
+        };
+      });
+
+      // SAVE CACHE
+      groupCache[groupUrl] = groupInfo;
     }
 
-  } else {
-    const single = parseTanggal(row.tanggal);
-    if (single) dates = [single];
-  }
-
-  dates.forEach(date => {
-
-    if (!schedule[date]) {
-      schedule[date] = [];
-    }
+    if (!schedule[date]) schedule[date] = [];
 
     schedule[date].push({
       account: String(row.account).trim(),
-      group_name: row.group_name || "-",
+      group_link: groupUrl,
+      group_name: groupInfo.name,
+      group_photo: groupInfo.photo,
       caption: row.caption || "-",
-      group_link: row.grup_link || "-",
       jam: row.jam || "12:00",
-      delay_grup: row.delay_grup || "5000,7000",
-      delay_akun: row.delay_akun || 10000,
-      delay_mikir: row.delay_mikir || 500,
-      ketik_min: row.ketik_min || 100,
-      ketik_max: row.ketik_max || 120,
-      pause_chance: row.pause_chance || 0,
-      pause_min: row.pause_min || 0,
-      pause_max: row.pause_max || 0,
       status: "scheduled"
     });
 
-  });
+    await page.waitForTimeout(randomDelay(1500, 4000));
+  }
+}
 
-});
+await browser.close();
 
 // ===============================
-// SAVE JSON
+// SAVE CACHE
 // ===============================
 if (!fs.existsSync("./docs")) {
   fs.mkdirSync("./docs");
 }
 
 fs.writeFileSync(
+  "./docs/groups.json",
+  JSON.stringify(groupCache, null, 2)
+);
+
+// ===============================
+// SAVE SCHEDULE
+// ===============================
+fs.writeFileSync(
   "./docs/schedule.json",
   JSON.stringify(schedule, null, 2)
 );
 
-console.log("✅ schedule.json berhasil dibuat di docs/");
+console.log("✅ schedule.json & groups.json updated");
+
+})();
