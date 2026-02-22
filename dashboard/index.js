@@ -12,10 +12,11 @@ const { PuppeteerScreenRecorder } = require("puppeteer-screen-recorder");
 puppeteer.use(StealthPlugin())
 const groupsDB = JSON.parse(
   fs.readFileSync(
-    path.join(__dirname, "docs", "groups.json"),
+    path.join(__dirname, "..", "docs", "groups.json"),
     "utf8"
   )
 );
+
 //$BARU
 const docsDir = path.join(__dirname, "docs");
 let docsData = [];
