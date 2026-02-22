@@ -43,16 +43,11 @@ margin-bottom:10px;
 transition:.3s;
 }
 
-.menu div:hover{
-background:#1b1b1b;
-}
+.menu div:hover{background:#1b1b1b;}
 
 /* ================= MAIN ================= */
 
-.main{
-flex:1;
-padding:25px;
-}
+.main{flex:1;padding:25px;}
 
 /* ================= STATS ================= */
 
@@ -71,7 +66,6 @@ border-radius:14px;
 border:1px solid #222;
 }
 
-.stat h3{opacity:.7;font-size:14px;}
 .stat span{font-size:26px;font-weight:bold;}
 
 /* ================= FILTER ================= */
@@ -100,8 +94,18 @@ background:#101010;
 padding:15px;
 border-radius:14px;
 margin-bottom:12px;
-transition:.3s;
 border:1px solid #1f1f1f;
+
+opacity:0;
+transform:translateY(20px) scale(.97);
+animation:cardIn .5s ease forwards;
+}
+
+@keyframes cardIn{
+to{
+opacity:1;
+transform:translateY(0) scale(1);
+}
 }
 
 .card:hover{
@@ -117,9 +121,6 @@ margin-right:15px;
 object-fit:cover;
 }
 
-.group-name{font-weight:bold;}
-.caption{opacity:.7;font-size:14px;}
-
 .section-title{
 margin:25px 0 12px;
 font-size:20px;
@@ -127,14 +128,26 @@ font-size:20px;
 
 .empty{opacity:.5;margin-top:20px;}
 
-.search{
-width:220px;
+.search{width:220px;}
+
+/* ================= SKELETON ================= */
+
+.skeleton{
+height:90px;
+border-radius:14px;
+margin-bottom:12px;
+background:linear-gradient(
+90deg,
+#111 25%,
+#1c1c1c 50%,
+#111 75%);
+background-size:400% 100%;
+animation:skeleton 1.2s infinite;
 }
 
-/* MOBILE */
-@media(max-width:900px){
-.sidebar{display:none;}
-body{flex-direction:column;}
+@keyframes skeleton{
+0%{background-position:100% 0}
+100%{background-position:-100% 0}
 }
 
 </style>
@@ -152,19 +165,16 @@ body{flex-direction:column;}
 </div>
 </div>
 
-
 <!-- MAIN -->
 <div class="main">
 
-<!-- ===== STATS ===== -->
 <div class="stats">
 <div class="stat"><h3>Total Posting</h3><span id="totalPost">0</span></div>
 <div class="stat"><h3>Total Group</h3><span id="totalGroup">0</span></div>
 <div class="stat"><h3>Akun Aktif</h3><span id="totalAccount">0</span></div>
 </div>
 
-
-<!-- ================= HASIL ================= -->
+<!-- RESULT -->
 <div id="resultPage">
 
 <div class="section-title">📌 Hasil Posting</div>
@@ -175,7 +185,6 @@ body{flex-direction:column;}
 </select>
 
 <input type="date" id="dateFilter">
-
 <input class="search" id="searchBox" placeholder="Cari group...">
 </div>
 
@@ -183,8 +192,7 @@ body{flex-direction:column;}
 
 </div>
 
-
-<!-- ================= SCHEDULE ================= -->
+<!-- SCHEDULE -->
 <div id="schedulePage" style="display:none">
 
 <div class="section-title">📅 Jadwal Posting</div>
@@ -205,31 +213,31 @@ body{flex-direction:column;}
 
 <script>
 
-/* ================= NAVIGATION ================= */
+/* NAVIGATION */
 
 function showPage(page){
-document.getElementById("resultPage").style.display=
-page==="result"?"block":"none";
-
-document.getElementById("schedulePage").style.display=
-page==="schedule"?"block":"none";
+resultPage.style.display=page==="result"?"block":"none";
+schedulePage.style.display=page==="schedule"?"block":"none";
 }
-
 
 /* ================= RESULT ================= */
 
-fetch("data.json?"+Date.now())
+const container=document.getElementById("list");
+
+/* SKELETON */
+container.innerHTML=
+Array(6).fill('<div class="skeleton"></div>').join('');
+
+fetch("data.json?"+Date.now(),{cache:"no-store"})
 .then(r=>r.json())
 .then(data=>{
 
-const container=document.getElementById("list");
-const dropdown=document.getElementById("accountFilter");
-const dateInput=document.getElementById("dateFilter");
-const search=document.getElementById("searchBox");
+const dropdown=accountFilter;
+const dateInput=dateFilter;
+const search=searchBox;
 
 dateInput.value=new Date().toISOString().slice(0,10);
 
-/* dropdown akun */
 [...new Set(data.map(i=>i.account))]
 .forEach(acc=>{
 const o=document.createElement("option");
@@ -238,17 +246,15 @@ o.textContent=acc;
 dropdown.appendChild(o);
 });
 
-/* stats */
-document.getElementById("totalPost").textContent=data.length;
-
-document.getElementById("totalGroup").textContent=
-new Set(data.map(i=>i.group_name)).size;
-
-document.getElementById("totalAccount").textContent=
-new Set(data.map(i=>i.account)).size;
-
+totalPost.textContent=data.length;
+totalGroup.textContent=new Set(data.map(i=>i.group_name)).size;
+totalAccount.textContent=new Set(data.map(i=>i.account)).size;
 
 function render(){
+
+container.style.opacity=0;
+
+setTimeout(()=>{
 
 container.innerHTML="";
 
@@ -256,9 +262,7 @@ const filtered=data.filter(item=>{
 
 const acc=dropdown.value==="all"||item.account===dropdown.value;
 const date=!dateInput.value||item.tanggal===dateInput.value;
-
-const searchMatch=item.group_name
-.toLowerCase()
+const searchMatch=item.group_name.toLowerCase()
 .includes(search.value.toLowerCase());
 
 return acc&&date&&searchMatch;
@@ -266,12 +270,11 @@ return acc&&date&&searchMatch;
 
 if(!filtered.length){
 container.innerHTML=`<div class="empty">Tidak ada posting.</div>`;
-return;
-}
+}else{
 
-filtered.forEach(item=>{
+filtered.forEach((item,index)=>{
 container.innerHTML+=`
-<div class="card">
+<div class="card" style="animation-delay:${index*80}ms">
 <img src="${item.group_photo||'https://via.placeholder.com/70'}" class="group-img">
 <div>
 <div class="group-name">${item.group_name}</div>
@@ -279,27 +282,31 @@ container.innerHTML+=`
 </div>
 </div>`;
 });
+}
 
+container.style.opacity=1;
+
+},120);
 }
 
 render();
 
-dropdown.addEventListener("change",render);
-dateInput.addEventListener("change",render);
-search.addEventListener("input",render);
+dropdown.onchange=render;
+dateInput.onchange=render;
+search.oninput=render;
 
 });
 
-
 /* ================= SCHEDULE ================= */
 
-fetch("schedule.json?"+Date.now())
+const scheduleContainer=document.getElementById("schedule-list");
+
+scheduleContainer.innerHTML=
+Array(6).fill('<div class="skeleton"></div>').join('');
+
+fetch("schedule.json?"+Date.now(),{cache:"no-store"})
 .then(r=>r.json())
 .then(scheduleData=>{
-
-const calendar=document.getElementById("calendar");
-const list=document.getElementById("schedule-list");
-const accountFilter=document.getElementById("scheduleAccountFilter");
 
 calendar.value=new Date().toISOString().slice(0,10);
 
@@ -310,33 +317,37 @@ const allItems=Object.values(scheduleData).flat();
 const o=document.createElement("option");
 o.value=acc;
 o.textContent=acc;
-accountFilter.appendChild(o);
+scheduleAccountFilter.appendChild(o);
 });
 
 function renderSchedule(){
 
-list.innerHTML="";
+scheduleContainer.style.opacity=0;
+
+setTimeout(()=>{
+
+scheduleContainer.innerHTML="";
 
 const date=calendar.value;
 
 if(!scheduleData[date]){
-list.innerHTML=`<div class="empty">Tidak ada jadwal.</div>`;
+scheduleContainer.innerHTML=`<div class="empty">Tidak ada jadwal.</div>`;
+scheduleContainer.style.opacity=1;
 return;
 }
 
 const filtered=scheduleData[date].filter(i=>
-accountFilter.value==="all"||
-i.account===accountFilter.value
+scheduleAccountFilter.value==="all"||
+i.account===scheduleAccountFilter.value
 );
 
 if(!filtered.length){
-list.innerHTML=`<div class="empty">Tidak ada jadwal akun ini.</div>`;
-return;
-}
+scheduleContainer.innerHTML=`<div class="empty">Tidak ada jadwal akun ini.</div>`;
+}else{
 
-filtered.forEach(item=>{
-list.innerHTML+=`
-<div class="card">
+filtered.forEach((item,index)=>{
+scheduleContainer.innerHTML+=`
+<div class="card" style="animation-delay:${index*80}ms">
 <img src="${item.group_photo||'https://via.placeholder.com/70'}" class="group-img">
 <div>
 <div class="group-name">${item.group_name}</div>
@@ -344,19 +355,21 @@ list.innerHTML+=`
 </div>
 </div>`;
 });
+}
 
+scheduleContainer.style.opacity=1;
+
+},120);
 }
 
 renderSchedule();
 
-calendar.addEventListener("change",renderSchedule);
-accountFilter.addEventListener("change",renderSchedule);
+calendar.onchange=renderSchedule;
+scheduleAccountFilter.onchange=renderSchedule;
 
 });
 
 </script>
-
-
 
 </body>
 </html>
