@@ -14,10 +14,9 @@ background:#070707;
 color:white;
 display:flex;
 min-height:100vh;
-overflow-x:hidden;
 }
 
-/* ================= SIDEBAR ================= */
+/* SIDEBAR */
 
 .sidebar{
 width:230px;
@@ -40,16 +39,15 @@ padding:12px;
 border-radius:10px;
 cursor:pointer;
 margin-bottom:10px;
-transition:.3s;
 }
 
 .menu div:hover{background:#1b1b1b;}
 
-/* ================= MAIN ================= */
+/* MAIN */
 
 .main{flex:1;padding:25px;}
 
-/* ================= STATS ================= */
+/* STATS */
 
 .stats{
 display:flex;
@@ -68,16 +66,15 @@ border:1px solid #222;
 
 .stat span{font-size:26px;font-weight:bold;}
 
-/* ================= FILTER ================= */
+/* FILTER */
 
 .filters{
 display:flex;
 gap:12px;
 margin-bottom:20px;
-flex-wrap:wrap;
 }
 
-select,input{
+select{
 background:#141414;
 border:none;
 color:white;
@@ -85,69 +82,24 @@ padding:10px;
 border-radius:8px;
 }
 
-/* ================= CARD ================= */
+/* CARD */
 
 .card{
-display:flex;
-align-items:center;
 background:#101010;
 padding:15px;
 border-radius:14px;
 margin-bottom:12px;
 border:1px solid #1f1f1f;
-
 opacity:0;
-transform:translateY(20px) scale(.97);
-animation:cardIn .5s ease forwards;
+transform:translateY(20px);
+animation:cardIn .4s ease forwards;
 }
 
 @keyframes cardIn{
 to{
 opacity:1;
-transform:translateY(0) scale(1);
+transform:translateY(0);
 }
-}
-
-.card:hover{
-transform:translateY(-3px);
-background:#181818;
-}
-
-.group-img{
-width:65px;
-height:65px;
-border-radius:12px;
-margin-right:15px;
-object-fit:cover;
-}
-
-.section-title{
-margin:25px 0 12px;
-font-size:20px;
-}
-
-.empty{opacity:.5;margin-top:20px;}
-
-.search{width:220px;}
-
-/* ================= SKELETON ================= */
-
-.skeleton{
-height:90px;
-border-radius:14px;
-margin-bottom:12px;
-background:linear-gradient(
-90deg,
-#111 25%,
-#1c1c1c 50%,
-#111 75%);
-background-size:400% 100%;
-animation:skeleton 1.2s infinite;
-}
-
-@keyframes skeleton{
-0%{background-position:100% 0}
-100%{background-position:-100% 0}
 }
 
 </style>
@@ -170,22 +122,16 @@ animation:skeleton 1.2s infinite;
 
 <div class="stats">
 <div class="stat"><h3>Total Posting</h3><span id="totalPost">0</span></div>
-<div class="stat"><h3>Total Group</h3><span id="totalGroup">0</span></div>
 <div class="stat"><h3>Akun Aktif</h3><span id="totalAccount">0</span></div>
 </div>
 
 <!-- RESULT -->
 <div id="resultPage">
 
-<div class="section-title">📌 Hasil Posting</div>
-
 <div class="filters">
 <select id="accountFilter">
 <option value="all">Semua Akun</option>
 </select>
-
-<input type="date" id="dateFilter">
-<input class="search" id="searchBox" placeholder="Cari group...">
 </div>
 
 <div id="list"></div>
@@ -194,53 +140,27 @@ animation:skeleton 1.2s infinite;
 
 <!-- SCHEDULE -->
 <div id="schedulePage" style="display:none">
-
-<div class="section-title">📅 Jadwal Posting</div>
-
-<div class="filters">
-<select id="scheduleAccountFilter">
-<option value="all">Semua Akun</option>
-</select>
-
-<input type="date" id="calendar">
-</div>
-
-<div id="schedule-list"></div>
-
+<h2>Schedule Coming Soon...</h2>
 </div>
 
 </div>
 
 <script>
 
-/* =========================
-   ELEMENT BINDING (WAJIB)
-========================= */
+const resultPage=document.getElementById("resultPage");
+const schedulePage=document.getElementById("schedulePage");
 
-const resultPage = document.getElementById("resultPage");
-const schedulePage = document.getElementById("schedulePage");
+const accountFilter=document.getElementById("accountFilter");
 
-const accountFilter = document.getElementById("accountFilter");
-const dateFilter = document.getElementById("dateFilter");
-const searchBox = document.getElementById("searchBox");
+const totalPost=document.getElementById("totalPost");
+const totalAccount=document.getElementById("totalAccount");
 
-const totalPost = document.getElementById("totalPost");
-const totalGroup = document.getElementById("totalGroup");
-const totalAccount = document.getElementById("totalAccount");
-
-const calendar = document.getElementById("calendar");
-const scheduleAccountFilter =
-document.getElementById("scheduleAccountFilter");
-
-const container = document.getElementById("resultContainer");
+const container=document.getElementById("list");
 
 
-/* =========================
-   NAVIGATION
-========================= */
+/* NAVIGATION */
 
 function showPage(page){
-
 if(page==="result"){
 resultPage.style.display="block";
 schedulePage.style.display="none";
@@ -248,150 +168,98 @@ schedulePage.style.display="none";
 resultPage.style.display="none";
 schedulePage.style.display="block";
 }
-
 }
 
 
-/* =========================
-   SKELETON LOADING
-========================= */
-
-function showSkeleton(){
-
-container.innerHTML="";
-
-for(let i=0;i<6;i++){
-const sk=document.createElement("div");
-sk.className="card skeleton";
-container.appendChild(sk);
-}
-
-}
-
-
-/* =========================
-   LOAD DATA
-========================= */
+/* LOAD DATA */
 
 async function loadData(){
 
-showSkeleton();
+container.innerHTML="Loading...";
 
 try{
 
-const res = await fetch("data.json");
-const data = await res.json();
+const res=await fetch("data.json");
+const data=await res.json();
 
 renderData(data);
 
-}catch(err){
-
-container.innerHTML=
-"<p style='color:red'>Gagal load data</p>";
-
+}catch{
+container.innerHTML="<p style='color:red'>Gagal load data</p>";
 }
 
 }
 
 
-/* =========================
-   RENDER DATA
-========================= */
+/* RENDER */
 
 function renderData(data){
 
 container.innerHTML="";
 
 let accounts=new Set();
-let groups=new Set();
+
+/* isi dropdown akun */
+accountFilter.innerHTML=
+`<option value="all">Semua Akun</option>`;
 
 data.forEach((item,index)=>{
 
 accounts.add(item.account);
-groups.add(item.group);
 
 const card=document.createElement("div");
 card.className="card";
 
-card.style.opacity="0";
-card.style.transform="translateY(20px)";
-
 card.innerHTML=`
-
-<h3>${item.group}</h3>
-<p>${item.account}</p>
-<p>${item.date}</p>
-
+<h3>Posting Berhasil</h3>
+<p>Akun : ${item.account}</p>
+<p>Tanggal : ${item.date}</p>
 `;
 
 container.appendChild(card);
 
-/* CARD MASUK SATU SATU */
-setTimeout(()=>{
-card.style.transition="0.4s ease";
-card.style.opacity="1";
-card.style.transform="translateY(0)";
-},index*120);
-
 });
 
-
-/* =========================
-   UPDATE STATS
-========================= */
+/* dropdown akun */
+accounts.forEach(acc=>{
+const opt=document.createElement("option");
+opt.value=acc.toLowerCase();
+opt.textContent=acc;
+accountFilter.appendChild(opt);
+});
 
 totalPost.textContent=data.length;
-totalGroup.textContent=groups.size;
 totalAccount.textContent=accounts.size;
 
 }
 
 
-/* =========================
-   FILTER (REALTIME)
-========================= */
+/* FILTER */
 
-function applyFilter(){
+accountFilter.addEventListener("change",()=>{
 
-const account=accountFilter.value.toLowerCase();
-const keyword=searchBox.value.toLowerCase();
-
+const value=accountFilter.value.toLowerCase();
 const cards=document.querySelectorAll(".card");
 
 cards.forEach(card=>{
 
 const text=card.innerText.toLowerCase();
 
-const matchAccount=
-!account || text.includes(account);
-
-const matchSearch=
-!keyword || text.includes(keyword);
-
 card.style.display=
-(matchAccount && matchSearch)
+(value==="all" || text.includes(value))
 ?"block":"none";
 
 });
 
-}
+});
 
 
-/* =========================
-   EVENT LISTENER
-========================= */
-
-accountFilter?.addEventListener("change",applyFilter);
-searchBox?.addEventListener("input",applyFilter);
-
-
-/* =========================
-   INIT
-========================= */
+/* INIT */
 
 loadData();
 
 </script>
 
 </body>
-</html>
+   </html>
+   
