@@ -154,7 +154,8 @@ fetch("data.json?nocache=" + new Date().getTime())
 
 // ======================== SCHEDULE.JSON ========================
 fetch("schedule.json?nocache=" + new Date().getTime())
-.then(scheduleData => {
+   .then(res => res.json())
+   .then(scheduleData => {
 
   const calendar = document.getElementById("calendar");
   const list = document.getElementById("schedule-list");
