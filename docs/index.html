@@ -79,35 +79,26 @@ select, input[type="date"] {
 
 <h2>🤖 Dashboard Bot</h2>
 
-<!-- ================== HASIL POSTING (data.json) ================== -->
-
+<!-- ================== HASIL POSTING ================== -->
 <div class="section-title">📌 Hasil Posting</div>
-
 <div class="filters">
   <select id="accountFilter">
     <option value="all">Semua Akun</option>
   </select>
-
   <input type="date" id="dateFilter">
 </div>
-
 <div id="list"></div>
 
-<!-- ================== JADWAL SCHEDULE (schedule.json) ================== -->
-
+<!-- ================== JADWAL SCHEDULE ================== -->
 <div class="section-title">📅 Jadwal Posting (Dari Excel)</div>
-
 <input type="date" id="calendar">
-
 <div id="schedule-list"></div>
 
 <script>
 // ======================== DATA.JSON ========================
-
 fetch("data.json?nocache=" + new Date().getTime())
   .then(res => res.json())
   .then(data => {
-
     const container = document.getElementById("list");
     const dropdown = document.getElementById("accountFilter");
     const dateInput = document.getElementById("dateFilter");
@@ -116,7 +107,6 @@ fetch("data.json?nocache=" + new Date().getTime())
     dateInput.value = today;
 
     const accounts = [...new Set(data.map(item => item.account))];
-
     accounts.forEach(acc => {
       const option = document.createElement("option");
       option.value = acc;
@@ -126,23 +116,16 @@ fetch("data.json?nocache=" + new Date().getTime())
 
     function render() {
       container.innerHTML = "";
-
       const selectedAccount = dropdown.value;
       const selectedDate = dateInput.value;
-
       const filtered = data.filter(item => {
-        const matchAccount =
-          selectedAccount === "all" || item.account === selectedAccount;
-
-        const matchDate =
-          !selectedDate || item.tanggal === selectedDate;
-
+        const matchAccount = selectedAccount === "all" || item.account === selectedAccount;
+        const matchDate = !selectedDate || item.tanggal === selectedDate;
         return matchAccount && matchDate;
       });
 
       if (filtered.length === 0) {
-        container.innerHTML =
-          `<div class="empty">Tidak ada postingan di tanggal ini.</div>`;
+        container.innerHTML = `<div class="empty">Tidak ada postingan di tanggal ini.</div>`;
         return;
       }
 
@@ -162,16 +145,12 @@ fetch("data.json?nocache=" + new Date().getTime())
     render();
     dropdown.addEventListener("change", render);
     dateInput.addEventListener("change", render);
-
   });
 
-
 // ======================== SCHEDULE.JSON ========================
-
 fetch("schedule.json?nocache=" + new Date().getTime())
   .then(res => res.json())
   .then(scheduleData => {
-
     const calendar = document.getElementById("calendar");
     const list = document.getElementById("schedule-list");
 
@@ -181,27 +160,40 @@ fetch("schedule.json?nocache=" + new Date().getTime())
     function renderSchedule(date) {
       list.innerHTML = "";
 
-      if (scheduleData[date]) {
+      if (!scheduleData[date]) {
+        list.innerHTML = `<div class="empty">Tidak ada jadwal di tanggal ini.</div>`;
+        return;
+      }
 
-        scheduleData[date].forEach(item => {
-          list.innerHTML += `
-            <div class="card">
-              <img src="${item.group_photo || 'https://via.placeholder.com/70'}" class="group-img">
-              <div class="group-info">
-                <div class="group-name">${item.group_name}</div>
-                <div class="caption">
-                  <b>Akun:</b> ${item.account}<br>
-                  ${item.caption}
+      // Group by account
+      const accounts = [...new Set(scheduleData[date].map(item => item.account))];
+      accounts.forEach(acc => {
+        // tampilkan header akun
+        const accountItem = scheduleData[date].find(item => item.account === acc);
+        list.innerHTML += `
+          <div class="card">
+            <img src="${accountItem.account_photo || 'https://via.placeholder.com/70'}" class="group-img">
+            <div class="group-info">
+              <div class="group-name">${acc}</div>
+            </div>
+          </div>
+        `;
+
+        // tampilkan grup per akun
+        scheduleData[date]
+          .filter(item => item.account === acc)
+          .forEach(group => {
+            list.innerHTML += `
+              <div class="card">
+                <img src="${group.group_photo || 'https://via.placeholder.com/70'}" class="group-img">
+                <div class="group-info">
+                  <div class="group-name">${group.group_name}</div>
+                  <div class="caption">${group.caption}</div>
                 </div>
               </div>
-            </div>
-          `;
-        });
-
-      } else {
-        list.innerHTML =
-          `<div class="empty">Tidak ada jadwal di tanggal ini.</div>`;
-      }
+            `;
+          });
+      });
     }
 
     renderSchedule(today);
@@ -209,9 +201,7 @@ fetch("schedule.json?nocache=" + new Date().getTime())
     calendar.addEventListener("change", function() {
       renderSchedule(this.value);
     });
-
   });
-
 </script>
 
 </body>
