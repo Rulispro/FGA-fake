@@ -3069,7 +3069,7 @@ else if (mode === "group") {
  //}
 ///$BARU YANG PAKAI DOLAR
   for (const row of rowsForAccount) {
-  await runAccount(page, row acc.account || acc.username, today);   
+  await runAccount(page, row, acc.account || acc.username, today);   
   }
 }
   
