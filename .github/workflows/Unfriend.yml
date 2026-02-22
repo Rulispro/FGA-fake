@@ -1,0 +1,35 @@
+name: FB UNDFRIEND 
+
+on:
+  workflow_dispatch:
+
+  #schedule:
+    # 08:00 WIB = 01:00 UTC
+    #- cron: "0 1 * * *"
+
+jobs:
+  run-undfriend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Run UNFRIEND Bot
+        run: node docs/index.js undfriend
+        env:
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
+
+      - name: Upload recordings
+        uses: actions/upload-artifact@v4
+        with:
+          name: recordings-UNFRIEND
+          path: recording_*.mp4
