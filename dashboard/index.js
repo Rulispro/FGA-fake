@@ -2913,8 +2913,8 @@ accounts.forEach((a, i) => {
      // page.on("pageerror", err => console.log("💥 [Browser Error]", err.message));
 
       // ===== Recorder PER AKUN
-      const recorder = new PuppeteerScreenRecorder(page);
-     await recorder.start(`recording_${acc.account}.mp4`);
+     // const recorder = new PuppeteerScreenRecorder(page);
+    // await recorder.start(`recording_${acc.account}.mp4`);
 
       // ===== Anti-detect (KODE KAMU, TETAP)
       await page.setUserAgent(
@@ -3047,41 +3047,7 @@ await page.goto("https://m.facebook.com", { waitUntil: "networkidle2" });
      );
 
     
-      // ✅ LANGSUNG POSTGROUP PAKAI DATA
-   // for (const row of rowsForAccount) {
-    // await runAccount(page, row);
-   // }
-      // POST STATUS (kalau ada)
-// for (const row of rowsStatusForAccount) {
-    //await runStatus(page, row);
- // }
-
-//for (const row of rowsAddFriendFollowersForAccount){
- // await runAddFriendFollowers(page, row);
-//}
-     // for (const row of rowsAddFriendFollowingForAccount){
-  //await runAddFriendFollowings(page, row);
-//}
-    // for (const row of rowsAddFriendFriendsForAccount){
- // await runAddFriendFriends(page, row);
-//}
       
-//for (const row of rowsUndfriendForAccount){
-    // await runUndfriends(page, row);
-// }
-     // for (const row of rowsConfirmForAccount){
-  //await runConfirm(page, row);
-//}
-      
-//for (const row of rowsLikeLinkPostForAccount){
-    // await runLikeLinkPosts(page, row);
-// }
-      
-//for (const row of rowsLikeGroupForAccount){
-    // await runLikeLinkGroups(page, row);
-// }
-      // ================= MODE EXECUTION =================
-
 if (mode === "status") {
   console.log("📌 MODE STATUS");
 
@@ -3150,8 +3116,8 @@ else if (mode === "likegroup") {
       
       
       // ===== Stop recorder
-      await recorder.stop();
-     console.log(`🎬 Rekaman selesai: recording_${acc.account}.mp4`);
+    //  await recorder.stop();
+    // console.log(`🎬 Rekaman selesai: recording_${acc.account}.mp4`);
 
       await page.close();
       await context.close();
