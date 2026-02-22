@@ -73,7 +73,7 @@ const schedule = {};
 // START BROWSER (STEALTH)
 // ===============================
 const browser = await puppeteer.launch({
-  headless: true,
+  headless: "new",
   args: [
     "--no-sandbox",
     "--disable-setuid-sandbox",
@@ -99,7 +99,7 @@ await page.setViewport({
 // ===============================
 // LOAD COOKIE
 // ===============================
-const accountData = JSON.parse(
+const accounts = JSON.parse(
   fs.readFileSync("./dashboard/accounts.json")
 );
 
@@ -109,7 +109,36 @@ await page.setCookie(...accountData.cookies);
 // PROCESS ROWS
 // ===============================
 for (const row of rows) {
+// ===============================
+// SET COOKIE BERDASARKAN ACCOUNT
+// ===============================
+const accountName = String(row.account).trim();
 
+const accountData = accounts.find(
+  acc => acc.account.trim() === accountName
+);
+
+if (!accountData) {
+  console.log("❌ Account tidak ditemukan:", accountName);
+  continue;
+}
+
+// Clear cookies dulu
+const existingCookies = await page.cookies();
+if (existingCookies.length > 0) {
+  await page.deleteCookie(...existingCookies);
+}
+
+// Set cookie akun yang sesuai
+await page.setCookie(
+  ...accountData.cookies.map(cookie => ({
+    ...cookie,
+    domain: ".facebook.com",
+    path: "/"
+  }))
+);
+
+console.log("✅ Login pakai:", accountName);
   if (!row.tanggal || !row.account || !row.grup_link) continue;
 
   const date = parseTanggal(row.tanggal);
