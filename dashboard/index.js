@@ -2225,21 +2225,21 @@ async function runAccount(page, row, accountName, today) {
     //BARU YANG PAKAI DOLAR
 // ambil info grup DI SINI
 const groupInfo = await page.evaluate(() => {
- // const rawTitle = document.title || "Unknown Group";
+ const rawTitle = document.title || "Unknown Group";
 
- // const name = rawTitle
-   // .replace(/\s*\|\s*Facebook/i, "")
- //   .trim();
+  const name = rawTitle
+    .replace(/\s*\|\s*Facebook/i, "")
+    .trim();
   
- // const img =
-   /// document.querySelector('img[src*="scontent"]') ||
-   /// document.querySelector("img");
+  const img =
+    document.querySelector('img[src*="scontent"]') ||
+   / document.querySelector("img");
 
-///  return {
-  ///  name: name,
-  ////  photo: img ? img.src : null
- /// };
-///});
+  return {
+    name: name,
+    photo: img ? img.src : null
+  };
+});
 
  push 
 docsData.push({
