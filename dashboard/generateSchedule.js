@@ -1,6 +1,9 @@
 const fs = require("fs");
 const xlsx = require("xlsx");
-const puppeteer = require("puppeteer");
+const puppeteer = require("puppeteer-extra");
+const StealthPlugin = require("puppeteer-extra-plugin-stealth");
+
+puppeteer.use(StealthPlugin());
 
 // ===============================
 // RANDOM DELAY
@@ -9,8 +12,13 @@ function randomDelay(min = 2000, max = 5000) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-// ===============================
 (async () => {
+
+// ===============================
+// LIMIT SCRAPE
+// ===============================
+let scrapeCount = 0;
+const MAX_SCRAPE_PER_RUN = 10;
 
 // ===============================
 // READ EXCEL
@@ -62,21 +70,35 @@ if (fs.existsSync("./docs/groups.json")) {
 const schedule = {};
 
 // ===============================
-// START BROWSER
+// START BROWSER (STEALTH)
 // ===============================
 const browser = await puppeteer.launch({
   headless: true,
-  args: ["--no-sandbox", "--disable-setuid-sandbox"]
+  args: [
+    "--no-sandbox",
+    "--disable-setuid-sandbox",
+    "--disable-dev-shm-usage"
+  ]
 });
 
 const page = await browser.newPage();
 
+// ===============================
 // MOBILE USER AGENT
+// ===============================
 await page.setUserAgent(
   "Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
 );
 
+await page.setViewport({
+  width: 390,
+  height: 844,
+  isMobile: true
+});
+
+// ===============================
 // LOAD COOKIE
+// ===============================
 const accountData = JSON.parse(
   fs.readFileSync("./dashboard/accounts.json")
 );
@@ -109,6 +131,13 @@ for (const row of rows) {
 
     } else {
 
+      if (scrapeCount >= MAX_SCRAPE_PER_RUN) {
+        console.log("⚠ Limit scrape tercapai, skip sisanya...");
+        continue;
+      }
+
+      scrapeCount++;
+
       console.log("Scraping:", groupUrl);
 
       await page.goto(groupUrl, {
@@ -116,7 +145,14 @@ for (const row of rows) {
         timeout: 60000
       });
 
-      await page.waitForTimeout(randomDelay());
+      await page.waitForTimeout(randomDelay(3000, 6000));
+
+      // Random scroll (biar natural)
+      await page.evaluate(() => {
+        window.scrollBy(0, 300);
+      });
+
+      await page.waitForTimeout(randomDelay(1500, 3000));
 
       groupInfo = await page.evaluate(() => {
 
@@ -136,7 +172,6 @@ for (const row of rows) {
         };
       });
 
-      // SAVE CACHE
       groupCache[groupUrl] = groupInfo;
     }
 
@@ -152,14 +187,14 @@ for (const row of rows) {
       status: "scheduled"
     });
 
-    await page.waitForTimeout(randomDelay(1500, 4000));
+    await page.waitForTimeout(randomDelay(2000, 4000));
   }
 }
 
 await browser.close();
 
 // ===============================
-// SAVE CACHE
+// SAVE FILES
 // ===============================
 if (!fs.existsSync("./docs")) {
   fs.mkdirSync("./docs");
@@ -170,14 +205,12 @@ fs.writeFileSync(
   JSON.stringify(groupCache, null, 2)
 );
 
-// ===============================
-// SAVE SCHEDULE
-// ===============================
 fs.writeFileSync(
   "./docs/schedule.json",
   JSON.stringify(schedule, null, 2)
 );
 
 console.log("✅ schedule.json & groups.json updated");
+console.log("Total scrape run ini:", scrapeCount);
 
 })();
