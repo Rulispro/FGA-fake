@@ -22,6 +22,7 @@ const MAX_SCRAPE_PER_RUN = 10;
 // ===============================
 const workbook = xlsx.readFile("./dashboard/template1.xlsx");
 const sheet = workbook.Sheets["postGroup"];
+
 if (!sheet) {
   console.log("❌ Sheet postGroup tidak ditemukan");
   process.exit(1);
@@ -45,12 +46,15 @@ rows = rows.map(row => {
 // ===============================
 function parseTanggal(value) {
   if (!value) return null;
+
   if (typeof value === "number") {
     const excelDate = new Date((value - 25569) * 86400 * 1000);
     return excelDate.toISOString().slice(0, 10);
   }
+
   const d = new Date(value);
   if (!isNaN(d)) return d.toISOString().slice(0, 10);
+
   return null;
 }
 
@@ -58,8 +62,11 @@ function parseTanggal(value) {
 // LOAD CACHE GROUP
 // ===============================
 let groupCache = {};
+
 if (fs.existsSync("./docs/groups.json")) {
-  groupCache = JSON.parse(fs.readFileSync("./docs/groups.json"));
+  groupCache = JSON.parse(
+    fs.readFileSync("./docs/groups.json")
+  );
 }
 
 const schedule = {};
@@ -100,6 +107,7 @@ await page.setViewport({
 // PROCESS ROWS
 // ===============================
 for (const row of rows) {
+
   if (!row.tanggal || !row.account || !row.grup_link) continue;
 
   const date = parseTanggal(row.tanggal);
@@ -119,10 +127,13 @@ for (const row of rows) {
   // ===============================
   // LOGIN VIA COOKIE
   // ===============================
-  await page.goto("https://www.facebook.com", { waitUntil: "networkidle2" });
+  await page.goto("https://m.facebook.com", {
+    waitUntil: "networkidle2"
+  });
 
   const existingCookies = await page.cookies();
-  if (existingCookies.length > 0) await page.deleteCookie(...existingCookies);
+  if (existingCookies.length > 0)
+    await page.deleteCookie(...existingCookies);
 
   await page.setCookie(
     ...accountData.cookies.map(cookie => ({
@@ -134,18 +145,23 @@ for (const row of rows) {
 
   console.log("✅ Login pakai:", accountName);
 
-  // ambil foto akun jika ada
-  let accountPhoto = accountData.photo || null;
+  const links = row.grup_link
+    .split(",")
+    .map(l => l.trim());
 
-  const links = row.grup_link.split(",").map(l => l.trim());
-
+  // ===============================
+  // LOOP GROUP
+  // ===============================
   for (const groupUrl of links) {
+
     let groupInfo;
 
+    // ===== CACHE HIT =====
     if (groupCache[groupUrl]) {
       console.log("Cache hit:", groupUrl);
       groupInfo = groupCache[groupUrl];
     } else {
+
       if (scrapeCount >= MAX_SCRAPE_PER_RUN) {
         console.log("⚠ Limit scrape tercapai");
         continue;
@@ -154,16 +170,35 @@ for (const row of rows) {
       scrapeCount++;
       console.log("Scraping:", groupUrl);
 
-      await page.goto(groupUrl, { waitUntil: "networkidle2", timeout: 60000 });
-      await page.waitForTimeout(randomDelay(3000, 6000));
-      await page.evaluate(() => window.scrollBy(0, 300));
-      await page.waitForTimeout(randomDelay(1500, 3000));
+      await page.goto(groupUrl, {
+        waitUntil: "networkidle2",
+        timeout: 60000
+      });
 
+      await page.waitForTimeout(randomDelay(3000,6000));
+      await page.evaluate(() => window.scrollBy(0,300));
+      await page.waitForTimeout(randomDelay(1500,3000));
+
+      // ===============================
+      // SCRAPE GROUP INFO
+      // ===============================
       groupInfo = await page.evaluate(() => {
+
         const rawTitle = document.title || "Unknown Group";
-        const name = rawTitle.replace(/\s*\|\s*Facebook/i, "").trim();
-        const img = document.querySelector('img[src*="scontent"]') || document.querySelector("img");
-        return { name, photo: img ? img.src : null };
+        const name = rawTitle
+          .replace(/\s*\|\s*Facebook/i,"")
+          .trim();
+
+        // PRIORITAS COVER GROUP
+        const img =
+          document.querySelector('img[alt*="cover"]') ||
+          document.querySelector('img[role="img"]') ||
+          document.querySelector('img[src*="scontent"]');
+
+        return {
+          name,
+          photo: img ? img.src : null
+        };
       });
 
       groupCache[groupUrl] = groupInfo;
@@ -171,9 +206,11 @@ for (const row of rows) {
 
     if (!schedule[date]) schedule[date] = [];
 
+    // ===============================
+    // PUSH DATA (NO ACCOUNT PHOTO)
+    // ===============================
     schedule[date].push({
       account: accountName,
-      account_photo: accountPhoto, // tambah foto akun
       group_link: groupUrl,
       group_name: groupInfo.name,
       group_photo: groupInfo.photo,
@@ -182,7 +219,7 @@ for (const row of rows) {
       status: "scheduled"
     });
 
-    await page.waitForTimeout(randomDelay(2000, 4000));
+    await page.waitForTimeout(randomDelay(2000,4000));
   }
 }
 
@@ -191,12 +228,21 @@ await browser.close();
 // ===============================
 // SAVE FILES
 // ===============================
-if (!fs.existsSync("./docs")) fs.mkdirSync("./docs");
+if (!fs.existsSync("./docs"))
+  fs.mkdirSync("./docs");
 
-fs.writeFileSync("./docs/groups.json", JSON.stringify(groupCache, null, 2));
-fs.writeFileSync("./docs/schedule.json", JSON.stringify(schedule, null, 2));
+fs.writeFileSync(
+  "./docs/groups.json",
+  JSON.stringify(groupCache,null,2)
+);
+
+fs.writeFileSync(
+  "./docs/schedule.json",
+  JSON.stringify(schedule,null,2)
+);
 
 console.log("✅ schedule.json & groups.json updated");
 console.log("Total scrape run ini:", scrapeCount);
 
 })();
+  
