@@ -104,7 +104,7 @@ select, input[type="date"] {
 <script>
 // ======================== DATA.JSON ========================
 
-fetch("data.json")
+fetch("data.json?nocache=" + new Date().getTime())
   .then(res => res.json())
   .then(data => {
 
@@ -149,7 +149,7 @@ fetch("data.json")
       filtered.forEach(item => {
         container.innerHTML += `
           <div class="card">
-            <img src="${item.group_photo}" class="group-img">
+            <img src="${item.group_photo || 'https://via.placeholder.com/70'}" class="group-img">
             <div class="group-info">
               <div class="group-name">${item.group_name}</div>
               <div class="caption">${item.caption}</div>
@@ -168,7 +168,7 @@ fetch("data.json")
 
 // ======================== SCHEDULE.JSON ========================
 
-fetch("schedule.json")
+fetch("schedule.json?nocache=" + new Date().getTime())
   .then(res => res.json())
   .then(scheduleData => {
 
@@ -184,19 +184,19 @@ fetch("schedule.json")
       if (scheduleData[date]) {
 
         scheduleData[date].forEach(item => {
-  list.innerHTML += `
-    <div class="card">
-      <img src="${item.group_photo || 'https://via.placeholder.com/70'}" class="group-img">
-      <div class="group-info">
-        <div class="group-name">${item.group_name}</div>
-        <div class="caption">
-          <b>Akun:</b> ${item.account}<br>
-          ${item.caption}
-        </div>
-      </div>
-    </div>
-  `;
-});
+          list.innerHTML += `
+            <div class="card">
+              <img src="${item.group_photo || 'https://via.placeholder.com/70'}" class="group-img">
+              <div class="group-info">
+                <div class="group-name">${item.group_name}</div>
+                <div class="caption">
+                  <b>Akun:</b> ${item.account}<br>
+                  ${item.caption}
+                </div>
+              </div>
+            </div>
+          `;
+        });
 
       } else {
         list.innerHTML =
