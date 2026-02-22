@@ -14,9 +14,6 @@ function randomDelay(min = 2000, max = 5000) {
 
 (async () => {
 
-// ===============================
-// LIMIT SCRAPE
-// ===============================
 let scrapeCount = 0;
 const MAX_SCRAPE_PER_RUN = 10;
 
@@ -25,22 +22,23 @@ const MAX_SCRAPE_PER_RUN = 10;
 // ===============================
 const workbook = xlsx.readFile("./dashboard/template1.xlsx");
 const sheet = workbook.Sheets["postGroup"];
-if (!sheet) process.exit(1);
+if (!sheet) {
+  console.log("❌ Sheet postGroup tidak ditemukan");
+  process.exit(1);
+}
 
 let rows = xlsx.utils.sheet_to_json(sheet);
 
 // ===============================
 // CLEAN HEADER
 // ===============================
-function cleanRow(row) {
+rows = rows.map(row => {
   const newRow = {};
   Object.keys(row).forEach(key => {
     newRow[key.trim()] = row[key];
   });
   return newRow;
-}
-
-rows = rows.map(cleanRow);
+});
 
 // ===============================
 // PARSE TANGGAL
@@ -70,7 +68,14 @@ if (fs.existsSync("./docs/groups.json")) {
 const schedule = {};
 
 // ===============================
-// START BROWSER (STEALTH)
+// LOAD ACCOUNTS
+// ===============================
+const accounts = JSON.parse(
+  fs.readFileSync("./dashboard/accounts.json")
+);
+
+// ===============================
+// START BROWSER
 // ===============================
 const browser = await puppeteer.launch({
   headless: "new",
@@ -83,9 +88,7 @@ const browser = await puppeteer.launch({
 
 const page = await browser.newPage();
 
-// ===============================
-// MOBILE USER AGENT
-// ===============================
+// MOBILE MODE
 await page.setUserAgent(
   "Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
 );
@@ -97,52 +100,47 @@ await page.setViewport({
 });
 
 // ===============================
-// LOAD COOKIE
-// ===============================
-const accounts = JSON.parse(
-  fs.readFileSync("./dashboard/accounts.json")
-);
-
-await page.setCookie(...accountData.cookies);
-
-// ===============================
 // PROCESS ROWS
 // ===============================
 for (const row of rows) {
-// ===============================
-// SET COOKIE BERDASARKAN ACCOUNT
-// ===============================
-const accountName = String(row.account).trim();
 
-const accountData = accounts.find(
-  acc => acc.account.trim() === accountName
-);
-
-if (!accountData) {
-  console.log("❌ Account tidak ditemukan:", accountName);
-  continue;
-}
-
-// Clear cookies dulu
-const existingCookies = await page.cookies();
-if (existingCookies.length > 0) {
-  await page.deleteCookie(...existingCookies);
-}
-
-// Set cookie akun yang sesuai
-await page.setCookie(
-  ...accountData.cookies.map(cookie => ({
-    ...cookie,
-    domain: ".facebook.com",
-    path: "/"
-  }))
-);
-
-console.log("✅ Login pakai:", accountName);
   if (!row.tanggal || !row.account || !row.grup_link) continue;
 
   const date = parseTanggal(row.tanggal);
   if (!date) continue;
+
+  const accountName = String(row.account).trim();
+
+  const accountData = accounts.find(
+    acc => acc.account.trim() === accountName
+  );
+
+  if (!accountData) {
+    console.log("❌ Account tidak ditemukan:", accountName);
+    continue;
+  }
+
+  // ===============================
+  // LOGIN VIA COOKIE
+  // ===============================
+  await page.goto("https://www.facebook.com", {
+    waitUntil: "networkidle2"
+  });
+
+  const existingCookies = await page.cookies();
+  if (existingCookies.length > 0) {
+    await page.deleteCookie(...existingCookies);
+  }
+
+  await page.setCookie(
+    ...accountData.cookies.map(cookie => ({
+      ...cookie,
+      domain: ".facebook.com",
+      path: "/"
+    }))
+  );
+
+  console.log("✅ Login pakai:", accountName);
 
   const links = row.grup_link.split(",").map(l => l.trim());
 
@@ -150,18 +148,13 @@ console.log("✅ Login pakai:", accountName);
 
     let groupInfo;
 
-    // ===============================
-    // CHECK CACHE
-    // ===============================
     if (groupCache[groupUrl]) {
-
       console.log("Cache hit:", groupUrl);
       groupInfo = groupCache[groupUrl];
-
     } else {
 
       if (scrapeCount >= MAX_SCRAPE_PER_RUN) {
-        console.log("⚠ Limit scrape tercapai, skip sisanya...");
+        console.log("⚠ Limit scrape tercapai");
         continue;
       }
 
@@ -176,7 +169,6 @@ console.log("✅ Login pakai:", accountName);
 
       await page.waitForTimeout(randomDelay(3000, 6000));
 
-      // Random scroll (biar natural)
       await page.evaluate(() => {
         window.scrollBy(0, 300);
       });
@@ -196,7 +188,7 @@ console.log("✅ Login pakai:", accountName);
           document.querySelector("img");
 
         return {
-          name: name,
+          name,
           photo: img ? img.src : null
         };
       });
@@ -207,7 +199,7 @@ console.log("✅ Login pakai:", accountName);
     if (!schedule[date]) schedule[date] = [];
 
     schedule[date].push({
-      account: String(row.account).trim(),
+      account: accountName,
       group_link: groupUrl,
       group_name: groupInfo.name,
       group_photo: groupInfo.photo,
