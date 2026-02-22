@@ -9,8 +9,10 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 15   # ⬅️ penting biar tidak mati tiba2
 
     steps:
+
       # ===============================
       # CHECKOUT REPO
       # ===============================
@@ -22,6 +24,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 18
+          cache: "npm"   # ⬅️ biar lebih cepat
 
       # ===============================
       # INSTALL DEPENDENCIES
@@ -30,7 +33,7 @@ jobs:
         run: npm install
 
       # ===============================
-      # INSTALL CHROME DEPENDENCIES (WAJIB UNTUK PUPPETEER)
+      # INSTALL CHROME DEPENDENCIES
       # ===============================
       - name: Install Chrome Dependencies
         run: |
@@ -69,18 +72,17 @@ jobs:
             libxrender1 \
             libxss1 \
             libxtst6 \
-            lsb-release \
             wget \
             xdg-utils
 
       # ===============================
-      # RUN GENERATE SCRIPT
+      # RUN SCRIPT
       # ===============================
       - name: Generate Schedule & Scrape Groups
         run: node dashboard/generateSchedule.js
 
       # ===============================
-      # COMMIT FILES (schedule + groups)
+      # COMMIT FILES
       # ===============================
       - name: Commit Changes
         run: |
