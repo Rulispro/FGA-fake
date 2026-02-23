@@ -63,6 +63,8 @@ color: #2563eb;
 .main{
 flex:1;
 padding:25px;
+background:#f1f5f9;
+border-left:1px solid #e2e8f0;
 }
 
 /* ================= STATS ================= */
@@ -342,7 +344,7 @@ return;
 }
 
 filtered.forEach((item,index)=>{
-list.innerHTML+=`
+container.innerHTML+=`
 <div class="card" style="animation-delay:${index*0.05}s">
 
   <div class="left">
