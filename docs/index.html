@@ -115,17 +115,14 @@ border-radius:8px;
 
 .card{
   display:flex;
-  align-items:center;      /* biar rata tengah vertikal */
-  gap:15px;                /* jarak foto dan teks */
-  padding:15px;
-  border-radius:14px;
-  margin-bottom:14px;
-  background: rgba(255,255,255,0.9);
+  align-items:flex-start;  /* penting */
+  gap:20px;
+  padding:18px;
+  border-radius:16px;
+  margin-bottom:18px;
+  background:#ffffff;
   border:1px solid #e2e8f0;
   box-shadow:0 4px 10px rgba(0,0,0,0.05);
-  opacity:0;
-  transform:translateY(20px) scale(.98);
-  animation:cardReveal .5s ease forwards;
 }
 
 @keyframes cardReveal{
@@ -144,14 +141,19 @@ border-radius:8px;
      0 0 25px rgba(0,255,213,.15);
 }
 
+  .left{
+  display:flex;
+  flex-direction:column;
+  width:80px;
+  }
 
 .group-img{
-  width:70px;
-  height:70px;
+  
+  width:60px;
+  height:60px;
   border-radius:12px;
   object-fit:cover;
-  margin-right:15px;
-
+  margin-bottom:10px; /* jarak ke caption */
   opacity:0;
   transform:scale(.8);
   animation:imgIn .6s ease forwards;
@@ -164,10 +166,22 @@ border-radius:8px;
   }
 }
 
+.right{
+  flex:1;
+}
 
-.group-name{color: #1e293b;}
-.caption{opacity:.7;font-size:14px;}
+.group-name{
+  font-size:18px;     /* lebih besar */
+  font-weight:600;
+  color:#1e293b;
+}
 
+.caption{
+  font-size:13px;
+  color:#64748b;
+  line-height:1.5;
+  margin-top:5px;
+}
 .section-title{
 margin:25px 0 12px;
 font-size:20px;
@@ -312,14 +326,18 @@ return;
 filtered.forEach((item,index)=>{
 container.innerHTML+=`
 <div class="card" style="animation-delay:${index*0.05}s">
-<img src="${item.group_photo||'https://via.placeholder.com/70'}" class="group-img">
-<div>
-<div class="group-name">${item.group_name}</div>
-<div class="caption">${item.caption}</div>
-</div>
+
+  <div class="left">
+    <img src="${item.group_photo||'https://via.placeholder.com/70'}" class="group-img">
+    <div class="caption">${item.caption}</div>
+  </div>
+
+  <div class="right">
+    <div class="group-name">${item.group_name}</div>
+  </div>
+
 </div>`;
 });
-
 }
 
 render();
@@ -375,13 +393,18 @@ return;
 }
 
 filtered.forEach((item,index)=>{
-list.innerHTML+=`
+container.innerHTML+=`
 <div class="card" style="animation-delay:${index*0.05}s">
-<img src="${item.group_photo||'https://via.placeholder.com/70'}" class="group-img">
-<div>
-<div class="group-name">${item.group_name}</div>
-<div class="caption">${item.caption}</div>
-</div>
+
+  <div class="left">
+    <img src="${item.group_photo||'https://via.placeholder.com/70'}" class="group-img">
+    <div class="caption">${item.caption}</div>
+  </div>
+
+  <div class="right">
+    <div class="group-name">${item.group_name}</div>
+  </div>
+
 </div>`;
 });
 
