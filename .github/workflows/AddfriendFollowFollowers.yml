@@ -24,7 +24,7 @@ jobs:
         run: npm install --legacy-peer-deps
 
       - name: Run Addfriendfollowers Bot
-        run: node docs/index.js addfriendfollowers
+        run: node dasboard/index.js addfriendfollowers
         env:
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
 
