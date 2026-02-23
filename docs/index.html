@@ -13,7 +13,7 @@ html{
 
 body{
 font-family:system-ui;
-background:#f1f5f9; 
+background:linear-gradient(135deg,#eef2ff,#f1f5f9);
 color: #334155;
 display:flex;
 min-height:100vh;
@@ -26,7 +26,7 @@ overflow-x:hidden;
 
 .sidebar{
 width:230px;
-background: ##0f172a;
+background: #0f172a;
 color: #2563eb;
 border-right: none;
 box-shadow: 4px 0 15px rgba(0,0,0,0.05);
@@ -46,6 +46,11 @@ border-radius:10px;
 cursor:pointer;
 margin-bottom:10px;
 transition:.3s;
+}
+
+.menu div.active{
+  background:#1e293b;
+  color:white;
 }
 
 .menu div:hover{
@@ -71,7 +76,7 @@ flex-wrap:wrap;
 
 .stat{
   background:#ffffff;
-  border:1px solid #e2e8f0;
+  border:1px solid #cbd5e1;
   border-radius:14px;
   box-shadow:0 4px 10px rgba(0,0,0,0.05);
   padding:20px;
@@ -210,9 +215,8 @@ body{flex-direction:column;}
 <div class="logo">🤖 BOT PRO</div>
 
 <div class="menu">
-<div onclick="showPage('result')">📌 Hasil Posting</div>
-<div onclick="showPage('schedule')">📅 Schedule</div>
-</div>
+<div id="menuResult" onclick="showPage('result')">📌 Hasil Posting</div>
+<div id="menuSchedule" onclick="showPage('schedule')">📅 Schedule</div></div>
 </div>
 
 
@@ -268,12 +272,25 @@ body{flex-direction:column;}
 /* ================= NAVIGATION ================= */
 
 function showPage(page){
+
 document.getElementById("resultPage").style.display=
 page==="result"?"block":"none";
 
 document.getElementById("schedulePage").style.display=
 page==="schedule"?"block":"none";
+
+/* reset active */
+document.getElementById("menuResult").classList.remove("active");
+document.getElementById("menuSchedule").classList.remove("active");
+
+/* set active */
+if(page==="result"){
+document.getElementById("menuResult").classList.add("active");
+}else{
+document.getElementById("menuSchedule").classList.add("active");
 }
+
+  }
 
 
 /* ================= RESULT ================= */
@@ -417,7 +434,7 @@ calendar.addEventListener("change",renderSchedule);
 accountFilter.addEventListener("change",renderSchedule);
 
 });
-
+showPage("result");
 </script>
 </body>
-  </html>
+</html>
