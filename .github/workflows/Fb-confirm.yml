@@ -24,7 +24,7 @@ jobs:
         run: npm install --legacy-peer-deps
 
       - name: Run Confirm Bot
-        run: node docs/index.js confirm
+        run: node dashboard/index.js confirm
         env:
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
 
