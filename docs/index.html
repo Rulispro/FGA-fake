@@ -187,8 +187,9 @@ border-radius:8px;
   font-size:20px;
   font-weight:600;
   color:#1e293b;
-  line-height:1.5;
-  margin-top:5px;
+  line-height:1.6;
+  margin-top:6px;
+  word-break:break-word;
 }
 .section-title{
 margin:25px 0 12px;
@@ -345,15 +346,15 @@ return;
 
 filtered.forEach((item,index)=>{
 container.innerHTML+=`
-<div class="card" style="animation-delay:${index*0.05}s">
+<div class="card">
 
   <div class="left">
     <img src="${item.group_photo||'https://via.placeholder.com/70'}" class="group-img">
-    <div class="caption">${item.caption}</div>
   </div>
 
   <div class="right">
     <div class="group-name">${item.group_name}</div>
+    <div class="caption">${item.caption}</div>
   </div>
 
 </div>`;
