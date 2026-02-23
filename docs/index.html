@@ -113,10 +113,9 @@ border-radius:8px;
 
 /* ================= CARD ANIMATION ================= */
 
-
 .card{
   display:flex;
-  align-items:flex-start;
+  align-items:flex-start;  /* penting */
   gap:20px;
   padding:18px;
   border-radius:16px;
@@ -124,10 +123,13 @@ border-radius:8px;
   background:#ffffff;
   border:1px solid #e2e8f0;
   box-shadow:0 4px 10px rgba(0,0,0,0.05);
+}
 
-  opacity:0;
-  transform:translateY(20px) scale(.98);
-  animation:cardReveal .5s ease forwards;
+@keyframes cardReveal{
+  to{
+    opacity:1;
+    transform:translateY(0) scale(1);
+  }
 }
 
 
@@ -391,11 +393,11 @@ return;
 }
 
 filtered.forEach((item,index)=>{
-list.innerHTML+=`
+container.innerHTML+=`
 <div class="card" style="animation-delay:${index*0.05}s">
 
   <div class="left">
-    <img src="${item.group_photo || 'https://via.placeholder.com/70'}" class="group-img">
+    <img src="${item.group_photo||'https://via.placeholder.com/70'}" class="group-img">
     <div class="caption">${item.caption}</div>
   </div>
 
@@ -416,8 +418,5 @@ accountFilter.addEventListener("change",renderSchedule);
 });
 
 </script>
-
-
-
 </body>
-</html>
+  </html>
