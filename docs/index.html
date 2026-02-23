@@ -113,7 +113,7 @@ border-radius:8px;
 
 /* ================= CARD ANIMATION ================= */
 
-.card{
+
 .card{
   display:flex;
   align-items:flex-start;
@@ -395,7 +395,7 @@ list.innerHTML+=`
 <div class="card" style="animation-delay:${index*0.05}s">
 
   <div class="left">
-    <img src="${item.group_photo||'https://via.placeholder.com/70'}" class="group-img">
+    <img src="${item.group_photo || 'https://via.placeholder.com/70'}" class="group-img">
     <div class="caption">${item.caption}</div>
   </div>
 
