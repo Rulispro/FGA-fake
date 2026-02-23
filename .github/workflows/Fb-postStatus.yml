@@ -24,7 +24,7 @@ jobs:
         run: npm install --legacy-peer-deps
 
       - name: Run Status Bot
-        run: node docs/index.js status
+        run: node dashboard/index.js status
         env:
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
 
