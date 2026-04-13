@@ -2,12 +2,12 @@ name: FB Addfriendfollowers Bot
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-  #schedule:
+  #push:
+   # branches:
+     # - main
+  schedule:
     # Contoh: jalan jam 09:00 WIB (02:00 UTC)
-    #- cron: "0 2 * * *"
+    - cron: "0 2 * * *"
 
 jobs:
   run-addfriendfollowers:
