@@ -2955,12 +2955,12 @@ accounts.forEach((a, i) => {
       await page.setBypassCSP(true);
 
       // 🔊 Monitor console
-      //page.on("console", msg => console.log(`📢 [${acc.account}]`, msg.text()));
-     // page.on("pageerror", err => console.log("💥 [Browser Error]", err.message));
+      page.on("console", msg => console.log(`📢 [${acc.account}]`, msg.text()));
+      page.on("pageerror", err => console.log("💥 [Browser Error]", err.message));
 
       // ===== Recorder PER AKUN
-     // const recorder = new PuppeteerScreenRecorder(page);
-    // await recorder.start(`recording_${acc.account}.mp4`);
+     const recorder = new PuppeteerScreenRecorder(page);
+     await recorder.start(`recording_${acc.account}.mp4`);
 
       // ===== Anti-detect (KODE KAMU, TETAP)
       await page.setUserAgent(
@@ -3161,8 +3161,8 @@ else if (mode === "likegroup") {
       
       
       // ===== Stop recorder
-    //  await recorder.stop();
-    // console.log(`🎬 Rekaman selesai: recording_${acc.account}.mp4`);
+     await recorder.stop();
+     console.log(`🎬 Rekaman selesai: recording_${acc.account}.mp4`);
 
       await page.close();
       await context.close();
