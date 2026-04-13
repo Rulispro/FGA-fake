@@ -785,17 +785,50 @@ function randomDelay(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-//PARSE TANGGAL///
+//PARSE TANGGAL LAMA TAPI JALAN ///
+//$function parseTanggalXLSX(tgl) {
+ // if (!tgl) return null;
+
+  // format: M/D/YY atau MM/DD/YY
+  //const [m, d, y] = tgl.split("/");
+//
+ // const year = Number(y) < 100 ? 2000 + Number(y) : Number(y);
+
+ // return `${year}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+// $ SAMPAI SINI }
+
+//PARSER TANGGAL BARU BUAT TEST //
+
 function parseTanggalXLSX(tgl) {
   if (!tgl) return null;
 
-  // format: M/D/YY atau MM/DD/YY
-  const [m, d, y] = tgl.split("/");
-
-  const year = Number(y) < 100 ? 2000 + Number(y) : Number(y);
-
-  return `${year}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+  // kalau sudah ISO (paling aman)
+  if (typeof tgl === "string" && tgl.includes("-")) {
+    return tgl.slice(0, 10);
   }
+
+  if (typeof tgl === "string" && tgl.includes("/")) {
+    const parts = tgl.split("/");
+
+    // YYYY/MM/DD
+    if (parts[0].length === 4) {
+      return `${parts[0]}-${parts[1].padStart(2, "0")}-${parts[2].padStart(2, "0")}`;
+    }
+
+    // DD/MM/YYYY (format Indonesia)
+    if (parts[2].length === 4) {
+      return `${parts[2]}-${parts[1].padStart(2, "0")}-${parts[0].padStart(2, "0")}`;
+    }
+
+    // fallback MM/DD/YY
+    const [m, d, y] = parts;
+    const year = Number(y) < 100 ? 2000 + Number(y) : Number(y);
+
+    return `${year}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+  }
+
+  return null;
+}
 
 // ====== RUN LIKELINKPOST (AMBIL DARI XLSX) ======
 async function runLikeLinkPosts(page, row) {
