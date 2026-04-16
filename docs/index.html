@@ -177,6 +177,11 @@ border-radius:8px;
   flex:1;
 }
 
+.left input{
+margin-bottom:8px;
+transform:scale(1.2);
+  }
+  
 .group-name{
   font-size:20px;     /* lebih besar */
   font-weight:600;
@@ -267,12 +272,12 @@ body{flex-direction:column;}
 
 <div id="schedule-list"></div>
 
+  <div id="groupsPage" style="display:none">
 </div>
 
 </div>
 
   <!-- ================= GROUPS ================= -->
-<div id="groupsPage" style="display:none">
 
 <div class="section-title">👥 Pilih Grup</div>
 
@@ -287,6 +292,10 @@ body{flex-direction:column;}
 </div>
 
 <script>
+
+  function toggleGroup(account, link, checked){
+console.log("Update:", account, link, checked);
+  }
 
 /* ================= NAVIGATION ================= */
 
@@ -420,8 +429,8 @@ let groupsToShow=[];
 
 /* filter akun */
 if(selectedAccount==="all"){
-Object.values(data).forEach(arr=>{
-groupsToShow.push(...arr.map(g=>({...g,account:null})));
+Object.keys(data).forEach(acc=>{
+groupsToShow.push(...data[acc].map(g=>({...g,account:acc})));
 });
 }else{
 groupsToShow=data[selectedAccount].map(g=>({...g,account:selectedAccount}));
