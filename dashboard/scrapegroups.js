@@ -16,48 +16,6 @@ async function getGroupLinks(page, accountName){
   console.log(`📥 [${accountName}] Buka halaman daftar grup...`);
 
   const groupResults = [];
-
-  const handler = async (response) => {
-    try {
-      const url = response.url();
-
-      // DEBUG (optional)
-      // console.log("🌐 API:", url);
-
-      if (url.includes("graphql")) {
-
-        const json = await response.json();
-        const text = JSON.stringify(json);
-
-        const matches = text.match(/"name":"(.*?)".*?"id":"(\d+)".*?"uri":"(https.*?)"/g);
-
-        if (matches) {
-          matches.forEach(m => {
-
-            const name = m.match(/"name":"(.*?)"/)?.[1];
-            const id = m.match(/"id":"(\d+)"/)?.[1];
-            const photo = m.match(/"uri":"(https.*?)"/)?.[1];
-
-            if (name && id) {
-              groupResults.push({
-                name,
-                id,
-                photo,
-                link: `https://m.facebook.com/groups/${id}`
-              });
-            }
-
-          });
-        }
-
-      }
-
-    } catch (e) {}
-  };
-
-  // pasang listener
-  page.on("response", handler);
-
   
 
   await delay(5000);
@@ -72,8 +30,51 @@ async function getGroupLinks(page, accountName){
   // tunggu response API masuk
   await delay(5000);
 
-  // ❗ penting: lepas listener
-  page.off("response", handler);
+await page.goto("https://mbasic.facebook.com/groups/?seemore", {
+  waitUntil: "networkidle2"
+});
+
+await delay(5000);
+
+const groups = await page.evaluate(() => {
+
+  const result = [];
+
+  document.querySelectorAll("a[href*='/groups/']").forEach(a => {
+
+    const href = a.getAttribute("href") || "";
+
+    // filter link valid
+    if (
+      href.includes("/groups/") &&
+      !href.includes("category") &&
+      !href.includes("create") &&
+      !href.includes("discover")
+    ) {
+
+      // ✅ ambil nama
+      const name = (a.innerText || "").trim();
+
+      // ✅ ambil foto
+      const img = a.querySelector("img");
+      const photo = img ? img.src : null;
+
+      // ✅ ambil ID dari URL
+      const match = href.match(/groups\/(\d+)/);
+      const id = match ? match[1] : null;
+
+      if (name && id) {
+        result.push({
+          id,
+          name,
+          photo,
+          link: `https://m.facebook.com/groups/${id}` // 🔥 langsung convert
+        });
+      }
+
+    }
+
+  });
 
   // ===============================
   // HAPUS DUPLIKAT
@@ -81,21 +82,18 @@ async function getGroupLinks(page, accountName){
   const unique = [];
   const seen = new Set();
 
-  groupResults.forEach(g => {
+  result.forEach(g => {
     if (!seen.has(g.id)) {
       seen.add(g.id);
       unique.push(g);
     }
   });
 
-  console.log(`📊 Total grup dari API: ${unique.length}`);
-
-  if (unique.length === 0){
-    console.log("⚠️ WARNING: Tidak ada grup keambil (API)");
-  }
-
   return unique;
-}
+});
+
+console.log("📊 Total grup:", groups.length);
+console.log(groups);
 
 
 // ===============================
