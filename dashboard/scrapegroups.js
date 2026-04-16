@@ -15,35 +15,41 @@ async function getGroupLinks(page, accountName){
 
   console.log(`📥 [${accountName}] Buka halaman daftar grup...`);
 
-  await page.goto("https://m.facebook.com/groups/", {
+  await page.goto("https://m.facebook.com/groups/?seemore", {
     waitUntil: "networkidle2"
   });
 
-  console.log(`⏳ [${accountName}] Tunggu 5 detik...`);
+  console.log(`⏳ Tunggu 5 detik...`);
   await delay(5000);
 
-  console.log(`📜 [${accountName}] Scroll halaman grup...`);
+  console.log(`📜 Scroll halaman...`);
 
-  for (let i = 0; i < 5; i++) {
-    await page.evaluate(() => window.scrollBy(0, 1000));
+  for (let i = 0; i < 7; i++) {
+    await page.evaluate(() => window.scrollBy(0, 1200));
     await delay(2000);
   }
 
   const links = await page.evaluate(() => {
-    const arr = [];
-    document.querySelectorAll("a[href*='/groups/']").forEach(a=>{
-      if(a.href.includes("groups") && a.href.split("/").length > 4){
-        arr.push(a.href.split("?")[0]);
-      }
-    });
 
-    return [...new Set(arr)];
+    const all = Array.from(document.querySelectorAll("a"))
+      .map(a => a.href);
+
+    const filtered = all.filter(h =>
+      h.includes("/groups/") &&
+      h.split("/").length > 4
+    );
+
+    return [...new Set(filtered)];
   });
 
-  console.log(`📊 [${accountName}] Total link grup: ${links.length}`);
+  console.log(`📊 Total link grup: ${links.length}`);
+
+  if(links.length === 0){
+    console.log("⚠️ WARNING: Tidak ada grup keambil");
+  }
 
   return links;
-}
+      }
 
 
 // ===============================
@@ -134,6 +140,8 @@ async function scrapeGroupDetail(page, url, accountName){
       waitUntil: "networkidle2"
     });
 
+    await delay(4000);
+    console.log(`⏳ Tunggu 4 detik sebelum lanjut...`);
     console.log(`✅ Login berhasil: ${accountData.account}`);
     console.log(`🌐 URL sekarang: ${page.url()}`);
 
