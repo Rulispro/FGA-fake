@@ -14,7 +14,7 @@ function delay(ms) {
 
   console.log(`📥 [${accountName}] Buka mbasic groups...`);
 
-  await page.goto("https://m.facebook.com/groups/?ref=bookmarks", {
+  await page.goto("https://m.facebook.com/groups_browse/your_groups/","https://m.facebook.com/groups/joins/", {
     waitUntil: "networkidle2"
   });
 console.log("🌐 REAL URL:", page.url());
