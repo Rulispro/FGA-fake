@@ -14,7 +14,7 @@ function delay(ms) {
 
   console.log(`📥 [${accountName}] Buka mbasic groups...`);
 
-  await page.goto("https://mbasic.facebook.com/groups/#", {
+  await page.goto("https://mbasic.facebook.com/groups/?seemore", {
     waitUntil: "networkidle2"
   });
 
@@ -114,16 +114,11 @@ function delay(ms) {
     });
   });
 
-  await page.setViewport({
-    width: 390,
-    height: 844,
-    isMobile: true,
-    hasTouch: true
-  });
+  
 
   await page.setUserAgent(
-    "Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 Chrome/120 Mobile Safari/537.36"
-  );
+  "Opera/9.80 (J2ME/MIDP; Opera Mini/4.2)"
+);
 
   const allGroupsPerAccount = {};
 
