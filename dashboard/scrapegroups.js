@@ -80,10 +80,14 @@ function delay(ms) {
     // =========================
    
    // NAMA (INI YANG BENAR dari inspect kamu)
-    const name =
-     card.querySelector('h3 span')?.innerText?.trim() ||
-      card.querySelector('h3')?.innerText?.trim() ||
-      null;
+  //  const name =
+    // card.querySelector('h3 span')?.innerText?.trim() ||
+    //  card.querySelector('h3')?.innerText?.trim() ||
+     // null;
+      const rawTitle = document.title || "Unknown Group";
+   const name = rawTitle
+  .replace(/\s*\|\s*Facebook/i,"")
+  .trim();
 
     // AMBIL FOTO (INI SUDAH VALID dari inspect kamu)
     const img =
