@@ -79,15 +79,11 @@ function delay(ms) {
       // FIX: AMBIL NAMA (pakai cara script 2)
     // =========================
    
-    const rawTitle = document.title || "Unknown Group";
-        const name = rawTitle
-          .replace(/\s*\|\s*Facebook/i,"")
-          .trim();
-      // AMBIL NAMA (INI YANG BENAR dari inspect kamu)
-    //const name =
-     // card.querySelector('h3 span')?.innerText?.trim() ||
-     // card.querySelector('h3')?.innerText?.trim() ||
-     // null;
+   // NAMA (INI YANG BENAR dari inspect kamu)
+    const name =
+     card.querySelector('h3 span')?.innerText?.trim() ||
+      card.querySelector('h3')?.innerText?.trim() ||
+      null;
 
     // AMBIL FOTO (INI SUDAH VALID dari inspect kamu)
     const img =
@@ -103,7 +99,7 @@ function delay(ms) {
       
       result.push({
         id,
-        name: name || null,
+        name,//: name || null,
         link: `https://m.facebook.com/groups/${id}`,
       //  photos: photos || null
         photo: img ? img.src : null
