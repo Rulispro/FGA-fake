@@ -14,7 +14,44 @@ function delay(ms) {
 async function getGroupLinks(page, accountName){
 
   console.log(`📥 [${accountName}] Buka halaman daftar grup...`);
+const groupResults = [];
 
+page.on("response", async (response) => {
+  try {
+    const url = response.url();
+
+    if (url.includes("graphql")) {
+
+      const json = await response.json();
+
+      const text = JSON.stringify(json);
+
+      // cari data grup
+      const matches = text.match(/"name":"(.*?)".*?"id":"(\d+)".*?"uri":"(https.*?)"/g);
+
+      if (matches) {
+        matches.forEach(m => {
+
+          const name = m.match(/"name":"(.*?)"/)?.[1];
+          const id = m.match(/"id":"(\d+)"/)?.[1];
+          const photo = m.match(/"uri":"(https.*?)"/)?.[1];
+
+          if (name && id) {
+            groupResults.push({
+              name,
+              id,
+              photo,
+              link: `https://m.facebook.com/groups/${id}`
+            });
+          }
+
+        });
+      }
+
+    }
+
+  } catch (e) {}
+});
   await page.goto("https://m.facebook.com/groups/", {
     waitUntil: "networkidle2"
   });
@@ -78,19 +115,23 @@ await delay(3000);
     });
 
     // Hapus duplikat berdasarkan nama
-    const unique = [];
-    const seen = new Set();
+    await delay(5000);
 
-    result.forEach(g => {
-      if (!seen.has(g.name)) {
-        seen.add(g.name);
-        unique.push(g);
-      }
-    });
+// hapus duplikat
+const unique = [];
+const seen = new Set();
 
-    return unique;
-  });
+groupResults.forEach(g => {
+  if (!seen.has(g.id)) {
+    seen.add(g.id);
+    unique.push(g);
+  }
+});
 
+console.log(`📊 Total grup dari API: ${unique.length}`);
+
+return unique;
+    
   console.log(`📊 Total grup: ${groups.length}`);
 
   if(groups.length === 0){
