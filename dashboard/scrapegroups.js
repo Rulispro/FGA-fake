@@ -11,7 +11,7 @@ function delay(ms) {
 // ============================
       
     
-    async function getGroupLinks(page, accountName){
+  async function getGroupLinks(page, accountName){
 
   console.log(`📥 [${accountName}] Buka groups...`);
 
@@ -24,7 +24,16 @@ function delay(ms) {
   await page.waitForTimeout(5000);
 
   // =========================
-  // 🔥 SCROLL DI SINI (WAJIB)
+  // 2️⃣ DETECT GROUP LINKS (DEBUG WAJIB)
+  // =========================
+  const hasGroups = await page.evaluate(() => {
+    return document.querySelectorAll("a[href*='/groups/']").length;
+  });
+
+  console.log("🔎 DETECTED LINKS:", hasGroups);
+
+  // =========================
+  // 3️⃣ SCROLL UNTUK LOAD DATA
   // =========================
   for (let i = 0; i < 10; i++) {
     await page.evaluate(() => {
@@ -35,58 +44,52 @@ function delay(ms) {
   }
 
   // =========================
-  // SCRAPE SETELAH SCROLL
+  // 4️⃣ SCRAPE DATA SETELAH SCROLL
   // =========================
   const groups = await page.evaluate(() => {
-  const result = [];
+    const result = [];
 
-  const cards = document.querySelectorAll("div");
+    const cards = document.querySelectorAll("div");
 
-  cards.forEach(card => {
+    cards.forEach(card => {
 
-    // 🔗 ambil link group
-    const a = card.querySelector("a[href*='/groups/']");
-    if (!a) return;
+      const a = card.querySelector("a[href*='/groups/']");
+      if (!a) return;
 
-    const href = a.href || "";
+      const href = a.href || "";
 
-    // 🆔 ambil userid dari URL
-    const match = href.match(/groups\/(\d+)/);
-    const id = match ? match[1] : null;
+      const match = href.match(/groups\/(\d+)/);
+      const id = match ? match[1] : null;
 
-    if (!id) return;
+      if (!id) return;
 
-    // 👤 ambil nama dari seluruh card
-    const name = card.innerText
-      ?.split("\n")
-      .find(t =>
-        t &&
-        t.length > 2 &&
-        t.length < 80
-      )
-      ?.trim();
+      const name = card.innerText
+        ?.split("\n")
+        .find(t =>
+          t &&
+          t.length > 2 &&
+          t.length < 80
+        )
+        ?.trim();
 
-    // 🖼 ambil foto dari card
-    const img = card.querySelector("img");
-    const photo = img ? img.src : null;
+      const img = card.querySelector("img");
+      const photo = img ? img.src : null;
 
-    // 🔥 hasil akhir
-    result.push({
-      id: id,
-      name: name || null,
-      link: `https://m.facebook.com/groups/${id}`,
-      photo: photo || null
+      result.push({
+        id,
+        name: name || null,
+        link: `https://m.facebook.com/groups/${id}`,
+        photo: photo || null
+      });
     });
+
+    return [...new Map(result.map(x => [x.id, x])).values()];
   });
 
-  // 🔁 hapus duplikat
-  return [...new Map(result.map(x => [x.id, x])).values()];
-});
-      
   console.log(`📊 Total grup: ${groups.length}`);
 
   return groups;
-    }
+                  }
 
 
 
@@ -201,7 +204,8 @@ await delay(5000);
     "./docs/groups.json",
     JSON.stringify(allGroupsPerAccount, null, 2)
   );
-
+console.log("📁 FILE LOCATION: ./docs/groups.json");
+console.log("✔ FILE SIZE:", fs.statSync("./docs/groups.json").size, "bytes");
   console.log("\n✅ groups.json berhasil dibuat");
 
 })();
