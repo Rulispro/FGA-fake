@@ -78,8 +78,11 @@ function delay(ms) {
       //const photo = img ? img.src : null;
       // FIX: AMBIL NAMA (pakai cara script 2)
     // =========================
-   const rawTitle = document.title || "Unknown Group";
-    
+   
+    const rawTitle = document.title || "Unknown Group";
+        const name = rawTitle
+          .replace(/\s*\|\s*Facebook/i,"")
+          .trim();
       // AMBIL NAMA (INI YANG BENAR dari inspect kamu)
     const name =
       card.querySelector('h3 span')?.innerText?.trim() ||
@@ -87,9 +90,13 @@ function delay(ms) {
       null;
 
     // AMBIL FOTO (INI SUDAH VALID dari inspect kamu)
-    const img = card.querySelector('img');
+    const img =
+          document.querySelector('img[alt*="cover"]') ||
+          document.querySelector('img[role="img"]') ||
+          document.querySelector('img[src*="scontent"]');
 
-    const photo =
+      const img = card.querySelector('img');
+   const photos =
       img?.getAttribute('src') ||
       img?.getAttribute('data-src') ||
       null;
@@ -98,7 +105,8 @@ function delay(ms) {
         id,
         name: name || null,
         link: `https://m.facebook.com/groups/${id}`,
-        photo: photo || null
+        photos: photos || null
+        photo: img ? img.src : null
       });
     });
 
