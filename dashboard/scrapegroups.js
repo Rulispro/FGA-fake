@@ -14,7 +14,7 @@ function delay(ms) {
 
   console.log(`📥 [${accountName}] Buka mbasic groups...`);
 
-  await page.goto("https://www.facebook.com/groups/?ref=bookmarks", {
+  await page.goto("https://m.facebook.com/groups/?ref=bookmarks", {
     waitUntil: "networkidle2"
   });
 console.log("🌐 REAL URL:", page.url());
@@ -126,7 +126,7 @@ console.log("🌐 REAL URL:", page.url());
     console.log(`🔐 Mulai akun: ${accountData.account}`);
 
     // reset cookies
-    await page.goto("https://www.facebook.com", {
+    await page.goto("https://m.facebook.com", {
       waitUntil: "networkidle2"
     });
 
@@ -151,7 +151,7 @@ page.on('request', req => {
   req.continue();
 });
     // reload biar login aktif
-    await page.goto("https://www.facebook.com", {
+    await page.goto("https://m.facebook.com", {
   waitUntil: "networkidle2"
 });
 
