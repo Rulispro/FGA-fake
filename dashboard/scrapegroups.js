@@ -14,7 +14,7 @@ function delay(ms) {
 
   console.log(`📥 [${accountName}] Buka mbasic groups...`);
 
-  await page.goto("https://m.facebook.com/groups_browse/your_groups/","https://m.facebook.com/groups/joins/", {
+  await page.goto("https://m.facebook.com/groups_browse/your_groups/", {
     waitUntil: "networkidle2"
   });
 console.log("🌐 REAL URL:", page.url());
@@ -88,8 +88,6 @@ console.log("🌐 REAL URL:", page.url());
     fs.readFileSync("./dashboard/accounts.json")
   );
 
-  const recorder = new PuppeteerScreenRecorder(page);
- await recorder.start("video.mp4");
   
   const browser = await puppeteer.launch({
     headless: "new",
@@ -103,7 +101,9 @@ console.log("🌐 REAL URL:", page.url());
   });
 
   const page = await browser.newPage();
-
+ // BARU recorder dibuat
+const recorder = new PuppeteerScreenRecorder(page);
+await recorder.start("video.mp4");
   await page.setExtraHTTPHeaders({
     "accept-language": "en-US,en;q=0.9"
   });
