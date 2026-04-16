@@ -49,9 +49,9 @@ function delay(ms) {
   const groups = await page.evaluate(() => {
     const result = [];
 
-   /// const cards = document.querySelectorAll("div");
+    const cards = document.querySelectorAll("div");
 // ambil semua container card
-  const cards = document.querySelectorAll('div[data-mcomponent="MContainer"]');
+  //const cards = document.querySelectorAll('div[data-mcomponent="MContainer"]');
     
     cards.forEach(card => {
 
@@ -78,7 +78,7 @@ function delay(ms) {
       //const photo = img ? img.src : null;
       // FIX: AMBIL NAMA (pakai cara script 2)
     // =========================
-   // const rawTitle = document.title || "Unknown Group";
+   const rawTitle = document.title || "Unknown Group";
     
       // AMBIL NAMA (INI YANG BENAR dari inspect kamu)
     const name =
@@ -96,9 +96,9 @@ function delay(ms) {
       
       result.push({
         id,
-        name,//: name || null,
+        name: name || null,
         link: `https://m.facebook.com/groups/${id}`,
-        photo,//: photo || null
+        photo: photo || null
       });
     });
 
