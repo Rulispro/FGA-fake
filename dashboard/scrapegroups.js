@@ -15,16 +15,18 @@ async function getGroupLinks(page, accountName){
 
   console.log(`📥 [${accountName}] Buka halaman daftar grup...`);
 
-  await page.goto("https://m.facebook.com/groups/", {
+  await page.goto("https://m.facebook.com/groups/?category=your_groups", {
     waitUntil: "networkidle2"
   });
 
+  console.log(`🌐 URL sekarang: ${page.url()}`);
+  
   console.log(`⏳ Tunggu 5 detik...`);
   await delay(5000);
 
   console.log(`📜 Scroll halaman...`);
 
-  for (let i = 0; i < 7; i++) {
+  for (let i = 0; i < 15; i++) {
     await page.evaluate(() => window.scrollBy(0, 1200));
     await delay(2000);
   }
