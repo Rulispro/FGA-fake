@@ -18,7 +18,8 @@ async function getGroupLinks(page, accountName){
   await page.goto("https://m.facebook.com/groups/", {
     waitUntil: "networkidle2"
   });
-
+await page.waitForSelector("body", { timeout: 15000 });
+await delay(3000);
   console.log(`🌐 URL sekarang: ${page.url()}`);
 
   console.log(`⏳ Tunggu 5 detik...`);
@@ -44,8 +45,7 @@ async function getGroupLinks(page, accountName){
     const result = [];
 
     // Ambil semua kemungkinan container item
-    const items = document.querySelectorAll('a, div[role="link"]');
-
+    const items = document.querySelectorAll('a[href*="groups"]');
     items.forEach(el => {
 
       const text = el.innerText || "";
@@ -155,7 +155,12 @@ async function scrapeGroupDetail(page, url, accountName){
   });
 
   const page = await browser.newPage();
-
+await page.setViewport({
+  width: 390,
+  height: 844,
+  isMobile: true,
+  hasTouch: true
+});
   await page.setUserAgent(
     "Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 Chrome/120 Mobile Safari/537.36"
   );
@@ -201,26 +206,7 @@ async function scrapeGroupDetail(page, url, accountName){
     // ===============================
     // LOOP SETIAP GROUP
     // ===============================
-    for (let i = 0; i < links.length; i++) {
-
-      console.log(`\n🔎 [${accountData.account}] (${i+1}/${links.length})`);
-
-      const info = await scrapeGroupDetail(
-        page,
-        links[i],
-        accountData.account
-      );
-
-      groups.push({
-        link: links[i],
-        name: info.name,
-        photo: info.photo,
-        checked: false
-      });
-
-      console.log(`⏳ Tunggu 10 detik sebelum lanjut...`);
-      await delay(10000);
-    }
+    
 
     allGroupsPerAccount[accountData.account] = groups;
 
@@ -236,6 +222,8 @@ async function scrapeGroupDetail(page, url, accountName){
 
   if (!fs.existsSync("./docs"))
     fs.mkdirSync("./docs");
+
+  fs.writeFileSync("debug.html", await page.content());
 
   fs.writeFileSync(
     "./docs/groups.json",
