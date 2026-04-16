@@ -141,15 +141,15 @@ console.log("🌐 REAL URL:", page.url());
         path: "/"
       }))
     );
-await page.setRequestInterception(true);
+///await page.setRequestInterception(true);
 
-page.on('request', req => {
-  if (req.url().includes("m.facebook.com")) {
-    console.log("⛔ BLOCK REDIRECT:", req.url());
-    return req.abort();
-  }
-  req.continue();
-});
+///page.on('request', req => {
+ /// if (req.url().includes("m.facebook.com")) {
+   /// console.log("⛔ BLOCK REDIRECT:", req.url());
+ ///   return req.abort();
+///  }
+//  req.continue();
+///});
     // reload biar login aktif
     await page.goto("https://m.facebook.com", {
   waitUntil: "networkidle2"
