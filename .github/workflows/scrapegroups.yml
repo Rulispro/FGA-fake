@@ -1,18 +1,14 @@
-name: Scrape Groups
+name: FB Scraper + Recorder
 
 on:
   workflow_dispatch:
 
-permissions:
-  contents: write
-
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
-
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
@@ -22,17 +18,29 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      # ✅ GANTI NAMA STEP
+      # install ffmpeg untuk recorder
+      - name: Install FFmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      # jalankan scraper + recorder
       - name: Scrape Facebook Groups
         run: node dashboard/scrapegroups.js
 
-      # ✅ COMMIT HASIL SCRAPE SAJA
+      # upload video hasil recording
+      - name: Upload Video Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: scrape-video
+          path: video.mp4
+
+      # commit hasil JSON
       - name: Commit Groups
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
 
-          git add docs/groups.json package-lock.json
+          git add docs/groups.json
 
           git diff --cached --quiet || git commit -m "Auto update groups"
+
           git push
