@@ -10,69 +10,61 @@ function delay(ms) {
 
 // ============================
       
+    
     async function getGroupLinks(page, accountName){
 
-  console.log(`📥 [${accountName}] Buka mbasic groups...`);
+  console.log(`📥 [${accountName}] Buka groups...`);
 
-  await page.goto("https://m.facebook.com/groups_browse/your_groups/", {
-    waitUntil: "networkidle2"
+  await page.goto("https://m.facebook.com/groups/joins/", {
+    waitUntil: "domcontentloaded"
   });
-console.log("🌐 REAL URL:", page.url());
-  await delay(5000);
 
+  console.log("🌐 REAL URL:", page.url());
+
+  await page.waitForTimeout(5000);
+
+  // =========================
+  // 🔥 SCROLL DI SINI (WAJIB)
+  // =========================
+  for (let i = 0; i < 10; i++) {
+    await page.evaluate(() => {
+      window.scrollTo(0, document.body.scrollHeight);
+    });
+
+    await page.waitForTimeout(2000);
+  }
+
+  // =========================
+  // SCRAPE SETELAH SCROLL
+  // =========================
   const groups = await page.evaluate(() => {
-
     const result = [];
 
     document.querySelectorAll("a[href*='/groups/']").forEach(a => {
 
-      const href = a.getAttribute("href") || "";
+      const href = a.href || "";
+      const match = href.match(/groups\/(\d+)/);
+      const id = match ? match[1] : null;
 
-      if (
-        href.includes("/groups/")
-      ) {
+      const name = a.innerText?.split("\n")[0]?.trim();
 
-        const name = (a.innerText || "")
-          .split("\n")[0]
-          .trim();
+      const img = a.closest("div")?.querySelector("img");
+      const photo = img ? img.src : null;
 
-        const img = a.querySelector("img");
-        const photo = img ? img.src : null;
-
-        const match = href.match(/groups\/(\d+)/);
-        const id = match ? match[1] : null;
-
-        if (name && id) {
-          result.push({
-            id,
-            name,
-            photo,
-            link: `https://m.facebook.com/groups/${id}`
-          });
-        }
-
-      }
-
-    });
-
-    const unique = [];
-    const seen = new Set();
-
-    result.forEach(g => {
-      if (!seen.has(g.id)) {
-        seen.add(g.id);
-        unique.push(g);
+      if (id && name) {
+        result.push({
+          id,
+          name,
+          photo,
+          link: `https://m.facebook.com/groups/${id}`
+        });
       }
     });
 
-    return unique;
+    return [...new Map(result.map(x => [x.id, x])).values()];
   });
 
   console.log(`📊 Total grup: ${groups.length}`);
-
-  if (groups.length === 0){
-    console.log("⚠️ WARNING: Tidak ada grup keambil");
-  }
 
   return groups;
     }
