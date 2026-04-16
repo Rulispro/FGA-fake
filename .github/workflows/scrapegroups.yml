@@ -23,8 +23,10 @@ jobs:
 
       # install ffmpeg untuk recorder
       - name: Install FFmpeg
-        run: sudo apt-get update && sudo apt-get install -y ffmpeg
-
+        run: |
+          sudo apt-get update -qq > /dev/null
+          sudo apt-get install -y ffmpeg -qq > /dev/null
+      
       # jalankan scraper + recorder
       - name: Scrape Facebook Groups
         run: node dashboard/scrapegroups.js
