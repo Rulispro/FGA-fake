@@ -29,10 +29,7 @@ console.log("🌐 REAL URL:", page.url());
       const href = a.getAttribute("href") || "";
 
       if (
-        href.includes("/groups/") &&
-        !href.includes("category") &&
-        !href.includes("create") &&
-        !href.includes("discover")
+        href.includes("/groups/")
       ) {
 
         const name = (a.innerText || "")
