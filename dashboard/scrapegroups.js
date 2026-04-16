@@ -11,89 +11,77 @@ function delay(ms) {
 // ===============================
 // AMBIL GROUP VIA API GRAPHQL
 // ===============================
-async function getGroupLinks(page, accountName){
-
-  console.log(`📥 [${accountName}] Buka halaman daftar grup...`);
-
-  const groupResults = [];
-  
-
-  await delay(5000);
-
-  console.log(`📜 Scroll halaman...`);
-
-  for (let i = 0; i < 20; i++) {
-    await page.evaluate(() => window.scrollBy(0, window.innerHeight));
-    await delay(2000);
-  }
-
-  // tunggu response API masuk
-  await delay(5000);
-
-await page.goto("https://mbasic.facebook.com/groups/?seemore", {
-  waitUntil: "networkidle2"
-});
-
-await delay(5000);
-
-const groups = await page.evaluate(() => {
-
-  const result = [];
-
-  document.querySelectorAll("a[href*='/groups/']").forEach(a => {
-
-    const href = a.getAttribute("href") || "";
-
-    // filter link valid
-    if (
-      href.includes("/groups/") &&
-      !href.includes("category") &&
-      !href.includes("create") &&
-      !href.includes("discover")
-    ) {
-
-      // ✅ ambil nama
-      const name = (a.innerText || "").trim();
-
-      // ✅ ambil foto
-      const img = a.querySelector("img");
-      const photo = img ? img.src : null;
-
-      // ✅ ambil ID dari URL
-      const match = href.match(/groups\/(\d+)/);
-      const id = match ? match[1] : null;
 
       if (name && id) {
-        result.push({
-          id,
-          name,
-          photo,
-          link: `https://m.facebook.com/groups/${id}` // 🔥 langsung convert
-        });
+async function getGroupLinks(page, accountName){
+
+  console.log(`📥 [${accountName}] Buka mbasic groups...`);
+
+  await page.goto("https://mbasic.facebook.com/groups/?seemore", {
+    waitUntil: "networkidle2"
+  });
+
+  await delay(5000);
+
+  const groups = await page.evaluate(() => {
+
+    const result = [];
+
+    document.querySelectorAll("a[href*='/groups/']").forEach(a => {
+
+      const href = a.getAttribute("href") || "";
+
+      if (
+        href.includes("/groups/") &&
+        !href.includes("category") &&
+        !href.includes("create") &&
+        !href.includes("discover")
+      ) {
+
+        const name = (a.innerText || "")
+          .split("\n")[0]
+          .trim();
+
+        const img = a.querySelector("img");
+        const photo = img ? img.src : null;
+
+        const match = href.match(/groups\/(\d+)/);
+        const id = match ? match[1] : null;
+
+        if (name && id) {
+          result.push({
+            id,
+            name,
+            photo,
+            link: `https://m.facebook.com/groups/${id}`
+          });
+        }
+
       }
 
-    }
+    });
 
+    // hapus duplikat
+    const unique = [];
+    const seen = new Set();
+
+    result.forEach(g => {
+      if (!seen.has(g.id)) {
+        seen.add(g.id);
+        unique.push(g);
+      }
+    });
+
+    return unique;
   });
 
-  // ===============================
-  // HAPUS DUPLIKAT
-  // ===============================
-  const unique = [];
-  const seen = new Set();
+  console.log(`📊 Total grup: ${groups.length}`);
 
-  result.forEach(g => {
-    if (!seen.has(g.id)) {
-      seen.add(g.id);
-      unique.push(g);
-    }
-  });
+  if (groups.length === 0){
+    console.log("⚠️ WARNING: Tidak ada grup keambil");
+  }
 
-  return unique;
-});
 
-console.log("📊 Total grup:", groups.length);
-console.log(groups);
 
 
 // ===============================
