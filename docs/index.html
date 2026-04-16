@@ -258,7 +258,7 @@ body{flex-direction:column;}
 </div>
 
 
-<!-- ================= SCHEDULE ================= -->
+<!-- ================= SCHEDULE ROW TEMPLATE xlsx ================= -->
 <div id="schedulePage" style="display:none">
 
 <div class="section-title">📅 Jadwal Posting</div>
@@ -275,6 +275,23 @@ body{flex-direction:column;}
 
 </div>
 
+  <!-- ================= SCHEDULE POST BARU ================= -->
+<div id="schedulePostPage" style="display:none">
+
+<div class="section-title">📅 JADWAL POSTING (GRUP TERPILIH)</div>
+
+<div class="filters">
+<select id="schedulePostAccountFilter">
+<option value="all">Semua Akun</option>
+</select>
+
+<input type="date" id="calendar">
+</div>
+
+<div id="schedulePost-list"></div>
+
+</div>
+  
 
 <!-- ================= GROUPS ================= -->
 <div id="groupsPage" style="display:none">
