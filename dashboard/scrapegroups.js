@@ -156,7 +156,7 @@ function delay(ms) {
 
 await delay(5000);
 
-/
+
     console.log(`✅ Login berhasil: ${accountData.account}`);
     console.log(`🌐 URL sekarang: di m.facebook.com/groups`);
 
