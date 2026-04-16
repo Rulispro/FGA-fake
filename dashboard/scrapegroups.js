@@ -58,9 +58,7 @@ async function getGroupLinks(page, accountName){
   // pasang listener
   page.on("response", handler);
 
-  await page.goto("https://m.facebook.com/groups/", {
-    waitUntil: "networkidle2"
-  });
+  
 
   await delay(5000);
 
@@ -169,8 +167,22 @@ async function getGroupLinks(page, accountName){
 
     // reload biar login aktif
     await page.goto("https://m.facebook.com", {
-      waitUntil: "networkidle2"
-    });
+  waitUntil: "networkidle2"
+});
+
+await delay(5000);
+
+// klik menu Groups
+try {
+  await page.waitForSelector('a[href*="/groups"]', { timeout: 10000 });
+  await page.click('a[href*="/groups"]');
+
+  console.log("✅ Klik menu Groups");
+  await delay(5000);
+
+} catch (e) {
+  console.log("❌ Gagal klik menu Groups");
+}
 
     await delay(4000);
 
