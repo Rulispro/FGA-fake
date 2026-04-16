@@ -8,12 +8,9 @@ function delay(ms) {
   return new Promise(res => setTimeout(res, ms));
 }
 
-// ===============================
-// AMBIL GROUP VIA API GRAPHQL
-// ===============================
-
-      if (name && id) {
-async function getGroupLinks(page, accountName){
+// ============================
+      
+    async function getGroupLinks(page, accountName){
 
   console.log(`📥 [${accountName}] Buka mbasic groups...`);
 
@@ -61,7 +58,6 @@ async function getGroupLinks(page, accountName){
 
     });
 
-    // hapus duplikat
     const unique = [];
     const seen = new Set();
 
@@ -81,6 +77,8 @@ async function getGroupLinks(page, accountName){
     console.log("⚠️ WARNING: Tidak ada grup keambil");
   }
 
+  return groups;
+    }
 
 
 
@@ -158,39 +156,7 @@ async function getGroupLinks(page, accountName){
 
 await delay(5000);
 
-// klik menu Groups
-try {
-await page.evaluate(() => {
-  const btn = document.querySelector('[aria-label="Facebook Menu"]');
-
-  if (btn) {
-    btn.dispatchEvent(new MouseEvent('click', {
-      bubbles: true,
-      cancelable: true,
-      view: window
-    }));
-  }
-});
-  
-  console.log("✅ Klik menu Groups");
-  await delay(5000);
-
-} catch (e) {
-  console.log("❌ Gagal klik menu Groups");
-}
-await page.evaluate(() => {
-  const btn = document.querySelector('[aria-label="Groups"]');
-
-  if (btn) {
-    btn.dispatchEvent(new MouseEvent('click', {
-      bubbles: true,
-      cancelable: true,
-      view: window
-    }));
-  }
-});
-    await delay(4000);
-
+/
     console.log(`✅ Login berhasil: ${accountData.account}`);
     console.log(`🌐 URL sekarang: di m.facebook.com/groups`);
 
