@@ -63,17 +63,39 @@ function delay(ms) {
 
       if (!id) return;
 
-      const name = card.innerText
-        ?.split("\n")
-        .find(t =>
-          t &&
-          t.length > 2 &&
-          t.length < 80
-        )
-        ?.trim();
+    //  const name = card.innerText
+       // ?.split("\n")
+        //.find(t =>
+          //t &&
+          //t.length > 2 &&
+        //  t.length < 80
+       // )
+       // ?.trim();
 
-      const img = card.querySelector("img");
-      const photo = img ? img.src : null;
+      //const img = card.querySelector("img");
+      //const photo = img ? img.src : null;
+      // FIX: AMBIL NAMA (pakai cara script 2)
+    // =========================
+    const rawTitle = document.title || "Unknown Group";
+    const nameFromTitle = rawTitle
+      .replace(/\s*\|\s*Facebook/i, "")
+      .trim();
+
+    const name =
+      card.querySelector("h1")?.innerText?.trim() ||
+      nameFromTitle ||
+      null;
+
+    // =========================
+    // FIX: AMBIL FOTO (pakai cara script 2)
+    // =========================
+    const img =
+      card.querySelector('img[alt*="Group cover"]') ||
+      card.querySelector('img[role="presentation"][src*="scontent"]') ||
+      card.querySelector('img[src*="scontent"]');
+
+    const photo = img ? img.src : null;
+
 
       result.push({
         id,
