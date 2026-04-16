@@ -90,7 +90,7 @@ function delay(ms) {
   .trim();
 
     // AMBIL FOTO (INI SUDAH VALID dari inspect kamu)
-    const imgs =
+    const img =
           document.querySelector('img[alt*="cover"]') ||
           document.querySelector('img[role="img"]') ||
           document.querySelector('img[src*="scontent"]');
@@ -106,7 +106,7 @@ function delay(ms) {
         name,//: name || null,
         link: `https://m.facebook.com/groups/${id}`,
       //  photos: photos || null
-        imgs: img ? img.src : null
+        img: img ? img.src : null
       });
     });
 
