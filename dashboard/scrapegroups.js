@@ -15,7 +15,7 @@ async function getGroupLinks(page, accountName){
 
   console.log(`📥 [${accountName}] Buka halaman daftar grup...`);
 
-  await page.goto("https://m.facebook.com/groups/?seemore", {
+  await page.goto("https://m.facebook.com/groups/", {
     waitUntil: "networkidle2"
   });
 
