@@ -1,7 +1,7 @@
 const fs = require("fs");
 const puppeteer = require("puppeteer-extra");
 const StealthPlugin = require("puppeteer-extra-plugin-stealth");
-
+const { PuppeteerScreenRecorder } = require("puppeteer-screen-recorder");
 puppeteer.use(StealthPlugin());
 
 function delay(ms) {
@@ -88,6 +88,9 @@ console.log("🌐 REAL URL:", page.url());
     fs.readFileSync("./dashboard/accounts.json")
   );
 
+  const recorder = new PuppeteerScreenRecorder(page);
+ await recorder.start("video.mp4");
+  
   const browser = await puppeteer.launch({
     headless: "new",
     executablePath: "/usr/bin/chromium-browser",
@@ -175,7 +178,9 @@ await delay(5000);
 
     await delay(5000);
   }
-
+ 
+  
+  await recorder.stop();
   await browser.close();
 
   if (!fs.existsSync("./docs"))
