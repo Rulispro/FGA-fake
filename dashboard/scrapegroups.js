@@ -174,20 +174,39 @@ await delay(5000);
 
 // klik menu Groups
 try {
-  await page.waitForSelector('a[href*="/groups"]', { timeout: 10000 });
-  await page.click('a[href*="/groups"]');
+await page.evaluate(() => {
+  const btn = document.querySelector('[aria-label="Facebook Menu"]');
 
+  if (btn) {
+    btn.dispatchEvent(new MouseEvent('click', {
+      bubbles: true,
+      cancelable: true,
+      view: window
+    }));
+  }
+});
+  
   console.log("✅ Klik menu Groups");
   await delay(5000);
 
 } catch (e) {
   console.log("❌ Gagal klik menu Groups");
 }
+await page.evaluate(() => {
+  const btn = document.querySelector('[aria-label="Groups"]');
 
+  if (btn) {
+    btn.dispatchEvent(new MouseEvent('click', {
+      bubbles: true,
+      cancelable: true,
+      view: window
+    }));
+  }
+});
     await delay(4000);
 
     console.log(`✅ Login berhasil: ${accountData.account}`);
-    console.log(`🌐 URL sekarang: ${page.url()}`);
+    console.log(`🌐 URL sekarang: di m.facebook.com/groups`);
 
     // ===============================
     // AMBIL GROUP
