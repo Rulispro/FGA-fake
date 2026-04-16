@@ -44,37 +44,45 @@ function delay(ms) {
 
   cards.forEach(card => {
 
+    // 🔗 ambil link group
     const a = card.querySelector("a[href*='/groups/']");
     if (!a) return;
 
     const href = a.href || "";
+
+    // 🆔 ambil userid dari URL
     const match = href.match(/groups\/(\d+)/);
     const id = match ? match[1] : null;
 
     if (!id) return;
 
+    // 👤 ambil nama dari seluruh card
     const name = card.innerText
       ?.split("\n")
-      .find(t => t && t.length > 2 && t.length < 80)
+      .find(t =>
+        t &&
+        t.length > 2 &&
+        t.length < 80
+      )
       ?.trim();
 
+    // 🖼 ambil foto dari card
     const img = card.querySelector("img");
     const photo = img ? img.src : null;
 
-    // 🔥 INI FILTER YANG KAMU TANYA
-    if (!id || !name || name.length < 3) return;
-
+    // 🔥 hasil akhir
     result.push({
-      id,
-      name,
-      photo,
-      link: `https://m.facebook.com/groups/${id}`
+      id: id,
+      name: name || null,
+      link: `https://m.facebook.com/groups/${id}`,
+      photo: photo || null
     });
   });
 
+  // 🔁 hapus duplikat
   return [...new Map(result.map(x => [x.id, x])).values()];
 });
-
+      
   console.log(`📊 Total grup: ${groups.length}`);
 
   return groups;
