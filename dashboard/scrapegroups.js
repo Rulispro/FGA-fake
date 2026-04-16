@@ -14,7 +14,7 @@ function delay(ms) {
 
   console.log(`📥 [${accountName}] Buka mbasic groups...`);
 
-  await page.goto("https://mbasic.facebook.com/groups/?seemore&refid=27&_rdc=1&_rdr", {
+  await page.goto("https://www.facebook.com/groups/?ref=bookmarks", {
     waitUntil: "networkidle2"
   });
 console.log("🌐 REAL URL:", page.url());
@@ -116,9 +116,7 @@ console.log("🌐 REAL URL:", page.url());
 
   
 
-  await page.setUserAgent(
-  "Opera/9.80 (J2ME/MIDP; Opera Mini/4.2)"
-);
+  
 
   const allGroupsPerAccount = {};
 
@@ -128,7 +126,7 @@ console.log("🌐 REAL URL:", page.url());
     console.log(`🔐 Mulai akun: ${accountData.account}`);
 
     // reset cookies
-    await page.goto("https://mbasic.facebook.com", {
+    await page.goto("https://www.facebook.com", {
       waitUntil: "networkidle2"
     });
 
@@ -153,7 +151,7 @@ page.on('request', req => {
   req.continue();
 });
     // reload biar login aktif
-    await page.goto("https://mbasic.facebook.com", {
+    await page.goto("https://www.facebook.com", {
   waitUntil: "networkidle2"
 });
 
