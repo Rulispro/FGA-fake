@@ -49,8 +49,10 @@ function delay(ms) {
   const groups = await page.evaluate(() => {
     const result = [];
 
-    const cards = document.querySelectorAll("div");
-
+   /// const cards = document.querySelectorAll("div");
+// ambil semua container card
+  const cards = document.querySelectorAll('div[data-mcomponent="MContainer"]');
+    
     cards.forEach(card => {
 
       const a = card.querySelector("a[href*='/groups/']");
@@ -76,8 +78,9 @@ function delay(ms) {
       //const photo = img ? img.src : null;
       // FIX: AMBIL NAMA (pakai cara script 2)
     // =========================
-    const rawTitle = document.title || "Unknown Group";
-    // AMBIL NAMA (INI YANG BENAR dari inspect kamu)
+   // const rawTitle = document.title || "Unknown Group";
+    
+      // AMBIL NAMA (INI YANG BENAR dari inspect kamu)
     const name =
       card.querySelector('h3 span')?.innerText?.trim() ||
       card.querySelector('h3')?.innerText?.trim() ||
@@ -93,9 +96,9 @@ function delay(ms) {
       
       result.push({
         id,
-        name: name || null,
+        name,//: name || null,
         link: `https://m.facebook.com/groups/${id}`,
-        photo: photo || null
+        photo,//: photo || null
       });
     });
 
