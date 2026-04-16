@@ -15,43 +15,90 @@ async function getGroupLinks(page, accountName){
 
   console.log(`📥 [${accountName}] Buka halaman daftar grup...`);
 
-  await page.goto("https://m.facebook.com/groups/?category=your_groups", {
+  await page.goto("https://m.facebook.com/groups/", {
     waitUntil: "networkidle2"
   });
 
   console.log(`🌐 URL sekarang: ${page.url()}`);
-  
+
   console.log(`⏳ Tunggu 5 detik...`);
   await delay(5000);
 
+  // ===============================
+  // SCROLL (WAJIB - lazy load)
+  // ===============================
   console.log(`📜 Scroll halaman...`);
 
-  for (let i = 0; i < 15; i++) {
-    await page.evaluate(() => window.scrollBy(0, 1200));
+  for (let i = 0; i < 20; i++) {
+    await page.evaluate(() => {
+      window.scrollBy(0, window.innerHeight);
+    });
     await delay(2000);
   }
 
-  const links = await page.evaluate(() => {
+  // ===============================
+  // SCRAPE DATA LANGSUNG DARI LIST
+  // ===============================
+  const groups = await page.evaluate(() => {
 
-    const all = Array.from(document.querySelectorAll("a"))
-      .map(a => a.href);
+    const result = [];
 
-    const filtered = all.filter(h =>
-      h.includes("/groups/") &&
-      h.split("/").length > 4
-    );
+    // Ambil semua kemungkinan container item
+    const items = document.querySelectorAll('a, div[role="link"]');
 
-    return [...new Set(filtered)];
+    items.forEach(el => {
+
+      const text = el.innerText || "";
+
+      // Filter: item grup biasanya ada kata "post"
+      if (
+        text.toLowerCase().includes("post")
+      ) {
+
+        const lines = text.split("\n").map(t => t.trim()).filter(Boolean);
+
+        // Nama grup biasanya baris pertama
+        const name = lines[0];
+
+        // Ambil foto
+        const img = el.querySelector("img");
+
+        // Ambil link kalau ada
+        const link = el.closest("a")?.href || null;
+
+        // Validasi biar ga ambil sampah
+        if (name && name.length > 3) {
+          result.push({
+            name,
+            photo: img ? img.src : null,
+            link
+          });
+        }
+      }
+    });
+
+    // Hapus duplikat berdasarkan nama
+    const unique = [];
+    const seen = new Set();
+
+    result.forEach(g => {
+      if (!seen.has(g.name)) {
+        seen.add(g.name);
+        unique.push(g);
+      }
+    });
+
+    return unique;
   });
 
-  console.log(`📊 Total link grup: ${links.length}`);
+  console.log(`📊 Total grup: ${groups.length}`);
 
-  if(links.length === 0){
+  if(groups.length === 0){
     console.log("⚠️ WARNING: Tidak ada grup keambil");
   }
 
-  return links;
-      }
+  return groups;
+}
 
 
 // ===============================
@@ -150,10 +197,7 @@ async function scrapeGroupDetail(page, url, accountName){
     // ===============================
     // AMBIL LIST LINK GROUP
     // ===============================
-    const links = await getGroupLinks(page, accountData.account);
-
-    const groups = [];
-
+    const groups = await getGroupLinks(page, accountData.account);
     // ===============================
     // LOOP SETIAP GROUP
     // ===============================
