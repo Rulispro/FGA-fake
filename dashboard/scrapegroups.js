@@ -149,12 +149,26 @@ async function scrapeGroupDetail(page, url, accountName){
     fs.readFileSync("./dashboard/accounts.json")
   );
 
-  const browser = await puppeteer.launch({
-    headless: "new",
-    args: ["--no-sandbox"]
-  });
+   const browser = await puppeteer.launch({
+  headless: "new",
+  executablePath: "/usr/bin/chromium-browser",
+  args: [
+    "--no-sandbox",
+    "--disable-setuid-sandbox",
+    "--disable-dev-shm-usage",
+    "--disable-blink-features=AutomationControlled"
+  ]
+});
 
   const page = await browser.newPage();
+  await page.setExtraHTTPHeaders({
+  "accept-language": "en-US,en;q=0.9"
+});
+  await page.evaluateOnNewDocument(() => {
+  Object.defineProperty(navigator, 'webdriver', {
+    get: () => false,
+  });
+});
 await page.setViewport({
   width: 390,
   height: 844,
@@ -217,13 +231,11 @@ await page.setViewport({
 
     await delay(5000);
   }
-
+fs.writeFileSync(`debug-${accountData.account}.html`, await page.content());
   await browser.close();
 
   if (!fs.existsSync("./docs"))
     fs.mkdirSync("./docs");
-
-  fs.writeFileSync("debug.html", await page.content());
 
   fs.writeFileSync(
     "./docs/groups.json",
