@@ -77,26 +77,20 @@ function delay(ms) {
       // FIX: AMBIL NAMA (pakai cara script 2)
     // =========================
     const rawTitle = document.title || "Unknown Group";
-    const nameFromTitle = rawTitle
-      .replace(/\s*\|\s*Facebook/i, "")
-      .trim();
-
+    // AMBIL NAMA (INI YANG BENAR dari inspect kamu)
     const name =
-      card.querySelector("h1")?.innerText?.trim() ||
-      nameFromTitle ||
+      card.querySelector('h3 span')?.innerText?.trim() ||
+      card.querySelector('h3')?.innerText?.trim() ||
       null;
 
-    // =========================
-    // FIX: AMBIL FOTO (pakai cara script 2)
-    // =========================
-    const img =
-      card.querySelector('img[alt*="Group cover"]') ||
-      card.querySelector('img[role="presentation"][src*="scontent"]') ||
-      card.querySelector('img[src*="scontent"]');
+    // AMBIL FOTO (INI SUDAH VALID dari inspect kamu)
+    const img = card.querySelector('img');
 
-    const photo = img ? img.src : null;
-
-
+    const photo =
+      img?.getAttribute('src') ||
+      img?.getAttribute('data-src') ||
+      null;
+      
       result.push({
         id,
         name: name || null,
