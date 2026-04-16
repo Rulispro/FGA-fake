@@ -84,10 +84,10 @@ function delay(ms) {
           .replace(/\s*\|\s*Facebook/i,"")
           .trim();
       // AMBIL NAMA (INI YANG BENAR dari inspect kamu)
-    const name =
-      card.querySelector('h3 span')?.innerText?.trim() ||
-      card.querySelector('h3')?.innerText?.trim() ||
-      null;
+    //const name =
+     // card.querySelector('h3 span')?.innerText?.trim() ||
+     // card.querySelector('h3')?.innerText?.trim() ||
+     // null;
 
     // AMBIL FOTO (INI SUDAH VALID dari inspect kamu)
     const img =
@@ -95,17 +95,17 @@ function delay(ms) {
           document.querySelector('img[role="img"]') ||
           document.querySelector('img[src*="scontent"]');
 
-      const img = card.querySelector('img');
-   const photos =
-      img?.getAttribute('src') ||
-      img?.getAttribute('data-src') ||
-      null;
+      //const imgs = card.querySelector('img');
+  // const photos =
+     // img?.getAttribute('src') ||
+     // img?.getAttribute('data-src') ||
+     // null;
       
       result.push({
         id,
         name: name || null,
         link: `https://m.facebook.com/groups/${id}`,
-        photos: photos || null
+      //  photos: photos || null
         photo: img ? img.src : null
       });
     });
