@@ -219,7 +219,8 @@ body{flex-direction:column;}
 
 <div class="menu">
 <div id="menuResult" onclick="showPage('result')">📌 Hasil Posting</div>
-<div id="menuSchedule" onclick="showPage('schedule')">📅 Schedule</div></div>
+<div id="menuSchedule" onclick="showPage('schedule')">📅 Schedule</div>
+<div id="menuGroups" onclick="showPage('groups')">👥 Grup</div></div>
 </div>
 
 
@@ -270,12 +271,35 @@ body{flex-direction:column;}
 
 </div>
 
+  <!-- ================= GROUPS ================= -->
+<div id="groupsPage" style="display:none">
+
+<div class="section-title">👥 Pilih Grup</div>
+
+<div class="filters">
+<select id="groupAccountFilter">
+<option value="all">Semua Akun</option>
+</select>
+</div>
+
+<div id="groups-list"></div>
+
+</div>
+
 <script>
 
 /* ================= NAVIGATION ================= */
 
 function showPage(page){
 
+  document.getElementById("groupsPage").style.display=
+page==="groups"?"block":"none";
+
+document.getElementById("menuGroups").classList.remove("active");
+
+if(page==="groups"){
+document.getElementById("menuGroups").classList.add("active");
+  }
 document.getElementById("resultPage").style.display=
 page==="result"?"block":"none";
 
@@ -369,7 +393,74 @@ dateInput.addEventListener("change",render);
 
 });
 
+/* ================= GROUPS ================= */
 
+fetch("docs/groups.json?"+Date.now())
+.then(r=>r.json())
+.then(data=>{
+
+const list=document.getElementById("groups-list");
+const dropdown=document.getElementById("groupAccountFilter");
+
+/* dropdown akun */
+Object.keys(data).forEach(acc=>{
+const o=document.createElement("option");
+o.value=acc;
+o.textContent=acc;
+dropdown.appendChild(o);
+});
+
+function render(){
+
+list.innerHTML="";
+
+const selectedAccount=dropdown.value;
+
+let groupsToShow=[];
+
+/* filter akun */
+if(selectedAccount==="all"){
+Object.values(data).forEach(arr=>{
+groupsToShow.push(...arr.map(g=>({...g,account:null})));
+});
+}else{
+groupsToShow=data[selectedAccount].map(g=>({...g,account:selectedAccount}));
+}
+
+if(!groupsToShow.length){
+list.innerHTML=`<div class="empty">Tidak ada grup.</div>`;
+return;
+}
+
+/* render */
+groupsToShow.forEach((g,index)=>{
+
+list.innerHTML+=`
+<div class="card">
+
+  <div class="left">
+    <input type="checkbox" 
+      ${g.checked ? "checked":""} 
+      onchange="toggleGroup('${selectedAccount}','${g.link}',this.checked)">
+    <img src="${g.photo||'https://via.placeholder.com/70'}" class="group-img">
+  </div>
+
+  <div class="right">
+    <div class="group-name">${g.name}</div>
+  </div>
+
+</div>
+`;
+});
+
+}
+
+render();
+
+dropdown.addEventListener("change",render);
+
+});
+  
 /* ================= SCHEDULE ================= */
 
 fetch("schedule.json?"+Date.now())
