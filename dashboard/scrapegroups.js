@@ -38,31 +38,42 @@ function delay(ms) {
   // SCRAPE SETELAH SCROLL
   // =========================
   const groups = await page.evaluate(() => {
-    const result = [];
+  const result = [];
 
-    document.querySelectorAll("a[href*='/groups/']").forEach(a => {
+  const cards = document.querySelectorAll("div");
 
-      const href = a.href || "";
-      const match = href.match(/groups\/(\d+)/);
-      const id = match ? match[1] : null;
+  cards.forEach(card => {
 
-      const name = a.innerText?.split("\n")[0]?.trim();
+    const a = card.querySelector("a[href*='/groups/']");
+    if (!a) return;
 
-      const img = a.closest("div")?.querySelector("img");
-      const photo = img ? img.src : null;
+    const href = a.href || "";
+    const match = href.match(/groups\/(\d+)/);
+    const id = match ? match[1] : null;
 
-      if (id && name) {
-        result.push({
-          id,
-          name,
-          photo,
-          link: `https://m.facebook.com/groups/${id}`
-        });
-      }
+    if (!id) return;
+
+    const name = card.innerText
+      ?.split("\n")
+      .find(t => t && t.length > 2 && t.length < 80)
+      ?.trim();
+
+    const img = card.querySelector("img");
+    const photo = img ? img.src : null;
+
+    // 🔥 INI FILTER YANG KAMU TANYA
+    if (!id || !name || name.length < 3) return;
+
+    result.push({
+      id,
+      name,
+      photo,
+      link: `https://m.facebook.com/groups/${id}`
     });
-
-    return [...new Map(result.map(x => [x.id, x])).values()];
   });
+
+  return [...new Map(result.map(x => [x.id, x])).values()];
+});
 
   console.log(`📊 Total grup: ${groups.length}`);
 
