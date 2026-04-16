@@ -14,10 +14,10 @@ function delay(ms) {
 
   console.log(`📥 [${accountName}] Buka mbasic groups...`);
 
-  await page.goto("https://mbasic.facebook.com/groups/?seemore", {
+  await page.goto("https://mbasic.facebook.com/groups/?seemore&refid=27&_rdc=1&_rdr", {
     waitUntil: "networkidle2"
   });
-
+console.log("🌐 REAL URL:", page.url());
   await delay(5000);
 
   const groups = await page.evaluate(() => {
@@ -143,7 +143,15 @@ function delay(ms) {
         path: "/"
       }))
     );
+await page.setRequestInterception(true);
 
+page.on('request', req => {
+  if (req.url().includes("m.facebook.com")) {
+    console.log("⛔ BLOCK REDIRECT:", req.url());
+    return req.abort();
+  }
+  req.continue();
+});
     // reload biar login aktif
     await page.goto("https://mbasic.facebook.com", {
   waitUntil: "networkidle2"
@@ -153,7 +161,7 @@ await delay(5000);
 
 
     console.log(`✅ Login berhasil: ${accountData.account}`);
-    console.log(`🌐 URL sekarang: di m.facebook.com/groups`);
+    console.log("🌐 URL sekarang:", await page.url());
 
     // ===============================
     // AMBIL GROUP
