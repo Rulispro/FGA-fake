@@ -225,7 +225,7 @@ body{flex-direction:column;}
 <div class="menu">
 <div id="menuResult" onclick="showPage('result')">📌 Hasil Posting</div>
 <div id="menuSchedule" onclick="showPage('schedule')">📅 Schedule xlsx</div>
-<div id="menuSchedule" onclick="showPage('schedule')">📅 Schedule Post hasil scrape</div>
+<div id="menuScheduler" onclick="showPage('schedulePost')">📅 Schedule Post hasil scrape</div>
 <div id="menuGroups" onclick="showPage('groups')">👥 DAFTAR Grup</div></div>
 </div>
 
@@ -268,7 +268,7 @@ body{flex-direction:column;}
 <option value="all">Semua Akun</option>
 </select>
 
-<input type="date" id="calendar">
+<input type="date" id="calendarSchedule">
 </div>
 
 <div id="schedule-list"></div>
@@ -285,7 +285,7 @@ body{flex-direction:column;}
 <option value="all">Semua Akun</option>
 </select>
 
-<input type="date" id="calendar">
+<input type="date" id="calendarSchedulePost">
 </div>
 
 <div id="schedulePost-list"></div>
@@ -320,33 +320,36 @@ console.log("Update:", account, link, checked);
 
 function showPage(page){
 
-  document.getElementById("groupsPage").style.display=
-page==="groups"?"block":"none";
+  // hide semua page dulu
+  document.getElementById("resultPage").style.display = "none";
+  document.getElementById("schedulePage").style.display = "none";
+  document.getElementById("schedulePostPage").style.display = "none";
+  document.getElementById("groupsPage").style.display = "none";
 
-document.getElementById("menuGroups").classList.remove("active");
+  // reset menu active
+  document.querySelectorAll(".menu div").forEach(el=>{
+    el.classList.remove("active");
+  });
 
-if(page==="groups"){
-document.getElementById("menuGroups").classList.add("active");
-  }
-document.getElementById("resultPage").style.display=
-page==="result"?"block":"none";
-
-document.getElementById("schedulePage").style.display=
-page==="schedule"?"block":"none";
-
-/* reset active */
-document.getElementById("menuResult").classList.remove("active");
-document.getElementById("menuSchedule").classList.remove("active");
-
-/* set active */
-if(page==="result"){
-document.getElementById("menuResult").classList.add("active");
-}else{
-document.getElementById("menuSchedule").classList.add("active");
-}
-
+  // show sesuai page
+  if(page==="result"){
+    document.getElementById("resultPage").style.display="block";
+    document.getElementById("menuResult").classList.add("active");
   }
 
+  if(page==="schedule"){
+    document.getElementById("schedulePage").style.display="block";
+  }
+
+  if(page==="schedulePost"){
+    document.getElementById("schedulePostPage").style.display="block";
+  }
+
+  if(page==="groups"){
+    document.getElementById("groupsPage").style.display="block";
+    document.getElementById("menuGroups").classList.add("active");
+  }
+  }
 
 /* ================= RESULT ================= */
 
