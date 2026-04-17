@@ -90,15 +90,27 @@ function delay(ms) {
     //  card.querySelector('h3')?.innerText?.trim() ||
      // null;
       // 🔥 FIX NAME (ambil dari card bukan title)
-      const card = a.closest("div");
+      const card = a.closest('div[data-mcomponent="MContainer"]') || a.closest("div");
 
       const name =
         card?.querySelector("h3 span")?.innerText?.trim() ||
-        card?.querySelector("strong")?.innerText?.trim() ||
-        null;
+      card?.querySelector("strong")?.innerText?.trim() ||
+      document.querySelector("h1")?.innerText?.trim() ||
+      document.title?.replace(/\s*\|\s*Facebook/i, "").trim() ||
+      null;
 
+      
+    // ================= COVER IMAGE =================
+    const coverImg =
+      document.querySelector('div[aria-label="Group cover photo"] img') ||
+      null;
+      
       // 🔥 FIX IMAGE (per card, bukan global)
-      const img = card?.querySelector("img");
+      const img = card?.querySelector("img") ||
+                card?.querySelector('img[alt*="cover"]') ||
+                card?.querySelector('img[role="img"]') ||
+                card?.querySelector('img[src*="scontent"]') ||
+                card?.querySelector("img");
 
       const photo =
         img?.getAttribute("src") ||
