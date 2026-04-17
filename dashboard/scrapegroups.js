@@ -93,8 +93,16 @@ function delay(ms) {
       
 
 const text = a.innerText.trim();
-const name = text ? text.split('\n')[0] : null;
-    // ================= COVER IMAGE =================
+
+    // 🔥 FILTER KUNCI
+    if (
+      !text ||
+      text === "Lihat Grup" ||
+      !text.includes("Terakhir aktif")
+    ) return;
+const name = text.split('\n')[0];
+
+      // ================= COVER IMAGE =================
     const img = a.querySelector('image, img');
 
     let photo = null;
