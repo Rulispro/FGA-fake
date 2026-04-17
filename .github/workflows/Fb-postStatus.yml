@@ -3,9 +3,9 @@ name: FB Post Status
 on:
   workflow_dispatch:
 
-  schedule:
+ # schedule:
     # 07:36 WIB = 00:36 UTC
-    - cron: "36 0 * * *"
+   # - cron: "36 0 * * *"
 
 jobs:
   run-status:
