@@ -126,8 +126,7 @@ const name = text.split('\n')[0];
         id,
         name,//: name || null,
         link: `https://m.facebook.com/groups/${id}`,
-        photo,
-        checked: false
+        photo
       });
     });
 
