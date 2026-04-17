@@ -35,12 +35,12 @@ function delay(ms) {
   // =========================
   // 3️⃣ SCROLL UNTUK LOAD DATA
   // =========================
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 20; i++) {
     await page.evaluate(() => {
       window.scrollTo(0, document.body.scrollHeight);
     });
 
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(9000);
   }
 
   // =========================
@@ -90,35 +90,21 @@ function delay(ms) {
     //  card.querySelector('h3')?.innerText?.trim() ||
      // null;
       // 🔥 FIX NAME (ambil dari card bukan title)
-      const card = a.closest('div[data-mcomponent="MContainer"]') || a.closest("div");
+      const name = a.innerText.split('\n')[0] || null;
 
-      const name =
-        card?.querySelector("h3 span")?.innerText?.trim() ||   // LIST GROUP (UTAMA)
-  card?.querySelector("h3")?.innerText?.trim() ||        // fallback
-  document.querySelector("h1 span")?.innerText?.trim() || // HALAMAN GROUP
-  document.querySelector("h1")?.innerText?.trim() ||
-  null;
-      
     // ================= COVER IMAGE =================
-    const coverImg =
-      document.querySelector('div[aria-label="Group cover photo"] img') ||
-      null;
-      
-      // 🔥 FIX IMAGE (per card, bukan global)
-      const img = card?.querySelector("img") ||
-                card?.querySelector('img[alt*="cover"]') ||
-                card?.querySelector('img[role="img"]') ||
-                card?.querySelector('img[src*="scontent"]') ||
-                card?.querySelector("img");
+    const img = a.querySelector('image, img');
 
-      let photo = null;
+    let photo = null;
+    if (img) {
+      photo =
+        img.getAttribute('xlink:href') ||
+        img.getAttribute('src') ||
+        img.getAttribute('data-src') ||
+        img.src ||
+        null;
+    }
 
-if (img) {
-  photo =
-    img.getAttribute("src") ||
-    img.getAttribute("data-src") ||
-    null;
-      }
       //const imgs = card.querySelector('img');
   // const photos =
      // img?.getAttribute('src') ||
@@ -129,7 +115,7 @@ if (img) {
         id,
         name,//: name || null,
         link: `https://m.facebook.com/groups/${id}`,
-      photo: photo   // 🔥 HARUS "photo"
+      photo  // 🔥 HARUS "photo"
       });
     });
 
