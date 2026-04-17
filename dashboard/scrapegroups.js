@@ -111,10 +111,14 @@ function delay(ms) {
                 card?.querySelector('img[src*="scontent"]') ||
                 card?.querySelector("img");
 
-      const photo =
-        img?.getAttribute("src") ||
-        img?.getAttribute("data-src") ||
-        null;
+      let photo = null;
+
+if (img) {
+  photo =
+    img.getAttribute("src") ||
+    img.getAttribute("data-src") ||
+    null;
+      }
       //const imgs = card.querySelector('img');
   // const photos =
      // img?.getAttribute('src') ||
@@ -125,7 +129,7 @@ function delay(ms) {
         id,
         name,//: name || null,
         link: `https://m.facebook.com/groups/${id}`,
-        img?.getAttribute("src") ||
+      photo: img?.getAttribute("src") ||
     img?.getAttribute("data-src") ||
     img?.src ||
     null   // 🔥 HARUS "photo"
