@@ -129,10 +129,7 @@ if (img) {
         id,
         name,//: name || null,
         link: `https://m.facebook.com/groups/${id}`,
-      photo: img?.getAttribute("src") ||
-    img?.getAttribute("data-src") ||
-    img?.src ||
-    null   // 🔥 HARUS "photo"
+      photo: photo   // 🔥 HARUS "photo"
       });
     });
 
