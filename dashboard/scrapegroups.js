@@ -35,12 +35,12 @@ function delay(ms) {
   // =========================
   // 3️⃣ SCROLL UNTUK LOAD DATA
   // =========================
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 9; i++) {
     await page.evaluate(() => {
       window.scrollTo(0, document.body.scrollHeight);
     });
 
-    await page.waitForTimeout(9000);
+    await page.waitForTimeout(3000);
   }
 
   // =========================
