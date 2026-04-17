@@ -429,7 +429,7 @@ dateInput.addEventListener("change",render);
 fetch("docs/groups.json?"+Date.now())
 .then(r=>r.json())
 .then(data=>{
-
+console.log("DATA GROUP:", data); 
 const list=document.getElementById("groups-list");
 const dropdown=document.getElementById("groupAccountFilter");
 
