@@ -97,8 +97,8 @@ const text = a.innerText.trim();
     // 🔥 FILTER KUNCI
     if (
       !text ||
-      text === "Lihat Grup" ||
-      !text.includes("Terakhir aktif")
+      text === "Lihat Grup" //||
+      //!text.includes("Terakhir aktif")
     ) return;
 const name = text.split('\n')[0];
 
@@ -163,8 +163,8 @@ const name = text.split('\n')[0];
 
   const page = await browser.newPage();
  // BARU recorder dibuat
-const recorder = new PuppeteerScreenRecorder(page);
-await recorder.start("video.mp4");
+//const recorder = new PuppeteerScreenRecorder(page);
+//await recorder.start("video.mp4");
   await page.setExtraHTTPHeaders({
     "accept-language": "en-US,en;q=0.9"
   });
@@ -241,8 +241,8 @@ await delay(5000);
   }
  
   
-  await recorder.stop();
-  await browser.close();
+ // await recorder.stop();
+//  await browser.close();
 
   if (!fs.existsSync("./docs"))
     fs.mkdirSync("./docs");
