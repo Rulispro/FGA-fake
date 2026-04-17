@@ -426,7 +426,8 @@ dateInput.addEventListener("change",render);
 
 /* ================= GROUPS ================= */
 
-fetch("docs/groups.json?"+Date.now())
+//fetch("docs/groups.json?"+Date.now())
+fetch("docs/groups.json?")
 .then(r=>r.json())
 .then(data=>{
 console.log("DATA GROUP:", data); 
