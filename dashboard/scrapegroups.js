@@ -26,11 +26,11 @@ function delay(ms) {
   // =========================
   // 2️⃣ DETECT GROUP LINKS (DEBUG WAJIB)
   // =========================
-  const hasGroups = await page.evaluate(() => {
-    return document.querySelectorAll("a[href*='/groups/']").length;
-  });
+ /// const hasGroups = await page.evaluate(() => {
+  //  return document.querySelectorAll("a[href*='/groups/']").length;
+ // });
 
-  console.log("🔎 DETECTED LINKS:", hasGroups);
+///  console.log("🔎 DETECTED LINKS:", hasGroups);
 
   // =========================
   // 3️⃣ SCROLL UNTUK LOAD DATA
@@ -49,21 +49,26 @@ function delay(ms) {
   const groups = await page.evaluate(() => {
     const result = [];
 
-    const cards = document.querySelectorAll("div");
+  //  const cards = document.querySelectorAll("div");
 // ambil semua container card
   //const cards = document.querySelectorAll('div[data-mcomponent="MContainer"]');
     
-    cards.forEach(card => {
+  //  cards.forEach(card => {
 
-      const a = card.querySelector("a[href*='/groups/']");
-      if (!a) return;
+    //  const a = card.querySelector("a[href*='/groups/']");
+      //if (!a) return;
 
-      const href = a.href || "";
+     // const href = a.href || "";
 
-      const match = href.match(/groups\/(\d+)/);
+    // 🔥 FIX: pakai link bukan semua div
+    const links = document.querySelectorAll("a[href*='/groups/']");
+
+    links.forEach(a => {
+
+      const match = a.href.match(/groups\/(\d+)/);
       const id = match ? match[1] : null;
-
       if (!id) return;
+      
 
     //  const name = card.innerText
        // ?.split("\n")
@@ -84,17 +89,21 @@ function delay(ms) {
     // card.querySelector('h3 span')?.innerText?.trim() ||
     //  card.querySelector('h3')?.innerText?.trim() ||
      // null;
-      const rawTitle = document.title || "Unknown Group";
-   const name = rawTitle
-  .replace(/\s*\|\s*Facebook/i,"")
-  .trim();
+      // 🔥 FIX NAME (ambil dari card bukan title)
+      const card = a.closest("div");
 
-    // AMBIL FOTO (INI SUDAH VALID dari inspect kamu)
-    const img =
-          document.querySelector('img[alt*="cover"]') ||
-          document.querySelector('img[role="img"]') ||
-          document.querySelector('img[src*="scontent"]');
+      const name =
+        card?.querySelector("h3 span")?.innerText?.trim() ||
+        card?.querySelector("strong")?.innerText?.trim() ||
+        null;
 
+      // 🔥 FIX IMAGE (per card, bukan global)
+      const img = card?.querySelector("img");
+
+      const photo =
+        img?.getAttribute("src") ||
+        img?.getAttribute("data-src") ||
+        null;
       //const imgs = card.querySelector('img');
   // const photos =
      // img?.getAttribute('src') ||
@@ -105,8 +114,8 @@ function delay(ms) {
         id,
         name,//: name || null,
         link: `https://m.facebook.com/groups/${id}`,
-      //  photos: photos || null
-        img: img ? img.src : null
+        photo//: photo || null
+       // img: img ? img.src : null
       });
     });
 
