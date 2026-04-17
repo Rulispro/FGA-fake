@@ -69,8 +69,7 @@ function delay(ms) {
       const id = match ? match[1] : null;
       if (!id) return;
       
-        const card = a.closest('div[role="article"]') || a.closest("div");
-      
+        
     //  const name = card.innerText
        // ?.split("\n")
         //.find(t =>
@@ -91,22 +90,10 @@ function delay(ms) {
     //  card.querySelector('h3')?.innerText?.trim() ||
      // null;
       // 🔥 FIX NAME (ambil dari card bukan title)
-      let name = null;
+      
 
-    const spans = card.querySelectorAll("span");
-
-    spans.forEach(span => {
-      const text = span.innerText?.trim();
-
-      if (
-        text &&
-        text.length > 5 &&
-        text !== "Lihat Grup" &&
-        !text.includes("Terakhir")
-      ) {
-        if (!name) name = text;
-      }
-    });
+const text = a.innerText.trim();
+const name = text ? text.split('\n')[0] : null;
     // ================= COVER IMAGE =================
     const img = a.querySelector('image, img');
 
