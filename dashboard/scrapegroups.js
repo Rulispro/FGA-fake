@@ -93,13 +93,11 @@ function delay(ms) {
       const card = a.closest('div[data-mcomponent="MContainer"]') || a.closest("div");
 
       const name =
-        card?.querySelector("h3 span")?.innerText?.trim() ||
-      card?.querySelector("strong")?.innerText?.trim() ||
-        card?.innerText?.split("\n")[0]?.trim() ||
-        document.querySelector("h3")?.innerText?.trim() ||
-      document.title?.replace(/\s*\|\s*Facebook/i, "").trim() ||
-      null;
-
+        card?.querySelector("h3 span")?.innerText?.trim() ||   // LIST GROUP (UTAMA)
+  card?.querySelector("h3")?.innerText?.trim() ||        // fallback
+  document.querySelector("h1 span")?.innerText?.trim() || // HALAMAN GROUP
+  document.querySelector("h1")?.innerText?.trim() ||
+  null;
       
     // ================= COVER IMAGE =================
     const coverImg =
@@ -127,7 +125,10 @@ function delay(ms) {
         id,
         name,//: name || null,
         link: `https://m.facebook.com/groups/${id}`,
-        photo: img ? img.src : null   // 🔥 HARUS "photo"
+        img?.getAttribute("src") ||
+    img?.getAttribute("data-src") ||
+    img?.src ||
+    null   // 🔥 HARUS "photo"
       });
     });
 
