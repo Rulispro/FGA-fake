@@ -104,6 +104,7 @@ const name = text ? text.split('\n')[0] : null;
         img.getAttribute('src') ||
         img.getAttribute('data-src') ||
         img.src ||
+        img.getAttribute('scontent') ||
         null;
     }
 
@@ -117,7 +118,7 @@ const name = text ? text.split('\n')[0] : null;
         id,
         name,//: name || null,
         link: `https://m.facebook.com/groups/${id}`,
-      photo  // 🔥 HARUS "photo"
+        photo
       });
     });
 
