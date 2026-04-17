@@ -95,7 +95,8 @@ function delay(ms) {
       const name =
         card?.querySelector("h3 span")?.innerText?.trim() ||
       card?.querySelector("strong")?.innerText?.trim() ||
-      document.querySelector("h1")?.innerText?.trim() ||
+        card?.innerText?.split("\n")[0]?.trim() ||
+        document.querySelector("h3")?.innerText?.trim() ||
       document.title?.replace(/\s*\|\s*Facebook/i, "").trim() ||
       null;
 
@@ -126,8 +127,7 @@ function delay(ms) {
         id,
         name,//: name || null,
         link: `https://m.facebook.com/groups/${id}`,
-        photo//: photo || null
-       // img: img ? img.src : null
+        photo: img ? img.src : null   // 🔥 HARUS "photo"
       });
     });
 
