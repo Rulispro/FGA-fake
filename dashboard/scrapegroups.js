@@ -97,8 +97,8 @@ const text = a.innerText.trim();
     // 🔥 FILTER KUNCI
     if (
       !text ||
-      text === "Lihat Grup" //||
-      //!text.includes("Terakhir aktif")
+      text === "Lihat Grup" ||
+      !text.includes("Terakhir aktif")
     ) return;
 const name = text.split('\n')[0];
 
