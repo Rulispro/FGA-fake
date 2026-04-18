@@ -162,6 +162,16 @@ const name = text.split('\n')[0];
   });
 
   const page = await browser.newPage();
+
+  // ===== Anti-detect (KODE KAMU, TETAP)
+      await page.setUserAgent(
+        "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 " +
+        "(KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36"
+      );
+      await page.setViewport({
+        width: 891,
+        height: 1701,
+      });
  // BARU recorder dibuat
 //const recorder = new PuppeteerScreenRecorder(page);
 //await recorder.start("video.mp4");
