@@ -170,7 +170,7 @@ const name = text.split('\n')[0];
       );
       await page.setViewport({
         width: 891,
-        height: 1701,
+        height: 1701
       });
  // BARU recorder dibuat
 //const recorder = new PuppeteerScreenRecorder(page);
