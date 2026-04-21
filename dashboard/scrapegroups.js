@@ -59,17 +59,32 @@ function delay(ms) {
       //if (!a) return;
 
      // const href = a.href || "";
-
+/// VERSI WEBSITE////
     // 🔥 FIX: pakai link bukan semua div
-    const links = document.querySelectorAll("a[href*='/groups/']");
+ ///   const links = document.querySelectorAll("a[href*='/groups/']");
 
-    links.forEach(a => {
+   //// links.forEach(a => {
 
-      const match = a.href.match(/groups\/(\d+)/);
-      const id = match ? match[1] : null;
-      if (!id) return;
+   ////   const match = a.href.match(/groups\/(\d+)/);
+   ////   const id = match ? match[1] : null;
+  /////    if (!id) return;
       
-        
+    ///// SAMPAI SINI////
+
+    /////VERSI MOBILE///
+
+    
+  // ambil semua card grup
+  const cards = document.querySelectorAll('div[data-mcomponent="MContainer"]');
+
+  cards.forEach(card => {
+
+    // 🔥 ambil nama grup
+    const nameEl = card.querySelector('span.f2');
+    const name = nameEl ? nameEl.innerText.trim() : null;
+
+    if (!name) return;
+    
     //  const name = card.innerText
        // ?.split("\n")
         //.find(t =>
@@ -90,18 +105,21 @@ function delay(ms) {
     //  card.querySelector('h3')?.innerText?.trim() ||
      // null;
       // 🔥 FIX NAME (ambil dari card bukan title)
-      
+     
+    ///VERSI WEBSITE 
 
-const text = a.innerText.trim();
+///const text = a.innerText.trim();
 
     // 🔥 FILTER KUNCI
-    if (
-      !text ||
-      text === "Lihat Grup" ||
-      !text.includes("Terakhir aktif")
-    ) return;
-const name = text.split('\n')[0];
+  ///  if (
+   ///   !text ||
+   ////   text === "Lihat Grup" ||
+  ////    !text.includes("Terakhir aktif")
+  ///  ) return;
+///const name = text.split('\n')[0];
 
+    ////VERSI WEBSITE////
+    
       // ================= COVER IMAGE =================
     const img = a.querySelector('image, img');
 
@@ -164,6 +182,16 @@ const name = text.split('\n')[0];
   const page = await browser.newPage();
 
 
+// MOBILE MODE
+await page.setUserAgent(
+  "Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
+);
+
+await page.setViewport({
+  width: 390,
+  height: 844,
+  isMobile: true
+});
  // BARU recorder dibuat
 //const recorder = new PuppeteerScreenRecorder(page);
 //await recorder.start("video.mp4");
