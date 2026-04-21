@@ -15,7 +15,7 @@ function delay(ms) {
 
   console.log(`📥 [${accountName}] Buka groups...`);
 
-  await page.goto("https://m.facebook.com/groups/joins/", {
+  await page.goto("https://m.facebook.com/groups/", {
     waitUntil: "domcontentloaded"
   });
 
