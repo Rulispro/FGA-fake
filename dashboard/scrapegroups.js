@@ -121,8 +121,31 @@ function delay(ms) {
     ////VERSI WEBSITE////
     
       // ================= COVER IMAGE =================
-    const img = a.querySelector('image, img');
+    /// website const img = a.querySelector('image, img');
+// 🔥 foto
 
+
+    ///mobile 
+    const img = card.querySelector('img');
+    console.log("cards:", cards.length);
+    const photo = img ? img.src : null;
+
+    // 🔥 foto
+    const img = card.querySelector('img');
+    const photo = img ? img.src : null;
+
+    // 🔥 cari link + id (kalau ada)
+    let link = null;
+    let id = null;
+
+    const links = card.querySelectorAll('a[href*="/groups/"]');
+
+    links.forEach(a => {
+      const match = a.href.match(/groups\/(\d+)/);
+      if (match) {
+        id = match[1];
+        link = `https://m.facebook.com/groups/${id}`;
+  
     let photo = null;
     if (img) {
       photo =
@@ -143,7 +166,7 @@ function delay(ms) {
       result.push({
         id,
         name,//: name || null,
-        link: `https://m.facebook.com/groups/${id}`,
+        link, //: `https://m.facebook.com/groups/${id}`,
         photo
       });
     });
