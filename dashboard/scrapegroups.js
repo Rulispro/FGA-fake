@@ -75,8 +75,9 @@ function delay(ms) {
 
     
   // ambil semua card grup
-  const cards = document.querySelectorAll('div[data-mcomponent="MContainer"]');
-
+  const cards = Array.from(document.querySelectorAll('span.f2'))
+  .map(el => el.closest('div[data-mcomponent="MContainer"]'))
+  .filter(Boolean);
   cards.forEach(card => {
 
     // 🔥 ambil nama grup
@@ -170,7 +171,8 @@ function delay(ms) {
       });
     });
 
-    return [...new Map(result.map(x => [x.id, x])).values()];
+ return [...new Map(result.map(x => [x.name, x])).values()];
+    ///return [...new Map(result.map(x => [x.id, x])).values()];
   });
 
   console.log(`📊 Total grup: ${groups.length}`);
