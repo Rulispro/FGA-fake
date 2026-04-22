@@ -130,9 +130,7 @@ function delay(ms) {
     console.log("cards:", cards.length);
     const photo = img ? img.src : null;
 
-    // 🔥 foto
-    const img = card.querySelector('img');
-    const photo = img ? img.src : null;
+
 
     // 🔥 cari link + id (kalau ada)
     let link = null;
