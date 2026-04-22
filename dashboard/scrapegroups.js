@@ -144,16 +144,17 @@ function delay(ms) {
         id = match[1];
         link = `https://m.facebook.com/groups/${id}`;
   
-    let photo = null;
-    if (img) {
-      photo =
-        img.getAttribute('xlink:href') ||
-        img.getAttribute('src') ||
-        img.getAttribute('data-src') ||
-        img.src ||
-        img.getAttribute('scontent') ||
-        null;
+   /// let photo = null;
+  ////  if (img) {
+  ////    photo =
+    ////    img.getAttribute('xlink:href') ||
+     /////   img.getAttribute('src') ||
+      ////  img.getAttribute('data-src') ||
+      ////  img.src ||
+      ////  img.getAttribute('scontent') ||
+     /////   null;
     }
+    });
 
       //const imgs = card.querySelector('img');
   // const photos =
