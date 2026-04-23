@@ -144,9 +144,11 @@ if (
     let link = null;
     let id = null;
 
-    const links = card.querySelectorAll('a[href*="/groups/"]');
-const a = card.querySelector('a[href*="/groups/"]');
-if (!a) return;
+    const links = document.querySelectorAll('a[href*="/groups/"]');
+
+  links.forEach(a => {
+    const href = a.getAttribute("href");
+    if (!href) return;
 
 const href = a.getAttribute("href");
 
