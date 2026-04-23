@@ -138,21 +138,16 @@ if (
 
     // 🔥 cari link + id (kalau ada)
     let link = null;
-   let id = null;
+    let id = null;
 
-    const a = card.querySelector('a[href*="/groups/"]');
-    if (!a) return;
+    const links = card.querySelectorAll('a[href*="/groups/"]');
 
-    const href = a.getAttribute("href");
-
-    
-    if (href && href.includes("/groups/")) {
-      link = href.startsWith("http")
-        ? href
-        : "https://m.facebook.com" + href;
-
-      const match = href.match(/groups\/([^/?]+)/);
-      id = match ? match[1] : null;    }
+    links.forEach(a => {
+      const match = a.href.match(/groups\/(\d+)/);
+      if (match) {
+        id = match[1];
+        link = `https://m.facebook.com/groups/${id}`;
+      }
    /// let photo = null;
   ////  if (img) {
   ////    photo =
