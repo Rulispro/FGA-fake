@@ -167,9 +167,7 @@ if (href && href.includes("/groups/")) {
       ////  img.src ||
       ////  img.getAttribute('scontent') ||
      /////   null;
-    }
-    });
-
+    
       //const imgs = card.querySelector('img');
   // const photos =
      // img?.getAttribute('src') ||
