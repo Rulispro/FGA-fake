@@ -72,12 +72,7 @@ function delay(ms) {
     ///// SAMPAI SINI////
 
     /////VERSI MOBILE///
-const links = document.querySelectorAll('a[href*="/groups/"]');
-
- 
-    
-  // ambil semua card grup
-  const cards = Array.from(document.querySelectorAll('span.f2'))
+const cards = Array.from(document.querySelectorAll('span.f2'))
   .map(el => el.closest('div[data-mcomponent="MContainer"]'))
   .filter(Boolean);
   cards.forEach(card => {
@@ -87,7 +82,6 @@ const links = document.querySelectorAll('a[href*="/groups/"]');
     const name = nameEl ? nameEl.innerText.trim() : null;
 
     if (!name) return;
-
 if (
   name === "Groups" ||
   name === "Most visited" ||
