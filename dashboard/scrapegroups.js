@@ -117,8 +117,6 @@ function delay(ms) {
     ///mobile 
     const links = document.querySelectorAll('a[href*="/groups/"]');
 
-  console.log("TOTAL LINKS:", links.length);
-
   links.forEach(a => {
     const href = a.href;
 
@@ -136,7 +134,11 @@ function delay(ms) {
       name === "Login" ||
       name.includes("Konten ini")
     ) return;
-    
+
+    // ✅ FIX PHOTO
+    const img = a.querySelector("img");
+    const photo = img ? img.src : null;
+
     
    /// let photo = null;
   ////  if (img) {
