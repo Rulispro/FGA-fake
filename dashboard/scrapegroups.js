@@ -167,7 +167,7 @@ if (href && href.includes("/groups/")) {
      // img?.getAttribute('src') ||
      // img?.getAttribute('data-src') ||
      // null;
-    }});
+      }
       result.push({
         id,
         name,//: name || null,
