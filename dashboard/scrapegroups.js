@@ -296,7 +296,7 @@ await delay(5000);
  
   
  // await recorder.stop();
-//  await browser.close();
+  await browser.close();
 
   if (!fs.existsSync("./docs"))
     fs.mkdirSync("./docs");
