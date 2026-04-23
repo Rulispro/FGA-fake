@@ -163,7 +163,7 @@ if (
      // img?.getAttribute('src') ||
      // img?.getAttribute('data-src') ||
      // null;
-      
+    }});
       result.push({
         id,
         name,//: name || null,
@@ -172,8 +172,8 @@ if (
       });
     });
 
- return [...new Map(result.map(x => [x.link, x])).values()]
-  .filter(x => x.link && x.name);    ///return [...new Map(result.map(x => [x.id, x])).values()];
+ return [...new Map(result.map(x => [x.name, x])).values()];
+    ///return [...new Map(result.map(x => [x.id, x])).values()];
   });
 
   console.log(`📊 Total grup: ${groups.length}`);
