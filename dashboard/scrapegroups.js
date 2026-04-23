@@ -140,17 +140,17 @@ if (
     let link = null;
     let id = null;
 
-    const links = card.querySelectorAll('a[href*="/groups/"]');
+    const a = card.querySelector('a[href*="/groups/"]');
+if (!a) return;
 
-    links.forEach(a => {
-      const href = a.getAttribute("href");
+const href = a.href; // 🔥 pakai href langsung (bukan getAttribute)
+
+let link = null;
+let id = null;
 
 if (href && href.includes("/groups/")) {
-  link = href.startsWith("http")
-    ? href
-    : "https://m.facebook.com" + href;
+  link = href;
 
-  // ambil ID ATAU username grup
   const match = href.match(/groups\/([^/?]+)/);
   id = match ? match[1] : null;
     
