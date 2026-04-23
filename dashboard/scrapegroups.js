@@ -145,19 +145,19 @@ if (
     let id = null;
 
     const links = card.querySelectorAll('a[href*="/groups/"]');
+const a = card.querySelector('a[href*="/groups/"]');
+if (!a) return;
 
-    links.forEach(a => {
-      const href = a.getAttribute("href");
+const href = a.getAttribute("href");
 
 if (href && href.includes("/groups/")) {
   link = href.startsWith("http")
     ? href
     : "https://m.facebook.com" + href;
 
-  // ambil ID ATAU username grup
   const match = href.match(/groups\/([^/?]+)/);
   id = match ? match[1] : null;
-      }
+                }
    /// let photo = null;
   ////  if (img) {
   ////    photo =
@@ -184,8 +184,8 @@ if (href && href.includes("/groups/")) {
       });
     });
 
- return [...new Map(result.map(x => [x.link, x])).values()];
-    ///return [...new Map(result.map(x => [x.id, x])).values()];
+ return [...new Map(result.map(x => [x.link, x])).values()]
+  .filter(x => x.link && x.name);    ///return [...new Map(result.map(x => [x.id, x])).values()];
   });
 
   console.log(`📊 Total grup: ${groups.length}`);
