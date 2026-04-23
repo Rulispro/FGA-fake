@@ -85,6 +85,13 @@ function delay(ms) {
     const name = nameEl ? nameEl.innerText.trim() : null;
 
     if (!name) return;
+
+if (
+  name === "Groups" ||
+  name === "Most visited" ||
+  name === "Login" ||
+  name.includes("Konten ini")
+) return;
     
     //  const name = card.innerText
        // ?.split("\n")
@@ -140,11 +147,17 @@ function delay(ms) {
     const links = card.querySelectorAll('a[href*="/groups/"]');
 
     links.forEach(a => {
-      const match = a.href.match(/groups\/(\d+)/);
-      if (match) {
-        id = match[1];
-        link = `https://m.facebook.com/groups/${id}`;
-  
+      const href = a.getAttribute("href");
+
+if (href && href.includes("/groups/")) {
+  link = href.startsWith("http")
+    ? href
+    : "https://m.facebook.com" + href;
+
+  // ambil ID ATAU username grup
+  const match = href.match(/groups\/([^/?]+)/);
+  id = match ? match[1] : null;
+      }
    /// let photo = null;
   ////  if (img) {
   ////    photo =
@@ -171,7 +184,7 @@ function delay(ms) {
       });
     });
 
- return [...new Map(result.map(x => [x.name, x])).values()];
+ return [...new Map(result.map(x => [x.link, x])).values()];
     ///return [...new Map(result.map(x => [x.id, x])).values()];
   });
 
