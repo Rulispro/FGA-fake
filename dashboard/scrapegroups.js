@@ -137,21 +137,15 @@ if (
 
 
     // 🔥 cari link + id (kalau ada)
-    const allLinks = Array.from(document.querySelectorAll('a[href*="/groups/"]'))
-  .map(a => a.href);
+    const links = document.querySelectorAll('a[href*="/groups/"]');
 
-console.log("ALL GROUP LINKS:", allLinks.length);
-    
-const href = a.href; // 🔥 pakai href langsung (bukan getAttribute)
-
-let link = null;
-let id = null;
-
-if (href && href.includes("/groups/")) {
-  link = href;
+links.forEach(a => {
+  const href = a.href;
 
   const match = href.match(/groups\/([^/?]+)/);
-  id = match ? match[1] : null;
+  if (!match) return;
+
+  const id = match[1];
     
    /// let photo = null;
   ////  if (img) {
@@ -172,7 +166,7 @@ if (href && href.includes("/groups/")) {
       result.push({
         id,
         name,//: name || null,
-        link, //: `https://m.facebook.com/groups/${id}`,
+        link: href,//: `https://m.facebook.com/groups/${id}`,
         photo
       });
     });
