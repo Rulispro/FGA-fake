@@ -72,22 +72,7 @@ function delay(ms) {
     ///// SAMPAI SINI////
 
     /////VERSI MOBILE///
-const cards = Array.from(document.querySelectorAll('span.f2'))
-  .map(el => el.closest('div[data-mcomponent="MContainer"]'))
-  .filter(Boolean);
-  cards.forEach(card => {
 
-    // 🔥 ambil nama grup
-    const nameEl = card.querySelector('span.f2');
-    const name = nameEl ? nameEl.innerText.trim() : null;
-
-    if (!name) return;
-if (
-  name === "Groups" ||
-  name === "Most visited" ||
-  name === "Login" ||
-  name.includes("Konten ini")
-) return;
     
     //  const name = card.innerText
        // ?.split("\n")
@@ -130,22 +115,28 @@ if (
 
 
     ///mobile 
-    const img = card.querySelector('img');
-    console.log("cards:", cards.length);
-    const photo = img ? img.src : null;
+    const links = document.querySelectorAll('a[href*="/groups/"]');
 
+  console.log("TOTAL LINKS:", links.length);
 
+  links.forEach(a => {
+    const href = a.href;
 
-    // 🔥 cari link + id (kalau ada)
-    const a = card.querySelector('a[href*="/groups/"]');
-  if (!a) return;
+    const match = href.match(/groups\/([^/?]+)/);
+    if (!match) return;
 
-  const href = a.href;
+    const id = match[1];
 
-  const match = href.match(/groups\/([^/?]+)/);
-  if (!match) return;
+    const name = a.innerText?.split("\n")[0]?.trim();
 
-  const id = match[1];
+    if (
+      !name ||
+      name === "Groups" ||
+      name === "Most visited" ||
+      name === "Login" ||
+      name.includes("Konten ini")
+    ) return;
+    
     
    /// let photo = null;
   ////  if (img) {
