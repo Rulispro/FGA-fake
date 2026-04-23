@@ -137,9 +137,9 @@ if (
 
 
     // 🔥 cari link + id (kalau ada)
-    const links = document.querySelectorAll('a[href*="/groups/"]');
+    const a = card.querySelector('a[href*="/groups/"]');
+  if (!a) return;
 
-links.forEach(a => {
   const href = a.href;
 
   const match = href.match(/groups\/([^/?]+)/);
@@ -162,7 +162,7 @@ links.forEach(a => {
      // img?.getAttribute('src') ||
      // img?.getAttribute('data-src') ||
      // null;
-      }
+      
       result.push({
         id,
         name,//: name || null,
