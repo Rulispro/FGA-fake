@@ -137,9 +137,7 @@ if (
 
 
     // 🔥 cari link + id (kalau ada)
-    let link = null;
-    let id = null;
-
+    
     const a = card.querySelector('a[href*="/groups/"]');
 if (!a) return;
 
