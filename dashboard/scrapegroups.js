@@ -72,7 +72,9 @@ function delay(ms) {
     ///// SAMPAI SINI////
 
     /////VERSI MOBILE///
+const links = document.querySelectorAll('a[href*="/groups/"]');
 
+ 
     
   // ambil semua card grup
   const cards = Array.from(document.querySelectorAll('span.f2'))
@@ -144,22 +146,21 @@ if (
     let link = null;
     let id = null;
 
-    const links = document.querySelectorAll('a[href*="/groups/"]');
+    const a = card.querySelector('a[href*="/groups/"]');
+    if (!a) return;
 
-  links.forEach(a => {
     const href = a.getAttribute("href");
-    if (!href) return;
 
-const href = a.getAttribute("href");
+    let link = null;
+    let id = null;
 
-if (href && href.includes("/groups/")) {
-  link = href.startsWith("http")
-    ? href
-    : "https://m.facebook.com" + href;
+    if (href && href.includes("/groups/")) {
+      link = href.startsWith("http")
+        ? href
+        : "https://m.facebook.com" + href;
 
-  const match = href.match(/groups\/([^/?]+)/);
-  id = match ? match[1] : null;
-                }
+      const match = href.match(/groups\/([^/?]+)/);
+      id = match ? match[1] : null;    }
    /// let photo = null;
   ////  if (img) {
   ////    photo =
