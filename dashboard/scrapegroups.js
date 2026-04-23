@@ -137,10 +137,11 @@ if (
 
 
     // 🔥 cari link + id (kalau ada)
-    
-    const a = card.querySelector('a[href*="/groups/"]');
-if (!a) return;
+    const allLinks = Array.from(document.querySelectorAll('a[href*="/groups/"]'))
+  .map(a => a.href);
 
+console.log("ALL GROUP LINKS:", allLinks.length);
+    
 const href = a.href; // 🔥 pakai href langsung (bukan getAttribute)
 
 let link = null;
