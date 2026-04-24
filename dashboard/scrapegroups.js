@@ -21,7 +21,7 @@ function delay(ms) {
 
   console.log("🌐 REAL URL:", page.url());
 
-  await page.waitForTimeout(5000);
+  await page.waitForTimeout(9000);
 
   // =========================
   // 2️⃣ DETECT GROUP LINKS (DEBUG WAJIB)
@@ -35,7 +35,7 @@ function delay(ms) {
   // =========================
   // 3️⃣ SCROLL UNTUK LOAD DATA
   // =========================
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 15; i++) {
     await page.evaluate(() => {
       window.scrollTo(0, document.body.scrollHeight);
     });
