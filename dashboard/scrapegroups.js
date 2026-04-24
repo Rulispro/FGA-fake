@@ -112,13 +112,15 @@ const name = text.split('\n')[0];
   
   const browser = await puppeteer.launch({
     headless: "new",
-    executablePath: "/usr/bin/chromium-browser",
+   // executablePath: "/usr/bin/chromium-browser",
+    executablePath: "/data/data/com.termux/files/usr/bin/chromium",
     args: [
       "--no-sandbox",
       "--disable-setuid-sandbox",
       "--disable-dev-shm-usage",
-      "--disable-blink-features=AutomationControlled"
-    ]
+      "--disable-gpu",
+      "--no-zygote",
+      "--single-process"]
   });
 
   const page = await browser.newPage();
