@@ -150,6 +150,7 @@ const name = text.split('\n')[0];
         img.getAttribute('scontent') ||
        null;
     
+}
       
       result.push({
         id,
