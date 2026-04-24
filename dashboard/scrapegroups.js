@@ -26,11 +26,11 @@ function delay(ms) {
   // =========================
   // 2️⃣ DETECT GROUP LINKS (DEBUG WAJIB)
   // =========================
- /// const hasGroups = await page.evaluate(() => {
-  //  return document.querySelectorAll("a[href*='/groups/']").length;
- // });
+  const hasGroups = await page.evaluate(() => {
+    return document.querySelectorAll("a[href*='/groups/']").length;
+  });
 
-///  console.log("🔎 DETECTED LINKS:", hasGroups);
+  console.log("🔎 DETECTED LINKS:", hasGroups);
 
   // =========================
   // 3️⃣ SCROLL UNTUK LOAD DATA
@@ -61,13 +61,13 @@ function delay(ms) {
      // const href = a.href || "";
 /// VERSI WEBSITE////
     // 🔥 FIX: pakai link bukan semua div
- ///   const links = document.querySelectorAll("a[href*='/groups/']");
+    const links = document.querySelectorAll("a[href*='/groups/']");
 
-   //// links.forEach(a => {
+    links.forEach(a => {
 
-   ////   const match = a.href.match(/groups\/(\d+)/);
-   ////   const id = match ? match[1] : null;
-  /////    if (!id) return;
+      const match = a.href.match(/groups\/(\d+)/);
+      const id = match ? match[1] : null;
+      if (!id) return;
       
     ///// SAMPAI SINI////
 
@@ -97,75 +97,74 @@ function delay(ms) {
      
     ///VERSI WEBSITE 
 
-///const text = a.innerText.trim();
+const text = a.innerText.trim();
 
     // 🔥 FILTER KUNCI
-  ///  if (
-   ///   !text ||
-   ////   text === "Lihat Grup" ||
-  ////    !text.includes("Terakhir aktif")
-  ///  ) return;
-///const name = text.split('\n')[0];
+    if (
+      !text ||
+     text === "Lihat Grup" ||
+      !text.includes("Terakhir aktif")
+  ) return;
+const name = text.split('\n')[0];
 
     ////VERSI WEBSITE////
     
       // ================= COVER IMAGE =================
-    /// website const img = a.querySelector('image, img');
+     website const img = a.querySelector('image, img');
 // 🔥 foto
 
 
     ///mobile 
-    const links = document.querySelectorAll('a[href*="/groups/"]');
+   /// const links = document.querySelectorAll('a[href*="/groups/"]');
 
-  links.forEach(a => {
-    const href = a.href;
+ /// links.forEach(a => {
+   /// const href = a.href;
 
-    const match = href.match(/groups\/([^/?]+)/);
-    if (!match) return;
+   /// const match = href.match(/groups\/([^/?]+)/);
+   /// if (!match) return;
 
-    const id = match[1];
+  ///  const id = match[1];
 
-    const name = a.innerText?.split("\n")[0]?.trim();
+  ///  const name = a.innerText?.split("\n")[0]?.trim();
 
-    if (
-      !name ||
-      name === "Groups" ||
-      name === "Most visited" ||
-      name === "Login" ||
-      name.includes("Konten ini")
-    ) return;
+  ///  if (
+    //  !name ||
+    ///  name === "Groups" ||
+    ///  name === "Most visited" ||
+   ///   name === "Login" ||
+   ///   name.includes("Konten ini")
+ ///   ) return;
 
     // ✅ FIX PHOTO
-    const img = a.querySelector("img");
-    const photo = img ? img.src : null;
+  ///  const img = a.querySelector("img");
+   /// const photo = img ? img.src : null;
 
     
-   /// let photo = null;
-  ////  if (img) {
-  ////    photo =
-    ////    img.getAttribute('xlink:href') ||
-     /////   img.getAttribute('src') ||
-      ////  img.getAttribute('data-src') ||
-      ////  img.src ||
-      ////  img.getAttribute('scontent') ||
-     /////   null;
+    let photo = null;
+    if (img) {
+      photo =
+       img.getAttribute('xlink:href') ||
+       img.getAttribute('src') ||
+       img.getAttribute('data-src') ||
+       img.src ||
+        img.getAttribute('scontent') ||
+       null;
     
-      //const imgs = card.querySelector('img');
-  // const photos =
-     // img?.getAttribute('src') ||
-     // img?.getAttribute('data-src') ||
-     // null;
+      const imgs = card.querySelector('img');
+ const photos =
+      img?.getAttribute('src') ||
+     img?.getAttribute('data-src') ||
+      null;
       
       result.push({
         id,
-        name,//: name || null,
-        link: href,//: `https://m.facebook.com/groups/${id}`,
+        name: name || null,
+        link: `https://m.facebook.com/groups/${id}`,
         photo
       });
     });
 
- return [...new Map(result.map(x => [x.name, x])).values()];
-    ///return [...new Map(result.map(x => [x.id, x])).values()];
+    return [...new Map(result.map(x => [x.id, x])).values()];
   });
 
   console.log(`📊 Total grup: ${groups.length}`);
