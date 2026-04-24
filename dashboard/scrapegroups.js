@@ -110,7 +110,7 @@ const name = text.split('\n')[0];
     ////VERSI WEBSITE////
     
       // ================= COVER IMAGE =================
-     website const img = a.querySelector('image, img');
+     const img = a.querySelector('image, img');
 // 🔥 foto
 
 
