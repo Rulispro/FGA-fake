@@ -15,7 +15,7 @@ function delay(ms) {
 
   console.log(`📥 [${accountName}] Buka groups...`);
 
-  await page.goto("https://www.facebook.com/groups/joins/", {
+  await page.goto("https://m.facebook.com/groups/joins/", {
     waitUntil: "domcontentloaded"
   });
 
@@ -49,18 +49,7 @@ function delay(ms) {
   const groups = await page.evaluate(() => {
     const result = [];
 
-  //  const cards = document.querySelectorAll("div");
-// ambil semua container card
-  //const cards = document.querySelectorAll('div[data-mcomponent="MContainer"]');
-    
-  //  cards.forEach(card => {
-
-    //  const a = card.querySelector("a[href*='/groups/']");
-      //if (!a) return;
-
-     // const href = a.href || "";
-/// VERSI WEBSITE////
-    // 🔥 FIX: pakai link bukan semua div
+ // 🔥 FIX: pakai link bukan semua div
     const links = document.querySelectorAll("a[href*='/groups/']");
 
     links.forEach(a => {
@@ -69,34 +58,6 @@ function delay(ms) {
       const id = match ? match[1] : null;
       if (!id) return;
       
-    ///// SAMPAI SINI////
-
-    /////VERSI MOBILE///
-
-    
-    //  const name = card.innerText
-       // ?.split("\n")
-        //.find(t =>
-          //t &&
-          //t.length > 2 &&
-        //  t.length < 80
-       // )
-       // ?.trim();
-
-      //const img = card.querySelector("img");
-      //const photo = img ? img.src : null;
-      // FIX: AMBIL NAMA (pakai cara script 2)
-    // =========================
-   
-   // NAMA (INI YANG BENAR dari inspect kamu)
-  //  const name =
-    // card.querySelector('h3 span')?.innerText?.trim() ||
-    //  card.querySelector('h3')?.innerText?.trim() ||
-     // null;
-      // 🔥 FIX NAME (ambil dari card bukan title)
-     
-    ///VERSI WEBSITE 
-
 const text = a.innerText.trim();
 
     // 🔥 FILTER KUNCI
@@ -107,40 +68,9 @@ const text = a.innerText.trim();
   ) return;
 const name = text.split('\n')[0];
 
-    ////VERSI WEBSITE////
-    
-      // ================= COVER IMAGE =================
+ // ================= COVER IMAGE =================
      const img = a.querySelector('image, img');
-// 🔥 foto
-
-
-    ///mobile 
-   /// const links = document.querySelectorAll('a[href*="/groups/"]');
-
- /// links.forEach(a => {
-   /// const href = a.href;
-
-   /// const match = href.match(/groups\/([^/?]+)/);
-   /// if (!match) return;
-
-  ///  const id = match[1];
-
-  ///  const name = a.innerText?.split("\n")[0]?.trim();
-
-  ///  if (
-    //  !name ||
-    ///  name === "Groups" ||
-    ///  name === "Most visited" ||
-   ///   name === "Login" ||
-   ///   name.includes("Konten ini")
- ///   ) return;
-
-    // ✅ FIX PHOTO
-  ///  const img = a.querySelector("img");
-   /// const photo = img ? img.src : null;
-
-    
-    let photo = null;
+  let photo = null;
     if (img) {
       photo =
        img.getAttribute('xlink:href') ||
