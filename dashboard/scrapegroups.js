@@ -150,11 +150,6 @@ const name = text.split('\n')[0];
         img.getAttribute('scontent') ||
        null;
     
-      const imgs = card.querySelector('img');
- const photos =
-      img?.getAttribute('src') ||
-     img?.getAttribute('data-src') ||
-      null;
       
       result.push({
         id,
@@ -198,16 +193,7 @@ const name = text.split('\n')[0];
   const page = await browser.newPage();
 
 
-// MOBILE MODE
-await page.setUserAgent(
-  "Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
-);
 
-await page.setViewport({
-  width: 390,
-  height: 844,
-  isMobile: true
-});
  // BARU recorder dibuat
 //const recorder = new PuppeteerScreenRecorder(page);
 //await recorder.start("video.mp4");
