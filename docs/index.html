@@ -183,7 +183,27 @@ border-radius:8px;
   transform:scale(.8);
   animation:imgIn .6s ease forwards;
 }
+.groups-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
 
+.btn-save{
+  background:#10b981;
+  border:none;
+  color:white;
+  padding:10px 16px;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+.btn-save:hover{
+  background:#059669;
+}
+
+  
 @keyframes imgIn{
   to{
     opacity:1;
@@ -315,26 +335,18 @@ body{flex-direction:column;}
 <div id="groupsPage" style="display:none">
 
 <div class="section-title">👥 Pilih Grup</div>
-
+<div class="filters groups-header">
 <div class="filters">
 <select id="groupAccountFilter">
 <option value="all">Semua Akun</option>
 </select>
+  <button onclick="saveToSchedule()" class="btn-save">
+    💾 Simpan
+  </button>
 </div>
 
 <div id="groups-list"></div>
-<button onclick="saveToSchedule()" style="
-  margin-top:20px;
-  padding:10px 20px;
-  border:none;
-  border-radius:10px;
-  background:#10b981;
-  color:white;
-  font-weight:bold;
-  cursor:pointer;
-">
-  💾 Simpan Pilihan Grup
-</button>
+
 
 </div>
 
