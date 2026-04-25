@@ -305,6 +305,18 @@ body{flex-direction:column;}
 </div>
 
 <div id="groups-list"></div>
+<button onclick="saveToSchedule()" style="
+  margin-top:20px;
+  padding:10px 20px;
+  border:none;
+  border-radius:10px;
+  background:#10b981;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+">
+  💾 Simpan Pilihan Grup
+</button>
 
 </div>
 
@@ -316,6 +328,38 @@ body{flex-direction:column;}
 console.log("Update:", account, link, checked);
   }
 
+  //fungsi simpan ke local store 
+  function saveToSchedule(){
+
+  const selected = {};
+
+  document.querySelectorAll("#groups-list input[type=checkbox]").forEach(cb=>{
+    
+    if(cb.checked){
+
+      const account = cb.getAttribute("data-account");
+      const link = cb.getAttribute("data-link");
+      const name = cb.getAttribute("data-name");
+      const photo = cb.getAttribute("data-photo");
+
+      if(!selected[account]) selected[account] = [];
+
+      selected[account].push({
+        group_link: link,
+        group_name: name,
+        group_photo: photo
+      });
+    }
+
+  });
+
+  localStorage.setItem("selectedGroups", JSON.stringify(selected));
+
+  alert("✅ Masuk ke Jadwal Posting!");
+    showPage("schedulePost");
+  }
+
+  
 /* ================= NAVIGATION ================= */
 
 function showPage(page){
@@ -343,6 +387,7 @@ function showPage(page){
 
   if(page==="schedulePost"){
     document.getElementById("schedulePostPage").style.display="block";
+    loadSchedulePost(); // 🔥 penting
   }
 
   if(page==="groups"){
@@ -351,6 +396,43 @@ function showPage(page){
   }
   }
 
+  //schedule posthasil grup terpilih /hasil scrape 
+  function loadSchedulePost(){
+
+  const list = document.getElementById("schedulePost-list");
+  list.innerHTML = "";
+
+  const data = JSON.parse(localStorage.getItem("selectedGroups") || "{}");
+
+  let all = [];
+
+  Object.keys(data).forEach(acc=>{
+    data[acc].forEach(g=>{
+      all.push({...g, account: acc});
+    });
+  });
+
+  if(all.length === 0){
+    list.innerHTML = `<div class="empty">Belum ada grup dipilih</div>`;
+    return;
+  }
+
+  all.forEach(item=>{
+    list.innerHTML += `
+      <div class="card">
+        <div class="left">
+          <img src="${item.group_photo}" class="group-img">
+        </div>
+
+        <div class="right">
+          <div class="group-name">${item.group_name}</div>
+          <div class="caption">${item.account}</div>
+        </div>
+      </div>
+    `;
+  });
+
+}
 /* ================= RESULT ================= */
 
 fetch("data.json?"+Date.now())
