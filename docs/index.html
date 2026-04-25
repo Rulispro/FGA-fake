@@ -627,10 +627,13 @@ list.innerHTML+=`
 <div class="card">
 
   <div class="left">
-    <input type="checkbox" 
-      ${g.checked ? "checked":""} 
-     onchange="toggleGroup('${g.account}','${g.link}',this.checked)">
-    <img src="${g.photo||'https://via.placeholder.com/70'}" class="group-img">
+    <input type="checkbox"
+  data-account="${g.account}"
+  data-link="${g.link}"
+  data-name="${g.name}"
+  data-photo="${g.photo}"
+  ${g.checked ? "checked":""}
+  onchange="toggleGroup('${g.account}','${g.link}',this.checked)"><img src="${g.photo||'https://via.placeholder.com/70'}" class="group-img">
   </div>
 
   <div class="right">
