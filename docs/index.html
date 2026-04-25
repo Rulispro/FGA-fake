@@ -467,9 +467,11 @@ function showPage(page){
   //schedule posthasil grup terpilih /hasil scrape 
   function loadSchedulePost(){
 
+  const data = JSON.parse(localStorage.getItem("selectedGroups") || "{}");
+  const list = document.getElementById("schedulePost-list");
   const dropdown = document.getElementById("schedulePostAccountFilter");
-dropdown.innerHTML = '<option value="all">Semua Akun</option>';
 
+  list.innerHTML = "";
 Object.keys(data).forEach(acc=>{
   const o = document.createElement("option");
   o.value = acc;
@@ -686,8 +688,8 @@ list.innerHTML+=`
   data-link="${g.link}"
   data-name="${g.name}"
   data-photo="${g.photo}"
-  ${g.checked ? "checked":""}
 >
+<img src="${g.photo || 'https://via.placeholder.com/70'}" class="group-img">
 </div>
 
   <div class="right">
