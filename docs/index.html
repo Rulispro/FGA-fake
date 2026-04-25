@@ -465,20 +465,32 @@ function showPage(page){
   }
 
   //schedule posthasil grup terpilih /hasil scrape 
-  function loadSchedulePost(){
+  
+  }function loadSchedulePost(){
 
   const data = JSON.parse(localStorage.getItem("selectedGroups") || "{}");
   const list = document.getElementById("schedulePost-list");
   const dropdown = document.getElementById("schedulePostAccountFilter");
 
   list.innerHTML = "";
-Object.keys(data).forEach(acc=>{
-  const o = document.createElement("option");
-  o.value = acc;
-  o.textContent = acc;
-  dropdown.appendChild(o);
-});
-    
+
+  // ✅ SIMPAN VALUE SEBELUM RESET
+  const selectedAcc = dropdown.value || "all";
+
+  // ✅ RESET DROPDOWN (PENTING)
+  dropdown.innerHTML = '<option value="all">Semua Akun</option>';
+
+  // ✅ ISI ULANG DROPDOWN TANPA DUPLIKAT
+  Object.keys(data).forEach(acc=>{
+    const o = document.createElement("option");
+    o.value = acc;
+    o.textContent = acc;
+    dropdown.appendChild(o);
+  });
+
+  // ✅ BALIKIN VALUE SEBELUMNYA
+  dropdown.value = selectedAcc;
+
   let all = [];
 
   Object.keys(data).forEach(acc=>{
@@ -486,24 +498,26 @@ Object.keys(data).forEach(acc=>{
       all.push({...g, account: acc});
     });
   });
- /* filter akun*/
-    const selectedAcc = dropdown.value;
 
-if(selectedAcc !== "all"){
-  all = all.filter(i => i.account === selectedAcc);
-}
-    
-  if(all.length === 0){
+  // ✅ FILTER BERDASARKAN DROPDOWN
+  let filtered = all;
+
+  if(selectedAcc !== "all"){
+    filtered = all.filter(i => i.account === selectedAcc);
+  }
+
+  if(filtered.length === 0){
     list.innerHTML = `<div class="empty">Belum ada grup dipilih</div>`;
     return;
   }
 
-  all.forEach(item=>{
+  // ✅ RENDER
+  filtered.forEach(item=>{
     list.innerHTML += `
 <div class="card">
 
   <div class="left">
-     <input type="checkbox"
+    <input type="checkbox"
       data-account="${item.account}"
       data-link="${item.group_link}"
       data-name="${item.group_name}"
@@ -515,22 +529,19 @@ if(selectedAcc !== "all"){
   <div class="right">
     <div class="group-name">${item.group_name}</div>
     <div style="font-size:13px;opacity:.6">
-  ${item.account} • ${new Date().toLocaleDateString()}
-</div>
+      ${item.account} • ${new Date().toLocaleDateString()}
+    </div>
   </div>
-
 
   <div class="action">
     <button onclick="deleteGroup('${item.account}','${item.group_link}')">❌</button>
   </div>
 
-
 </div>
 `;
-    
   });
-dropdown.addEventListener("change", loadSchedulePost);
-}
+
+  }
 
 //fungsi simpan per card di schedule dari scrape grup 
 function saveSingleGroup(btn){
