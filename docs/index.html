@@ -119,7 +119,25 @@ border-radius:8px;
 /* ================= CARD ================= */
 
 /* ================= CARD ANIMATION ================= */
+.action{
+  display:flex;
+  align-items:center;
+}
 
+.action button{
+  background:#10b981;
+  border:none;
+  color:white;
+  padding:8px 12px;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:16px;
+}
+
+.action button:hover{
+  background:#059669;
+}
+  
 .card{
   display:flex;
   align-items:flex-start;  /* penting */
@@ -419,20 +437,64 @@ function showPage(page){
 
   all.forEach(item=>{
     list.innerHTML += `
-      <div class="card">
-        <div class="left">
-          <img src="${item.group_photo}" class="group-img">
-        </div>
+<div class="card">
 
-        <div class="right">
-          <div class="group-name">${item.group_name}</div>
-          <div class="caption">${item.account}</div>
-        </div>
-      </div>
+  <div class="left">
+    <input type="checkbox"
+      data-account="${g.account}"
+      data-link="${g.link}"
+      data-name="${g.name}"
+      data-photo="${g.photo}">
+      
+    <img src="${g.photo || 'https://via.placeholder.com/70'}" class="group-img">
+  </div>
+
+  <div class="right">
+    <div class="group-name">${g.name}</div>
+  </div>
+
+  <div class="action">
+    <button onclick="saveSingleGroup(this)">💾</button>
+  </div>
+
+</div>
+`;
     `;
   });
 
 }
+
+//fungsi simpan per card di schedule dari scrape grup 
+function saveSingleGroup(btn){
+
+  const card = btn.closest(".card");
+  const checkbox = card.querySelector("input[type=checkbox]");
+
+  if(!checkbox.checked){
+    alert("⚠️ Centang dulu grupnya!");
+    return;
+  }
+
+  const account = checkbox.dataset.account;
+  const link = checkbox.dataset.link;
+  const name = checkbox.dataset.name;
+  const photo = checkbox.dataset.photo;
+
+  let data = JSON.parse(localStorage.getItem("selectedGroups") || "{}");
+
+  if(!data[account]) data[account] = [];
+
+  data[account].push({
+    group_link: link,
+    group_name: name,
+    group_photo: photo
+  });
+
+  localStorage.setItem("selectedGroups", JSON.stringify(data));
+
+  alert("✅ Grup ditambahkan!");
+}
+
 /* ================= RESULT ================= */
 
 fetch("data.json?"+Date.now())
