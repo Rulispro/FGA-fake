@@ -202,8 +202,14 @@ border-radius:8px;
 .btn-save:hover{
   background:#059669;
 }
-
   
+.action button{
+  background:#ef4444;
+}
+
+.action button:hover{
+  background:#dc2626;
+}
 @keyframes imgIn{
   to{
     opacity:1;
@@ -341,8 +347,11 @@ body{flex-direction:column;}
 <option value="all">Semua Akun</option>
 </select>
   <button onclick="saveToSchedule()" class="btn-save">
-    💾 Simpan
+    💾 SIMPAN GRUP 
   </button>
+    <button onclick="deleteGroup()" class="btn-save">
+    💾 HAPUS GRUP 
+    </button>
 </div>
 
 <div id="groups-list"></div>
@@ -389,7 +398,26 @@ console.log("Update:", account, link, checked);
     showPage("schedulePost");
   }
 
-  
+  //fungsi hapus 
+  function deleteGroup(account, link){
+
+  let data = JSON.parse(localStorage.getItem("selectedGroups") || "{}");
+
+  if(!data[account]) return;
+
+  // hapus grup yang dipilih
+  data[account] = data[account].filter(g => g.group_link !== link);
+
+  // kalau kosong, hapus akun
+  if(data[account].length === 0){
+    delete data[account];
+  }
+
+  localStorage.setItem("selectedGroups", JSON.stringify(data));
+alert("✅ Masuk ke Jadwal hapus Posting!");
+  // reload UI
+  loadSchedulePost();
+  }
 /* ================= NAVIGATION ================= */
 
 function showPage(page){
