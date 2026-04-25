@@ -361,9 +361,7 @@ body{flex-direction:column;}
   <button onclick="saveToSchedule()" class="btn-save">
     💾 SIMPAN GRUP 
   </button>
-    <button onclick="deleteGroup()" class="btn-deleted">
-    💾 HAPUS GRUP 
-    </button>
+    
 </div>
 
 <div id="groups-list"></div>
@@ -411,23 +409,23 @@ console.log("Update:", account, link, checked);
   }
 
   //fungsi hapus 
-  function deleteGroup(account, link){
+  
+function deleteGroup(account, link){
 
   let data = JSON.parse(localStorage.getItem("selectedGroups") || "{}");
 
   if(!data[account]) return;
 
-  // hapus grup yang dipilih
   data[account] = data[account].filter(g => g.group_link !== link);
 
-  // kalau kosong, hapus akun
   if(data[account].length === 0){
     delete data[account];
   }
 
   localStorage.setItem("selectedGroups", JSON.stringify(data));
-alert("✅ Masuk ke Jadwal hapus Posting!");
-  // reload UI
+alert("✅ Grup dihapus");
+  
+    
   loadSchedulePost();
   }
 /* ================= NAVIGATION ================= */
@@ -469,11 +467,16 @@ function showPage(page){
   //schedule posthasil grup terpilih /hasil scrape 
   function loadSchedulePost(){
 
-  const list = document.getElementById("schedulePost-list");
-  list.innerHTML = "";
+  const dropdown = document.getElementById("schedulePostAccountFilter");
+dropdown.innerHTML = '<option value="all">Semua Akun</option>';
 
-  const data = JSON.parse(localStorage.getItem("selectedGroups") || "{}");
-
+Object.keys(data).forEach(acc=>{
+  const o = document.createElement("option");
+  o.value = acc;
+  o.textContent = acc;
+  dropdown.appendChild(o);
+});
+    
   let all = [];
 
   Object.keys(data).forEach(acc=>{
@@ -481,7 +484,13 @@ function showPage(page){
       all.push({...g, account: acc});
     });
   });
+ /* filter akun*/
+    const selectedAcc = dropdown.value;
 
+if(selectedAcc !== "all"){
+  all = all.filter(i => i.account === selectedAcc);
+}
+    
   if(all.length === 0){
     list.innerHTML = `<div class="empty">Belum ada grup dipilih</div>`;
     return;
@@ -503,20 +512,22 @@ function showPage(page){
 
   <div class="right">
     <div class="group-name">${item.group_name}</div>
+    <div style="font-size:13px;opacity:.6">
+  ${item.account} • ${new Date().toLocaleDateString()}
+</div>
   </div>
 
 
   <div class="action">
-    <button onclick="saveSingleGroup(this)">💾</button>
     <button onclick="deleteGroup('${item.account}','${item.group_link}')">❌</button>
   </div>
-  
+
 
 </div>
 `;
     
   });
-
+dropdown.addEventListener("change", loadSchedulePost);
 }
 
 //fungsi simpan per card di schedule dari scrape grup 
@@ -676,8 +687,8 @@ list.innerHTML+=`
   data-name="${g.name}"
   data-photo="${g.photo}"
   ${g.checked ? "checked":""}
-  onchange="toggleGroup('${g.account}','${g.link}',this.checked)"><img src="${g.photo||'https://via.placeholder.com/70'}" class="group-img">
-  </div>
+>
+</div>
 
   <div class="right">
     <div class="group-name">${g.name}</div>
