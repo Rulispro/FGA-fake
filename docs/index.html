@@ -391,14 +391,13 @@ console.log("Update:", account, link, checked);
       const name = cb.getAttribute("data-name");
       const photo = cb.getAttribute("data-photo");
 
-      if(!selected[account]) selected[account] = [];
-
-      selected[account].push({
-        group_link: link,
-        group_name: name,
-        group_photo: photo
-      });
-    }
+      if(!selected[account].some(g => g.group_link === link)){
+  selected[account].push({
+    group_link: link,
+    group_name: name,
+    group_photo: photo
+  });
+}
 
   });
 
@@ -466,7 +465,7 @@ function showPage(page){
 
   //schedule posthasil grup terpilih /hasil scrape 
   
-  }function loadSchedulePost(){
+  function loadSchedulePost(){
 
   const data = JSON.parse(localStorage.getItem("selectedGroups") || "{}");
   const list = document.getElementById("schedulePost-list");
@@ -787,6 +786,8 @@ accountFilter.addEventListener("change",renderSchedule);
 
 });
 showPage("result");
+  document.getElementById("schedulePostAccountFilter")
+  .addEventListener("change", loadSchedulePost);
 </script>
 </body>
 </html>
