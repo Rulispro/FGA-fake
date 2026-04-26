@@ -379,7 +379,8 @@ console.log("Update:", account, link, checked);
   //fungsi simpan ke local store 
   function saveToSchedule(){
 
-  const selected = {};
+  // ✅ ambil data lama dulu
+  let selected = JSON.parse(localStorage.getItem("selectedGroups") || "{}");
 
   document.querySelectorAll("#groups-list input[type=checkbox]").forEach(cb=>{
     
@@ -392,11 +393,15 @@ console.log("Update:", account, link, checked);
 
       if(!selected[account]) selected[account] = [];
 
-      selected[account].push({
-        group_link: link,
-        group_name: name,
-        group_photo: photo
-      });
+      // ✅ hindari duplikat
+      const sudahAda = selected[account].some(g => g.group_link === link);
+      if(!sudahAda){
+        selected[account].push({
+          group_link: link,
+          group_name: name,
+          group_photo: photo
+        });
+      }
     }
 
   });
@@ -404,9 +409,10 @@ console.log("Update:", account, link, checked);
   localStorage.setItem("selectedGroups", JSON.stringify(selected));
 
   alert("✅ Masuk ke Jadwal Posting!");
-    showPage("schedulePost");
+  showPage("schedulePost");
   }
 
+  
   //fungsi hapus 
   
 function deleteGroup(account, link){
@@ -469,7 +475,8 @@ function showPage(page){
   const data = JSON.parse(localStorage.getItem("selectedGroups") || "{}");
   const list = document.getElementById("schedulePost-list");
   const dropdown = document.getElementById("schedulePostAccountFilter");
-// ✅ RESET DROPDOWN DULU
+ const prevValue = dropdown.value;
+    // ✅ RESET DROPDOWN DULU
   dropdown.innerHTML = '<option value="all">Semua Akun</option>';
   
   list.innerHTML = "";
@@ -478,6 +485,7 @@ Object.keys(data).forEach(acc=>{
   o.value = acc;
   o.textContent = acc;
   dropdown.appendChild(o);
+  dropdown.value = prevValue || "all";
 });
     
   let all = [];
