@@ -469,7 +469,9 @@ function showPage(page){
   const data = JSON.parse(localStorage.getItem("selectedGroups") || "{}");
   const list = document.getElementById("schedulePost-list");
   const dropdown = document.getElementById("schedulePostAccountFilter");
-
+// ✅ RESET DROPDOWN DULU
+  dropdown.innerHTML = '<option value="all">Semua Akun</option>';
+  
   list.innerHTML = "";
 Object.keys(data).forEach(acc=>{
   const o = document.createElement("option");
@@ -528,7 +530,7 @@ if(selectedAcc !== "all"){
 `;
     
   });
-dropdown.addEventListener("change", loadSchedulePost);
+
 }
 
 //fungsi simpan per card di schedule dari scrape grup 
@@ -775,6 +777,8 @@ accountFilter.addEventListener("change",renderSchedule);
 
 });
 showPage("result");
+  document.getElementById("schedulePostAccountFilter")
+  .addEventListener("change", loadSchedulePost);
 </script>
 </body>
   </html>
