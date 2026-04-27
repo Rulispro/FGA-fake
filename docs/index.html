@@ -403,7 +403,12 @@ Object.keys(selected).forEach(acc => {
       const photo = cb.getAttribute("data-photo");
 
       if(!selected[account]) selected[account] = [];
+
       
+      // 🔥 PENTING: hapus semua data di tanggal ini dulu (biar fresh)
+      selected[account] = selected[account].filter(
+        g => g.tanggal !== date
+      );
   
       // ✅ cek duplikat + tanggal
 const sudahAda = selected[account].some(
