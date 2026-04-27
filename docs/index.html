@@ -378,15 +378,7 @@ console.log("Update:", account, link, checked);
 
   //fungsi simpan ke local store 
   function saveToSchedule(){
-// panggil api
-    fetch("https://fga-fake.vercel.app/api/save", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify(selected)
-});
-    
+
   // ✅ ambil data lama dulu
   let selected = JSON.parse(localStorage.getItem("selectedGroups") || "{}");
 
@@ -401,7 +393,7 @@ console.log("Update:", account, link, checked);
 
       if(!selected[account]) selected[account] = [];
 
-      // ✅ hindari duplikat
+      // hindari duplikat
       const sudahAda = selected[account].some(g => g.group_link === link);
       if(!sudahAda){
         selected[account].push({
@@ -414,12 +406,21 @@ console.log("Update:", account, link, checked);
 
   });
 
+  // ✅ simpan ke localStorage dulu
   localStorage.setItem("selectedGroups", JSON.stringify(selected));
+
+  // 🔥 BARU kirim ke API
+  fetch("https://fga-fake.vercel.app/api/save", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(selected)
+  });
 
   alert("✅ Masuk ke Jadwal Posting!");
   showPage("schedulePost");
   }
-
   
   //fungsi hapus 
   
