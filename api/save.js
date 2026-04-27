@@ -36,14 +36,28 @@ export default async function handler(req, res) {
       oldData = JSON.parse(Buffer.from(file.content, "base64").toString());
     }
 
+    // 🔥 CLEAN DATA LAMA
+    Object.keys(oldData).forEach(acc => {
+      oldData[acc] = (oldData[acc] || []).filter(g => g.tanggal);
+    });
+
+    // 🔥 MERGE DATA BARU
     Object.keys(newData).forEach(acc => {
+
       if (!oldData[acc]) oldData[acc] = [];
 
       newData[acc].forEach(g => {
-        if (!oldData[acc].some(x => x.group_link === g.group_link)) {
+
+        const exists = oldData[acc].some(
+          x => x.group_link === g.group_link && x.tanggal === g.tanggal
+        );
+
+        if (!exists) {
           oldData[acc].push(g);
         }
+
       });
+
     });
 
     const updated = Buffer.from(JSON.stringify(oldData, null, 2)).toString("base64");
