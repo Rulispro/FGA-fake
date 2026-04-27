@@ -494,8 +494,16 @@ function showPage(page){
   }
 
   if(page==="schedulePost"){
-    document.getElementById("schedulePostPage").style.display="block";
-    loadSchedulePost(); // 🔥 penting
+  document.getElementById("schedulePostPage").style.display="block";
+
+  const today = new Date().toISOString().slice(0,10);
+  const input = document.getElementById("calendarSchedulePost");
+
+  if(!input.value){
+    input.value = today;
+  }
+
+  loadSchedulePost();
   }
 
   if(page==="groups"){
@@ -566,7 +574,7 @@ if(selectedAcc !== "all"){
   <div class="right">
     <div class="group-name">${item.group_name}</div>
     <div style="font-size:13px;opacity:.6">
-  ${item.account} • ${item.account} • ${item.tanggal}
+  ${item.account} • ${item.tanggal}
 </div>
   </div>
 
@@ -828,6 +836,9 @@ accountFilter.addEventListener("change",renderSchedule);
 });
 showPage("result");
   document.getElementById("schedulePostAccountFilter")
+  .addEventListener("change", loadSchedulePost);
+ 
+  document.getElementById("calendarSchedulePost")
   .addEventListener("change", loadSchedulePost);
 </script>
 </body>
