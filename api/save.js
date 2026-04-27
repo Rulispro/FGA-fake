@@ -1,9 +1,14 @@
 export default async function handler(req, res) {
-  // 🔥 WAJIB: CORS
+
+  // CORS
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-  
+
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
   if (req.method !== "POST") {
     return res.status(405).json({ message: "Method not allowed" });
   }
@@ -17,7 +22,6 @@ export default async function handler(req, res) {
 
     const token = process.env.GITHUB_TOKEN;
 
-    // ambil file lama
     const getFile = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -28,31 +32,22 @@ export default async function handler(req, res) {
 
     let oldData = {};
 
-    // kalau file sudah ada
     if (file.content) {
       oldData = JSON.parse(Buffer.from(file.content, "base64").toString());
     }
 
-    // 🔥 merge per akun
     Object.keys(newData).forEach(acc => {
       if (!oldData[acc]) oldData[acc] = [];
 
       newData[acc].forEach(g => {
-        const exists = oldData[acc].some(
-          x => x.group_link === g.group_link
-        );
-
-        if (!exists) {
+        if (!oldData[acc].some(x => x.group_link === g.group_link)) {
           oldData[acc].push(g);
         }
       });
     });
 
-    const updated = Buffer.from(
-      JSON.stringify(oldData, null, 2)
-    ).toString("base64");
+    const updated = Buffer.from(JSON.stringify(oldData, null, 2)).toString("base64");
 
-    // update ke GitHub
     await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
       method: "PUT",
       headers: {
@@ -62,7 +57,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         message: "update selected groups",
         content: updated,
-        sha: file.sha || undefined, // 🔥 aman
+        sha: file.sha || undefined,
       }),
     });
 
@@ -71,4 +66,4 @@ export default async function handler(req, res) {
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
-        }
+}
