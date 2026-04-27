@@ -525,11 +525,18 @@ Object.keys(data).forEach(acc=>{
     
   let all = [];
 
-  Object.keys(data).forEach(acc=>{
-    data[acc].forEach(g=>{
-      all.push({...g, account: acc});
-    });
+Object.keys(data).forEach(acc=>{
+  data[acc].forEach(g=>{
+    all.push({...g, account: acc});
   });
+});
+
+// ✅ FILTER TANGGAL
+const selectedDate = document.getElementById("calendarSchedulePost").value;
+
+if(selectedDate){
+  all = all.filter(i => i.tanggal === selectedDate);
+  }
  /* filter akun*/
     const selectedAcc = dropdown.value;
 
