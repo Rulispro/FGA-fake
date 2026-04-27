@@ -378,7 +378,15 @@ console.log("Update:", account, link, checked);
 
   //fungsi simpan ke local store 
   function saveToSchedule(){
-
+// panggil api
+    fetch("https://fga-fake.vercel.app/api/save", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify(selected)
+});
+    
   // ✅ ambil data lama dulu
   let selected = JSON.parse(localStorage.getItem("selectedGroups") || "{}");
 
