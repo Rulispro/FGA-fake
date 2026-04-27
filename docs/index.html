@@ -399,13 +399,15 @@ console.log("Update:", account, link, checked);
       const photo = cb.getAttribute("data-photo");
 
       if(!selected[account]) selected[account] = [];
-      // buat struktur tanggal
-      if(!selected[account][date]) selected[account][date] = [];
+      
   
-      // hindari duplikat
-      const sudahAda = selected[account].some(g => g.group_link === link);
+      // ✅ cek duplikat + tanggal
+const sudahAda = selected[account].some(
+  g => g.group_link === link && g.tanggal === date
+);
       if(!sudahAda){
         selected[account].push({
+          tanggal: date,
           group_link: link,
           group_name: name,
           group_photo: photo
