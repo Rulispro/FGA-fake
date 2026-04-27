@@ -382,6 +382,10 @@ console.log("Update:", account, link, checked);
 
   // ✅ ambil data lama dulu
   let selected = JSON.parse(localStorage.getItem("selectedGroups") || "{}");
+    // bersihin data lama yg ga punya tanggal
+Object.keys(selected).forEach(acc => {
+  selected[acc] = selected[acc].filter(g => g.tanggal);
+});
   const date = document.getElementById("scheduleDate").value;
 
   if(!date){
@@ -435,22 +439,24 @@ const sudahAda = selected[account].some(
   
   //fungsi hapus 
   
-function deleteGroup(account, link){
+function deleteGroup(account, link, tanggal){
 
   let data = JSON.parse(localStorage.getItem("selectedGroups") || "{}");
 
   if(!data[account]) return;
 
-  data[account] = data[account].filter(g => g.group_link !== link);
+  data[account] = data[account].filter(
+    g => !(g.group_link === link && g.tanggal === tanggal)
+  );
 
   if(data[account].length === 0){
     delete data[account];
   }
 
   localStorage.setItem("selectedGroups", JSON.stringify(data));
-alert("✅ Grup dihapus");
-  
-    
+
+  alert("✅ Grup dihapus");
+
   loadSchedulePost();
   }
 /* ================= NAVIGATION ================= */
@@ -544,13 +550,13 @@ if(selectedAcc !== "all"){
   <div class="right">
     <div class="group-name">${item.group_name}</div>
     <div style="font-size:13px;opacity:.6">
-  ${item.account} • ${new Date().toLocaleDateString()}
+  ${item.account} • ${item.account} • ${item.tanggal}
 </div>
   </div>
 
 
   <div class="action">
-    <button onclick="deleteGroup('${item.account}','${item.group_link}')">❌</button>
+   <button onclick="deleteGroup('${item.account}','${item.group_link}','${item.tanggal}')">
   </div>
 
 
