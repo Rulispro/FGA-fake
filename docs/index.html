@@ -357,6 +357,7 @@ body{flex-direction:column;}
 <select id="groupAccountFilter">
 <option value="all">Semua Akun</option>
 </select>
+  <input type="date" id="scheduleDate">
   <button onclick="saveToSchedule()" class="btn-save">
     💾 SIMPAN GRUP 
   </button>
@@ -381,7 +382,13 @@ console.log("Update:", account, link, checked);
 
   // ✅ ambil data lama dulu
   let selected = JSON.parse(localStorage.getItem("selectedGroups") || "{}");
+  const date = document.getElementById("scheduleDate").value;
 
+  if(!date){
+    alert("Pilih tanggal dulu!");
+    return;
+  }
+  
   document.querySelectorAll("#groups-list input[type=checkbox]").forEach(cb=>{
     
     if(cb.checked){
@@ -392,7 +399,9 @@ console.log("Update:", account, link, checked);
       const photo = cb.getAttribute("data-photo");
 
       if(!selected[account]) selected[account] = [];
-
+      // buat struktur tanggal
+      if(!selected[account][date]) selected[account][date] = [];
+  
       // hindari duplikat
       const sudahAda = selected[account].some(g => g.group_link === link);
       if(!sudahAda){
