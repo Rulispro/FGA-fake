@@ -424,6 +424,15 @@ const sudahAda = selected[account].some(
   // ✅ simpan ke localStorage dulu
   localStorage.setItem("selectedGroups", JSON.stringify(selected));
 
+    document.querySelectorAll("#groups-list input[type=checkbox]")
+  .forEach(cb => cb.checked = false);
+
+    document.getElementById("scheduleDate")
+  .addEventListener("change", () => {
+    document.querySelectorAll("#groups-list input[type=checkbox]")
+      .forEach(cb => cb.checked = false);
+  });
+    
   // 🔥 BARU kirim ke API
   fetch("https://fga-fake.vercel.app/api/save", {
     method: "POST",
