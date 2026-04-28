@@ -505,82 +505,82 @@ function showPage(page){
   }
 
   //schedule posthasil grup terpilih /hasil scrape 
-  function loadSchedulePost(){
+  
+function loadSchedulePost(){
 
-  const data = JSON.parse(localStorage.getItem("selectedGroups") || "{}");
   const list = document.getElementById("schedulePost-list");
   const dropdown = document.getElementById("schedulePostAccountFilter");
- const prevValue = dropdown.value;
-    // ✅ RESET DROPDOWN DULU
-  dropdown.innerHTML = '<option value="all">Semua Akun</option>';
-  
-  list.innerHTML = "";
-Object.keys(data).forEach(acc=>{
-  const o = document.createElement("option");
-  o.value = acc;
-  o.textContent = acc;
-  dropdown.appendChild(o);
-  dropdown.value = prevValue || "all";
-});
-    
-  let all = [];
+  const prevValue = dropdown.value;
 
-Object.keys(data).forEach(acc=>{
-  data[acc].forEach(g=>{
-    all.push({...g, account: acc});
-  });
-});
+  list.innerHTML = "Loading...";
 
-// ✅ FILTER TANGGAL
-const selectedDate = document.getElementById("calendarSchedulePost").value;
+  fetch("selected.json?" + Date.now())
+  .then(r => r.json())
+  .then(data => {
 
-if(selectedDate){
-  all = all.filter(i => i.tanggal === selectedDate);
-  }
- /* filter akun*/
+    dropdown.innerHTML = '<option value="all">Semua Akun</option>';
+
+    Object.keys(data).forEach(acc=>{
+      const o = document.createElement("option");
+      o.value = acc;
+      o.textContent = acc;
+      dropdown.appendChild(o);
+    });
+
+    dropdown.value = prevValue || "all";
+
+    let all = [];
+
+    Object.keys(data).forEach(acc=>{
+      data[acc].forEach(g=>{
+        all.push({...g, account: acc});
+      });
+    });
+
+    // filter tanggal
+    const selectedDate = document.getElementById("calendarSchedulePost").value;
+    if(selectedDate){
+      all = all.filter(i => i.tanggal === selectedDate);
+    }
+
+    // filter akun
     const selectedAcc = dropdown.value;
+    if(selectedAcc !== "all"){
+      all = all.filter(i => i.account === selectedAcc);
+    }
 
-if(selectedAcc !== "all"){
-  all = all.filter(i => i.account === selectedAcc);
-}
-    
-  if(all.length === 0){
-    list.innerHTML = `<div class="empty">Belum ada grup dipilih</div>`;
-    return;
-  }
+    list.innerHTML = "";
 
-  all.forEach(item=>{
-    list.innerHTML += `
+    if(all.length === 0){
+      list.innerHTML = `<div class="empty">Belum ada grup dipilih</div>`;
+      return;
+    }
+
+    all.forEach(item=>{
+      list.innerHTML += `
 <div class="card">
 
   <div class="left">
-     <input type="checkbox"
-      data-account="${item.account}"
-      data-link="${item.group_link}"
-      data-name="${item.group_name}"
-      data-photo="${item.group_photo}">
-      
     <img src="${item.group_photo || 'https://via.placeholder.com/70'}" class="group-img">
   </div>
 
   <div class="right">
     <div class="group-name">${item.group_name}</div>
     <div style="font-size:13px;opacity:.6">
-  ${item.account} • ${item.tanggal}
-</div>
+      ${item.account} • ${item.tanggal}
+    </div>
   </div>
-
 
   <div class="action">
-   <button onclick="deleteGroup('${item.account}','${item.group_link}','${item.tanggal}')">
+    <button onclick="deleteGroup('${item.account}','${item.group_link}','${item.tanggal}')">
+      ❌
+    </button>
   </div>
 
+</div>`;
+    });
 
-</div>
-`;
-    
   });
-
 }
 
 //fungsi simpan per card di schedule dari scrape grup 
