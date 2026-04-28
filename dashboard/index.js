@@ -2284,11 +2284,15 @@ for (let i = 0; i < selectedGroups.length; i++) {
 
   //tetap 
     const groupData = groupsDB[groupUrl] || {};
-
-    console.log(`\n📌 [${account}] Grup ${i + 1}/${groups.length}`);
-    console.log(`➡️ ${groupUrl}`);
+ //template xlsx 
+    //console.log(`\n📌 [${account}] Grup ${i + 1}/${groups.length}`);
+// console.log(`➡️ ${groupUrl}`);
     
-
+// selected.json
+console.log(`\n📌 [${account}] Grup ${i + 1}/${selectedGroups.length}`);
+console.log(`➡️ ${groupName}`);
+console.log(`🔗 ${groupUrl}`);
+  
 // ✅ Validasi URL grup
     if (!groupUrl.startsWith("http")) {
       groupUrl = "https://m.facebook.com/" + groupUrl.replace(/^\/+/, "");
@@ -2298,10 +2302,13 @@ for (let i = 0; i < selectedGroups.length; i++) {
       console.log("❌ URL grup tidak valid, skip:", groupUrl);
       continue; // skip kalau bukan URL grup
     }
+  //template xlsx 
+    //console.log(`\n📌 [${account}] Membuka grup ${i + 1}/${groups.length}`);
+   // console.log("➡️", groupUrl);
 
-    console.log(`\n📌 [${account}] Membuka grup ${i + 1}/${groups.length}`);
-    console.log("➡️", groupUrl);
-    
+  //selected json 
+  console.log(`\n📌 [${account}] Membuka grup ${i + 1}/${selectedGroups.length}`);
+console.log("➡️", groupUrl);
     // ===== Buka grup
     await page.goto(groupUrl, { waitUntil: "networkidle2" });
     await page.waitForTimeout(4000);
