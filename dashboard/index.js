@@ -16,6 +16,13 @@ const groupsDB = JSON.parse(
     "utf8"
   )
 );
+//load dari docs/selected.json
+const selectedData = JSON.parse(
+  fs.readFileSync(
+    path.join(__dirname, "..", "docs", "selected.json"),
+    "utf8"
+  )
+);
 
 //$BARU
 const docsDir = path.join(__dirname, "docs");
@@ -2223,15 +2230,25 @@ async function runAccount(page, row, accountName, today) {
 
   const defaultDelayGroup = 5000; // fallback kalau kosong
 
+  //DARI ROW TEMPLATE XLSX 
+ //tlxconst groups = String(row.grup_link || "")
+  //tlx.split(",")
+ //tlx .map(g => g.replace(/[\s\r\n]+/g, "").trim()) // hapus spasi, CR, LF
+  //tlx .filter(Boolean);
   
-  const groups = String(row.grup_link || "")
-  .split(",")
-  .map(g => g.replace(/[\s\r\n]+/g, "").trim()) // hapus spasi, CR, LF
-  .filter(Boolean);
+  //DARI docs/selected.json
+// ambil dari selected.json berdasarkan account
+const accountNameClean = accountName || row.account;
+
+const selectedGroups = (selectedData[accountNameClean] || [])
+  .filter(g => g.tanggal === today);
+
+const groups = selectedGroups.map(g => g.group_link);
+console.log(`📂 Selected JSON grup: ${selectedGroups.length}`);
   
-  
-   if (!account || !caption || !mediaUrl || groups.length === 0) {
-    console.log("⚠️ Row XLSX tidak lengkap, skip:", row);
+//sampai sini template xlsx/tlx
+   if (!account || !caption || !mediaUrl ||  selectedGroups.length === 0){//tlx groups.length === 0) {
+    console.log("⚠️ Row XLSX tidak lengkap/Tidak ada grup dari selected.json, skip:", row);
     return;
   }
 
