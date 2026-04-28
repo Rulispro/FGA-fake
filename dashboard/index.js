@@ -3014,13 +3014,17 @@ console.log("📋 Semua status rows:", statusRows);
   return rowDate === today;
 });
       
-   //coba baru filter grup 
-     const rowsForAccount = groupRows.filter(row => {
-    if (row.account !== acc.account) return false;
-    const rowDate = parseTanggalXLSX(row.tanggal);
-  return rowDate === today;
- });
+   //coba baru filter grup darinrow template xlsx 
+    // const rowsForAccount = groupRows.filter(row => {
+   // if (row.account !== acc.account) return false;
+  //  const rowDate = parseTanggalXLSX(row.tanggal);
+//  return rowDate === today;
+// });
 
+      //tanggal dari selected.json
+const rowsForAccount = groupRows.filter(row => {
+  return row.account === acc.account;
+});
       //filter addFriendFollowers 
     const rowsAddFriendFollowersForAccount = addFriendFollowersRows.filter(row => {
   if (row.account !== acc.account) return false;
