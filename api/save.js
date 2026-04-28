@@ -42,26 +42,13 @@ export default async function handler(req, res) {
     });
 
     // 🔥 MERGE DATA BARU
-    Object.keys(newData).forEach(acc => {
+// 🔥 LANGSUNG REPLACE TOTAL
+const finalData = newData;
 
-      if (!oldData[acc]) oldData[acc] = [];
-
-      newData[acc].forEach(g => {
-
-        const exists = oldData[acc].some(
-          x => x.group_link === g.group_link && x.tanggal === g.tanggal
-        );
-
-        if (!exists) {
-          oldData[acc].push(g);
-        }
-
-      });
-
-    });
-
-    const updated = Buffer.from(JSON.stringify(oldData, null, 2)).toString("base64");
-
+    const updated = Buffer.from(
+  JSON.stringify(finalData, null, 2)
+).toString("base64");
+    
     await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
       method: "PUT",
       headers: {
