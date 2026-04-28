@@ -380,18 +380,14 @@ console.log("Update:", account, link, checked);
   //fungsi simpan ke local store 
   function saveToSchedule(){
 
-  // ✅ ambil data lama dulu
-let selected = {}; // 🔥 reset total, ga ambil data lama // bersihin data lama yg ga punya tanggal
-Object.keys(selected).forEach(acc => {
-  selected[acc] = selected[acc].filter(g => g.tanggal);
-});
+  let selected = JSON.parse(localStorage.getItem("selectedGroups") || "{}");
   const date = document.getElementById("scheduleDate").value;
 
   if(!date){
     alert("Pilih tanggal dulu!");
     return;
   }
-  
+
   document.querySelectorAll("#groups-list input[type=checkbox]").forEach(cb=>{
     
     if(cb.checked){
@@ -403,16 +399,10 @@ Object.keys(selected).forEach(acc => {
 
       if(!selected[account]) selected[account] = [];
 
-      
-      // 🔥 PENTING: hapus semua data di tanggal ini dulu (biar fresh)
-      selected[account] = selected[account].filter(
-        g => g.tanggal !== date
+      const sudahAda = selected[account].some(
+        g => g.group_link === link && g.tanggal === date
       );
-  
-      // ✅ cek duplikat + tanggal
-const sudahAda = selected[account].some(
-  g => g.group_link === link && g.tanggal === date
-);
+
       if(!sudahAda){
         selected[account].push({
           tanggal: date,
@@ -425,16 +415,9 @@ const sudahAda = selected[account].some(
 
   });
 
-    localStorage.removeItem("selectedGroups"); // 🔥 hapus lama
-  // ✅ simpan ke localStorage dulu
   localStorage.setItem("selectedGroups", JSON.stringify(selected));
 
-    document.querySelectorAll("#groups-list input[type=checkbox]")
-  .forEach(cb => cb.checked = false);
-
-    
-    
-  // 🔥 BARU kirim ke API
+  // kirim ke API
   fetch("https://fga-fake.vercel.app/api/save", {
     method: "POST",
     headers: {
@@ -465,8 +448,16 @@ function deleteGroup(account, link, tanggal){
 
   localStorage.setItem("selectedGroups", JSON.stringify(data));
 
-  alert("✅ Grup dihapus");
+  // kirim ke server juga
+  fetch("https://fga-fake.vercel.app/api/save", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
 
+  alert("✅ Grup dihapus");
   loadSchedulePost();
   }
 /* ================= NAVIGATION ================= */
