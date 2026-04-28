@@ -50,8 +50,22 @@ function shuffleArray(arr) {
   return shuffled;
 }
 
+//NORMALISASI TANGGAL DOCS/SELECTED.JSON
 
+function normalizeName(name) {
+  return String(name || "").trim().toLowerCase();
+}
 
+function normalizeTanggal(tgl) {
+  if (!tgl) return "";
+
+  if (tgl.includes("/")) {
+    const [d, m, y] = tgl.split("/");
+    return `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
+  }
+
+  return tgl;
+}
 
 //HELPER ISI CAPTION 
 async function clearComposer(page) {
