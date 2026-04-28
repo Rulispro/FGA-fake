@@ -2240,12 +2240,17 @@ async function runAccount(page, row, accountName, today) {
 // ambil dari selected.json berdasarkan account
 const accountNameClean = accountName || row.account;
 
-const selectedGroups = (selectedData[accountNameClean] || [])
-  .filter(g => g.tanggal === today);
+// 🔥 ambil berdasarkan nama (ANTI SALAH NAMA)
+const selectedGroupsRaw = Object.entries(selectedData).find(
+  ([key]) => normalizeName(key) === normalizeName(accountNameClean)
+)?.[1] || [];
 
-const groups = selectedGroups.map(g => g.group_link);
+// 🔥 filter tanggal dari selected.json
+const selectedGroups = selectedGroupsRaw.filter(
+  g => normalizeTanggal(g.tanggal) === today
+);
+
 console.log(`📂 Selected JSON grup: ${selectedGroups.length}`);
-  
 //sampai sini template xlsx/tlx
    if (!account || !caption || !mediaUrl ||  selectedGroups.length === 0){//tlx groups.length === 0) {
     console.log("⚠️ Row XLSX tidak lengkap/Tidak ada grup dari selected.json, skip:", row);
@@ -2254,10 +2259,16 @@ console.log(`📂 Selected JSON grup: ${selectedGroups.length}`);
 
   console.log(`🧠 runAccount (XLSX) → ${account}`);
   console.log(`🔗 Grup: ${groups.length}`);
-    
-  for (let i = 0; i < groups.length; i++) {
-    let groupUrl = groups[i];
-    
+    //template xlsx 
+  //for (let i = 0; i < groups.length; i++) {
+    //let groupUrl = groups[i];
+
+  //dari selected json
+for (let i = 0; i < selectedGroups.length; i++) {
+  let groupUrl = selectedGroups[i].group_link;
+  const groupName = selectedGroups[i].group_name;
+
+  //tetap 
     const groupData = groupsDB[groupUrl] || {};
 
     console.log(`\n📌 [${account}] Grup ${i + 1}/${groups.length}`);
