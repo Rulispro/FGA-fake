@@ -2272,7 +2272,7 @@ console.log(`📂 Selected JSON grup: ${selectedGroups.length}`);
   }
 
   console.log(`🧠 runAccount (XLSX) → ${account}`);
-  console.log(`🔗 Grup: ${groups.length}`);
+  //console.log(`🔗 Grup: ${groups.length}`);
     //template xlsx 
   //for (let i = 0; i < groups.length; i++) {
     //let groupUrl = groups[i];
