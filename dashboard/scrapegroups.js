@@ -1,7 +1,7 @@
 const fs = require("fs");
 const puppeteer = require("puppeteer-extra");
 const StealthPlugin = require("puppeteer-extra-plugin-stealth");
-const { PuppeteerScreenRecorder } = require("puppeteer-screen-recorder");
+//const { PuppeteerScreenRecorder } = require("puppeteer-screen-recorder");
 puppeteer.use(StealthPlugin());
 
 function delay(ms) {
