@@ -8,6 +8,14 @@ function delay(ms) {
   return new Promise(res => setTimeout(res, ms));
 }
 
+//cache 
+let existingGroups = {};
+
+if (fs.existsSync("./docs/groups.json")) {
+  existingGroups = JSON.parse(
+    fs.readFileSync("./docs/groups.json", "utf8")
+  );
+}
 // ============================
       
     
@@ -202,8 +210,23 @@ await delay(5000);
 
     // DEBUG HTML (optional)
     fs.writeFileSync(`debug-${accountData.account}.html`, await page.content());
+     //Baru 
+    const oldGroups = existingGroups[accountData.account] || [];
 
-    allGroupsPerAccount[accountData.account] = groups;
+// merge lama + baru
+const merged = [...oldGroups, ...groups];
+
+// hapus duplikat berdasarkan id
+const unique = Object.values(
+  merged.reduce((acc, g) => {
+    acc[g.id] = g;
+    return acc;
+  }, {})
+);
+
+allGroupsPerAccount[accountData.account] = unique;
+    //LAMA
+    //allGroupsPerAccount[accountData.account] = groups;
 
     console.log(`📦 Selesai akun: ${accountData.account}`);
     console.log(`Total grup tersimpan: ${groups.length}`);
