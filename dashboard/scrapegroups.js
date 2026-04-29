@@ -79,18 +79,20 @@ const text = a.innerText.trim();
       //!text.includes("Terakhir aktif")
  // ) return;
 
-      if (!text) return;
+      const text = a.innerText.trim().toLowerCase();
 
-// skip tombol UI
+// skip UI button
 if (
-  text.includes("Lihat Grup") ||
-  text.includes("View Grup") ||
-  text.includes("Gabung") ||
-  text.includes("Join")
+  !text ||
+  text.includes("lihat grup") ||
+  text.includes("view group") ||
+  text.includes("gabung") ||
+  text.includes("join")
 ) return;
-      
-const name = text.split('\n')[0];
 
+// ambil nama setelah filter
+const name = text.split('\n')[0];
+      
  // ================= COVER IMAGE =================
      const img = a.querySelector('image, img');
   let photo = null;
@@ -100,9 +102,34 @@ const name = text.split('\n')[0];
        img.getAttribute('src') ||
        img.getAttribute('data-src') ||
        img.src ||
-        img.getAttribute('scontent') ||
+       img.getAttribute('scontent') ||
        null;
     
+}
+
+      // 2️⃣ fallback: semua img di dalam link
+if (!photo) {
+  const imgs = a.querySelectorAll("img");
+  imgs.forEach(i => {
+    if (!photo) {
+      photo =
+        i.src ||
+        i.getAttribute("data-src") ||
+        i.getAttribute("xlink:href") ||
+        null;
+    }
+  });
+}
+
+// 3️⃣ fallback: background-image
+if (!photo) {
+  const divs = a.querySelectorAll("div");
+  divs.forEach(div => {
+    const bg = window.getComputedStyle(div).backgroundImage;
+    if (bg && bg.includes("url") && !photo) {
+      photo = bg.replace(/url\\(["']?(.+?)["']?\\)/, "$1");
+    }
+  });
 }
       
       result.push({
