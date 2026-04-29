@@ -315,7 +315,7 @@ allGroupsPerAccount[accountData.account] = merged;
     console.log(`📦 Selesai akun: ${accountData.account}`);
     console.log(`🆕 New groups: ${newOnly.length}`);
 console.log(`📦 Total cached (before limit): ${merged.length}`);
-console.log(`📦 Total saved (after limit): ${limited.length}`);
+console.log(`📦 Total cached/save: ${merged.length}`);
     console.log("⏭ Pindah akun berikutnya...\n");
 
     await delay(5000);
