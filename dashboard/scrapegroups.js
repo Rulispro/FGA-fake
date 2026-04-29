@@ -103,6 +103,18 @@ process.setMaxListeners(20);
             null;
         }
 
+        
+// 3️⃣ role="img"
+if (!photo) {
+  const roleImg = a.querySelector('[role="img"]');
+  if (roleImg) {
+    const bg = window.getComputedStyle(roleImg).backgroundImage;
+    if (bg && bg.includes("url")) {
+      photo = bg.replace(/url\(["']?(.+?)["']?\)/, "$1");
+    }
+  }
+}
+
         // 2️⃣ SVG <image> (🔥 INI YANG KAMU BUTUH)
    if (!photo) {
     const svgImage = a.querySelector("image");
@@ -220,24 +232,17 @@ page.setDefaultTimeout(120000);
   await delay(4000); // 🔥 penting
 
 //setuseragent 
- // await page.setUserAgent(
- // "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-//);
-
- // await page.setViewport({
- // width: 1366,
-//  height: 768,
- // isMobile: false
-//});
-await page.setUserAgent(
-  "Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1"
+  await page.setUserAgent(
+ // 
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 );
 
-await page.setViewport({
-  width: 375,
-  height: 812,
-  isMobile: true
+ await page.setViewport({
+  width: 1366,
+  height: 768,
+  isMobile: false
 });
+
  // BARU recorder dibuat
 //const recorder = new PuppeteerScreenRecorder(page);
 //await recorder.start("video.mp4");
