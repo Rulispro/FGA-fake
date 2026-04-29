@@ -208,6 +208,9 @@ await delay(5000);
     // ===============================
     const groups = await getGroupLinks(page, accountData.account);
 
+    // 🔥 LIMIT MAX 50 GROUP
+finalGroups = finalGroups.slice(0, 50);
+
     // DEBUG HTML (optional)
     fs.writeFileSync(`debug-${accountData.account}.html`, await page.content());
      //Baru 
