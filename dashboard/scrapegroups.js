@@ -272,11 +272,6 @@ await delay(5000);
     // ===============================
     // AMBIL GROUP
     // ===============================
-    const groups = await getGroupLinks(page, accountData.account);
-
-    // DEBUG HTML (optional)
-    fs.writeFileSync(`debug-${accountData.account}.html`, await page.content());
-
     const oldGroups = existingGroups[accountData.account] || [];
 
 const groups = await getGroupLinks(
@@ -284,6 +279,11 @@ const groups = await getGroupLinks(
   accountData.account,
   oldGroups.map(g => g.id)
 );
+    
+    // DEBUG HTML (optional)
+    fs.writeFileSync(`debug-${accountData.account}.html`, await page.content());
+
+    
     
 // ambil hanya group baru
 const newOnly = groups.filter(g =>
