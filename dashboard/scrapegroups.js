@@ -129,8 +129,12 @@ const name = text.split('\n')[0];
 (async () => {
 
   const accounts = JSON.parse(
-    fs.readFileSync("./dashboard/accounts.json")
-  );
+  fs.readFileSync("./dashboard/accounts.json")
+).filter(acc =>
+  acc.account &&
+  acc.cookies &&
+  acc.cookies.some(c => c.name === "c_user" && c.value)
+);
 
   let existingGroups = {};
 
