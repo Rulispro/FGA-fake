@@ -20,7 +20,10 @@ process.setMaxListeners(20);
 // ============================
       
     
-  async function getGroupLinks(page, accountName){
+  
+
+
+        async function getGroupLinks(page, accountName, existingIds = []){
 
   console.log(`📥 [${accountName}] Buka groups...`);
 
@@ -33,7 +36,7 @@ process.setMaxListeners(20);
   await page.waitForTimeout(9000);
 
   // =========================
-  // 2️⃣ DETECT GROUP LINKS (DEBUG WAJIB)
+  // 2️⃣ DETECT GROUP LINKS
   // =========================
   const hasGroups = await page.evaluate(() => {
     return document.querySelectorAll("a[href*='/groups/']").length;
@@ -41,113 +44,125 @@ process.setMaxListeners(20);
 
   console.log("🔎 DETECTED LINKS:", hasGroups);
 
+  // 🔥 PENAMPUNG DATA BARU
+  const collected = [];
+
   // =========================
   // 3️⃣ SCROLL UNTUK LOAD DATA
   // =========================
-  for (let i = 0; i < 10; i++) {
-    console.log(`🔄 [${accountName}] Scroll ke-${i + 1}`);   await page.evaluate(() => {
+  for (let i = 0; i < 20; i++) {
+
+    console.log(`🔄 [${accountName}] Scroll ke-${i + 1}`);
+
+    await page.evaluate(() => {
       window.scrollTo(0, document.body.scrollHeight);
     });
-    
-await delay(2000 + Math.random() * 2000);
-  }
 
-    
+    await delay(2000 + Math.random() * 2000);
 
-    
-  // =========================
-  // 4️⃣ SCRAPE DATA SETELAH SCROLL
-  // =========================
-  const groups = await page.evaluate(() => {
-    const result = [];
+    // =========================
+    // SCRAPE PER SCROLL
+    // =========================
+    const newData = await page.evaluate(() => {
+      const result = [];
 
- // 🔥 FIX: pakai link bukan semua div
-    const links = document.querySelectorAll("a[href*='/groups/']");
+      const links = document.querySelectorAll("a[href*='/groups/']");
 
-    links.forEach(a => {
+      links.forEach(a => {
 
-      const match = a.href.match(/groups\/(\d+)/);
-      const id = match ? match[1] : null;
-      if (!id) return;
-      
-const text = a.innerText.trim();
+        const match = a.href.match(/groups\/(\d+)/);
+        if (!match) return;
 
-    // 🔥 FILTER KUNCI
-    //if (
-     // !text ||
-     //text === "Lihat Grup" ||
-      //!text.includes("Terakhir aktif")
- // ) return;
+        const id = match[1];
 
-      const text = a.innerText.trim().toLowerCase();
+        const rawText = a.innerText.trim();
+        const text = rawText.toLowerCase();
 
-// skip UI button
-if (
-  !text ||
-  text.includes("lihat grup") ||
-  text.includes("view group") ||
-  text.includes("gabung") ||
-  text.includes("join")
-) return;
+        // skip UI button
+        if (
+          !text ||
+          text.includes("lihat grup") ||
+          text.includes("view group") ||
+          text.includes("gabung") ||
+          text.includes("join")
+        ) return;
 
-// ambil nama setelah filter
-const name = text.split('\n')[0];
-      
- // ================= COVER IMAGE =================
-     const img = a.querySelector('image, img');
-  let photo = null;
-    if (img) {
-      photo =
-       img.getAttribute('xlink:href') ||
-       img.getAttribute('src') ||
-       img.getAttribute('data-src') ||
-       img.src ||
-       img.getAttribute('scontent') ||
-       null;
-    
-}
+        const name = rawText.split('\n')[0];
 
-      // 2️⃣ fallback: semua img di dalam link
-if (!photo) {
-  const imgs = a.querySelectorAll("img");
-  imgs.forEach(i => {
-    if (!photo) {
-      photo =
-        i.src ||
-        i.getAttribute("data-src") ||
-        i.getAttribute("xlink:href") ||
-        null;
-    }
-  });
-}
+        // ================= PHOTO =================
+        let photo = null;
 
-// 3️⃣ fallback: background-image
-if (!photo) {
-  const divs = a.querySelectorAll("div");
-  divs.forEach(div => {
-    const bg = window.getComputedStyle(div).backgroundImage;
-    if (bg && bg.includes("url") && !photo) {
-      photo = bg.replace(/url\\(["']?(.+?)["']?\\)/, "$1");
-    }
-  });
-}
-      
-      result.push({
-        id,
-        name: name || null,
-        link: `https://m.facebook.com/groups/${id}`,
-        photo
+        const img = a.querySelector('image, img');
+
+        if (img) {
+          photo =
+            img.src ||
+            img.getAttribute('src') ||
+            img.getAttribute('data-src') ||
+            img.getAttribute('xlink:href') ||
+            null;
+        }
+
+        // fallback img lain
+        if (!photo) {
+          const imgs = a.querySelectorAll("img");
+          imgs.forEach(i => {
+            if (!photo) {
+              photo =
+                i.src ||
+                i.getAttribute("data-src") ||
+                i.getAttribute("xlink:href") ||
+                null;
+            }
+          });
+        }
+
+        // fallback background
+        if (!photo) {
+          const divs = a.querySelectorAll("div");
+          divs.forEach(div => {
+            const bg = window.getComputedStyle(div).backgroundImage;
+            if (bg && bg.includes("url") && !photo) {
+              photo = bg.replace(/url\(["']?(.+?)["']?\)/, "$1");
+            }
+          });
+        }
+
+        result.push({
+          id,
+          name,
+          link: `https://m.facebook.com/groups/${id}`,
+          photo
+        });
       });
+
+      return result;
     });
 
-    return [...new Map(result.map(x => [x.id, x])).values()];
-  });
+    // =========================
+    // FILTER HANYA YANG BARU
+    // =========================
+    const fresh = newData.filter(g =>
+      !existingIds.includes(g.id) &&
+      !collected.some(c => c.id === g.id)
+    );
 
-  console.log(`📊 Total grup: ${groups.length}`);
+    collected.push(...fresh);
 
-  return groups;
-                  }
+    console.log(`🆕 baru: ${fresh.length}`);
+    console.log(`📦 total: ${collected.length}`);
 
+    // 🔥 STOP kalau sudah 100
+    if (collected.length >= 100) {
+      console.log("🛑 Stop, sudah 100 grup");
+      break;
+    }
+  }
+
+  console.log(`📊 Total grup diambil: ${collected.length}`);
+
+  return collected.slice(0, 100);
+              }
 
 
 // ===============================
