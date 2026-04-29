@@ -53,16 +53,6 @@ await delay(5000 + Math.random() * 3000);
   }
 
     
-  // 🔥 TAMBAHKAN INI DI SINI (PENTING)
-  await page.evaluate(() => {
-    window.scrollTo(0, 0);
-  });
-
-  await delay(8000 + Math.random() * 5000);
-
-    
-await page.mouse.move(100, 200);
-await delay(2000);
 
     
   // =========================
@@ -83,11 +73,22 @@ await delay(2000);
 const text = a.innerText.trim();
 
     // 🔥 FILTER KUNCI
-    if (
-      !text ||
-     text === "Lihat Grup" ||
-      !text.includes("Terakhir aktif")
-  ) return;
+    //if (
+     // !text ||
+     //text === "Lihat Grup" ||
+      //!text.includes("Terakhir aktif")
+ // ) return;
+
+      if (!text) return;
+
+// skip tombol UI
+if (
+  text.includes("Lihat Grup") ||
+  text.includes("View Grup") ||
+  text.includes("Gabung") ||
+  text.includes("Join")
+) return;
+      
 const name = text.split('\n')[0];
 
  // ================= COVER IMAGE =================
