@@ -4,10 +4,19 @@ const StealthPlugin = require("puppeteer-extra-plugin-stealth");
 const { PuppeteerScreenRecorder } = require("puppeteer-screen-recorder");
 puppeteer.use(StealthPlugin());
 
+puppeteer.use(
+  StealthPlugin({
+    enabledEvasions: new Set([
+      "navigator.webdriver"
+    ])
+  })
+);
+
 function delay(ms) {
   return new Promise(res => setTimeout(res, ms));
 }
 
+process.setMaxListeners(20);
 // ============================
       
     
@@ -109,20 +118,26 @@ const name = text.split('\n')[0];
     fs.readFileSync("./dashboard/accounts.json")
   );
 
+   const browser = await puppeteer.launch({
+  headless: "new",
+  executablePath: "/usr/bin/chromium-browser",
+  args: [
+    "--no-sandbox",
+    "--disable-setuid-sandbox",
+    "--disable-dev-shm-usage",
+    "--disable-gpu",
+    "--disable-features=site-per-process",
+    "--disable-extensions",
+    "--no-first-run"
+  ],
+  timeout: 120000
+});
   
-  const browser = await puppeteer.launch({
-    headless: "new",
-    executablePath: "/usr/bin/chromium-browser",
-    args: [
-      "--no-sandbox",
-      "--disable-setuid-sandbox",
-      "--disable-dev-shm-usage",
-      "--disable-gpu",
-      "--no-zygote",
-      "--single-process"]
-  });
-
   const page = await browser.newPage();
+  page.setDefaultNavigationTimeout(120000);
+page.setDefaultTimeout(120000);
+
+  await delay(2000); // 🔥 penting
 
 //setuseragent 
  // await page.setUserAgent(
@@ -147,7 +162,13 @@ const name = text.split('\n')[0];
       get: () => false,
     });
   });
-
+async function safeEval(page, fn) {
+  try {
+    return await page.evaluate(fn);
+  } catch (e) {
+    return null;
+  }
+ }
   
 
   
