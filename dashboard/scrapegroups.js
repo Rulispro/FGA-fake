@@ -23,7 +23,7 @@ process.setMaxListeners(20);
   
 
 
-        async function getGroupLinks(page, accountName, existingIds = []){
+ async function getGroupLinks(page, accountName, existingIds = []){
 
   console.log(`📥 [${accountName}] Buka groups...`);
 
@@ -305,10 +305,12 @@ const newOnly = groups.filter(g =>
   !oldGroups.some(o => o.id === g.id)
 );
 
+// gabungkan lama + baru
+const merged = [...oldGroups, ...newOnly];
+
+// simpan TANPA limit (biar nambah terus)
 existingGroups[accountData.account] = merged;
 allGroupsPerAccount[accountData.account] = merged;
-// output final
-allGroupsPerAccount[accountData.account] = limited;
 
     console.log(`📦 Selesai akun: ${accountData.account}`);
     console.log(`🆕 New groups: ${newOnly.length}`);
