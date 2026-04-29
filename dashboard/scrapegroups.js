@@ -8,14 +8,6 @@ function delay(ms) {
   return new Promise(res => setTimeout(res, ms));
 }
 
-//cache 
-let existingGroups = {};
-
-if (fs.existsSync("./docs/groups.json")) {
-  existingGroups = JSON.parse(
-    fs.readFileSync("./docs/groups.json", "utf8")
-  );
-}
 // ============================
       
     
@@ -120,8 +112,9 @@ const name = text.split('\n')[0];
   
   const browser = await puppeteer.launch({
     headless: "new",
-    executablePath: "/usr/bin/chromium-browser",
-     args: [
+   // executablePath: "/usr/bin/chromium-browser",
+    executablePath: "/data/data/com.termux/files/usr/bin/chromium",
+    args: [
       "--no-sandbox",
       "--disable-setuid-sandbox",
       "--disable-dev-shm-usage",
@@ -208,28 +201,10 @@ await delay(5000);
     // ===============================
     const groups = await getGroupLinks(page, accountData.account);
 
-    // 🔥 LIMIT MAX 50 GROUP
-finalGroups = finalGroups.slice(0, 50);
-
     // DEBUG HTML (optional)
     fs.writeFileSync(`debug-${accountData.account}.html`, await page.content());
-     //Baru 
-    const oldGroups = existingGroups[accountData.account] || [];
 
-// merge lama + baru
-const merged = [...oldGroups, ...groups];
-
-// hapus duplikat berdasarkan id
-const unique = Object.values(
-  merged.reduce((acc, g) => {
-    acc[g.id] = g;
-    return acc;
-  }, {})
-);
-
-allGroupsPerAccount[accountData.account] = unique;
-    //LAMA
-    //allGroupsPerAccount[accountData.account] = groups;
+    allGroupsPerAccount[accountData.account] = groups;
 
     console.log(`📦 Selesai akun: ${accountData.account}`);
     console.log(`Total grup tersimpan: ${groups.length}`);
