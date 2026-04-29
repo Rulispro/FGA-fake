@@ -305,14 +305,8 @@ const newOnly = groups.filter(g =>
   !oldGroups.some(o => o.id === g.id)
 );
 
-const merged = [...oldGroups, ...newOnly];
-
-// 🔥 limit maksimal 50 PER RUN
-const limited = merged.slice(0, 50);
-
-// update cache
-existingGroups[accountData.account] = limited;
-
+existingGroups[accountData.account] = merged;
+allGroupsPerAccount[accountData.account] = merged;
 // output final
 allGroupsPerAccount[accountData.account] = limited;
 
