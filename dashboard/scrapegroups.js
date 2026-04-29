@@ -48,12 +48,23 @@ process.setMaxListeners(20);
     await page.evaluate(() => {
       window.scrollTo(0, document.body.scrollHeight);
     });
+await delay(5000 + Math.random() * 3000);
 
-    / 🔥 jangan terlalu cepat
-  await delay(5000 + Math.random() * 3000);
-    
   }
 
+    
+  // 🔥 TAMBAHKAN INI DI SINI (PENTING)
+  await page.evaluate(() => {
+    window.scrollTo(0, 0);
+  });
+
+  await delay(8000 + Math.random() * 5000);
+
+    await delay(3000);
+await page.mouse.move(100, 200);
+await delay(2000);
+
+    
   // =========================
   // 4️⃣ SCRAPE DATA SETELAH SCROLL
   // =========================
