@@ -60,7 +60,7 @@ await delay(5000 + Math.random() * 3000);
 
   await delay(8000 + Math.random() * 5000);
 
-    await delay(3000);
+    
 await page.mouse.move(100, 200);
 await delay(2000);
 
