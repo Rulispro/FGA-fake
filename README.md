@@ -3,3 +3,10 @@
 KLIK WORKFLOWS GENERATE SCRAPE GRUP 
 
 PASTIKAN CEK NAMA GRUPNYA ,BUKA LINK GRUPNYA KEMUDIAN CARI TULISAN TULIS SESUATU 
+
+
+disable account di accounts.json
+{
+  "disabled_account": "akun",
+  ...
+}
