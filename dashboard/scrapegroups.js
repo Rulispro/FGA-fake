@@ -252,18 +252,21 @@ const newOnly = groups.filter(g =>
   !oldGroups.some(o => o.id === g.id)
 );
 
-// merge lama + baru
 const merged = [...oldGroups, ...newOnly];
 
-// update memory cache
-existingGroups[accountData.account] = merged;
+// 🔥 limit maksimal 50 PER RUN
+const limited = merged.slice(0, 50);
 
-// hasil final
-allGroupsPerAccount[accountData.account] = merged;
+// update cache
+existingGroups[accountData.account] = limited;
+
+// output final
+allGroupsPerAccount[accountData.account] = limited;
 
     console.log(`📦 Selesai akun: ${accountData.account}`);
-    console.log(`Total grup tersimpan: ${groups.length}`);
-
+    console.log(`🆕 New groups: ${newOnly.length}`);
+console.log(`📦 Total cached: ${merged.length}`);
+    
     console.log("⏭ Pindah akun berikutnya...\n");
 
     await delay(5000);
@@ -277,9 +280,11 @@ allGroupsPerAccount[accountData.account] = merged;
     fs.mkdirSync("./docs");
 
   fs.writeFileSync(
-    "./docs/groups.json",
-    JSON.stringify(allGroupsPerAccount, null, 2)
-  );
+  "./docs/groups.json",
+  JSON.stringify(existingGroups, null, 2)
+);
+
+  
 console.log("📁 FILE LOCATION: ./docs/groups.json");
 console.log("✔ FILE SIZE:", fs.statSync("./docs/groups.json").size, "bytes");
   console.log("\n✅ groups.json berhasil dibuat");
