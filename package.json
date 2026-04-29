@@ -1,10 +1,17 @@
 {
   "name": "facebook-bot",
   "version": "1.0.0",
+  "description": "Multi account Facebook automation bot using Puppeteer + XLSX + Luxon",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
   "dependencies": {
     "luxon": "^3.4.4",
     "xlsx": "^0.18.5",
+    "puppeteer": "19.0.0",
     "puppeteer-extra": "^3.3.4",
-    "puppeteer-extra-plugin-stealth": "^2.11.1"
+    "puppeteer-extra-plugin-stealth": "^2.11.1",
+    "puppeteer-screen-recorder": "^3.0.0"
   }
 }
