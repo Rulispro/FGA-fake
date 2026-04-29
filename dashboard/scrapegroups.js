@@ -44,12 +44,12 @@ process.setMaxListeners(20);
   // =========================
   // 3️⃣ SCROLL UNTUK LOAD DATA
   // =========================
-  for (let i = 0; i < 15; i++) {
-    await page.evaluate(() => {
+  for (let i = 0; i < 10; i++) {
+    console.log(`🔄 [${accountName}] Scroll ke-${i + 1}`);   await page.evaluate(() => {
       window.scrollTo(0, document.body.scrollHeight);
     });
-await delay(5000 + Math.random() * 3000);
-
+    
+await delay(2000 + Math.random() * 2000);
   }
 
     
