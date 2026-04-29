@@ -131,6 +131,14 @@ const name = text.split('\n')[0];
     fs.readFileSync("./dashboard/accounts.json")
   );
 
+  let existingGroups = {};
+
+if (fs.existsSync("./docs/groups.json")) {
+  existingGroups = JSON.parse(
+    fs.readFileSync("./docs/groups.json", "utf8")
+  );
+}
+  
    const browser = await puppeteer.launch({
   headless: "new",
   executablePath: "/usr/bin/chromium-browser",
@@ -187,7 +195,7 @@ async function safeEval(page, fn) {
   
 
   const allGroupsPerAccount = {};
-
+  
   for (const accountData of accounts) {
 
     console.log("\n==============================");
@@ -237,7 +245,21 @@ await delay(5000);
     // DEBUG HTML (optional)
     fs.writeFileSync(`debug-${accountData.account}.html`, await page.content());
 
-    allGroupsPerAccount[accountData.account] = groups;
+    const oldGroups = existingGroups[accountData.account] || [];
+
+// ambil hanya group baru
+const newOnly = groups.filter(g =>
+  !oldGroups.some(o => o.id === g.id)
+);
+
+// merge lama + baru
+const merged = [...oldGroups, ...newOnly];
+
+// update memory cache
+existingGroups[accountData.account] = merged;
+
+// hasil final
+allGroupsPerAccount[accountData.account] = merged;
 
     console.log(`📦 Selesai akun: ${accountData.account}`);
     console.log(`Total grup tersimpan: ${groups.length}`);
