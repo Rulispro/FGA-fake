@@ -49,7 +49,9 @@ process.setMaxListeners(20);
       window.scrollTo(0, document.body.scrollHeight);
     });
 
-    await page.waitForTimeout(3000);
+    / 🔥 jangan terlalu cepat
+  await delay(5000 + Math.random() * 3000);
+    
   }
 
   // =========================
@@ -137,7 +139,7 @@ const name = text.split('\n')[0];
   page.setDefaultNavigationTimeout(120000);
 page.setDefaultTimeout(120000);
 
-  await delay(2000); // 🔥 penting
+  await delay(4000); // 🔥 penting
 
 //setuseragent 
  // await page.setUserAgent(
