@@ -279,6 +279,12 @@ await delay(5000);
 
     const oldGroups = existingGroups[accountData.account] || [];
 
+const groups = await getGroupLinks(
+  page,
+  accountData.account,
+  oldGroups.map(g => g.id)
+);
+    
 // ambil hanya group baru
 const newOnly = groups.filter(g =>
   !oldGroups.some(o => o.id === g.id)
@@ -297,8 +303,8 @@ allGroupsPerAccount[accountData.account] = limited;
 
     console.log(`📦 Selesai akun: ${accountData.account}`);
     console.log(`🆕 New groups: ${newOnly.length}`);
-console.log(`📦 Total cached: ${merged.length}`);
-    
+console.log(`📦 Total cached (before limit): ${merged.length}`);
+console.log(`📦 Total saved (after limit): ${limited.length}`);
     console.log("⏭ Pindah akun berikutnya...\n");
 
     await delay(5000);
