@@ -103,6 +103,18 @@ process.setMaxListeners(20);
             null;
         }
 
+        // 2️⃣ SVG <image> (🔥 INI YANG KAMU BUTUH)
+   if (!photo) {
+    const svgImage = a.querySelector("image");
+    if (svgImage) {
+     photo =
+      svgImage.href?.baseVal ||   // 🔥 paling penting
+      svgImage.getAttribute("href") ||
+      svgImage.getAttribute("xlink:href") ||
+      null;
+  }
+}
+
         // fallback img lain
         if (!photo) {
           const imgs = a.querySelectorAll("img");
@@ -217,7 +229,15 @@ page.setDefaultTimeout(120000);
 //  height: 768,
  // isMobile: false
 //});
+await page.setUserAgent(
+  "Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1"
+);
 
+await page.setViewport({
+  width: 375,
+  height: 812,
+  isMobile: true
+});
  // BARU recorder dibuat
 //const recorder = new PuppeteerScreenRecorder(page);
 //await recorder.start("video.mp4");
