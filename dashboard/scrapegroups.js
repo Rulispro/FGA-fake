@@ -112,8 +112,7 @@ const name = text.split('\n')[0];
   
   const browser = await puppeteer.launch({
     headless: "new",
-   // executablePath: "/usr/bin/chromium-browser",
-    executablePath: "/data/data/com.termux/files/usr/bin/chromium",
+    executablePath: "/usr/bin/chromium-browser",
     args: [
       "--no-sandbox",
       "--disable-setuid-sandbox",
