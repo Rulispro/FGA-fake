@@ -1,7 +1,7 @@
 const fs = require("fs");
 const puppeteer = require("puppeteer-extra");
 const StealthPlugin = require("puppeteer-extra-plugin-stealth");
-//const { PuppeteerScreenRecorder } = require("puppeteer-screen-recorder");
+const { PuppeteerScreenRecorder } = require("puppeteer-screen-recorder");
 puppeteer.use(StealthPlugin());
 
 function delay(ms) {
@@ -112,9 +112,8 @@ const name = text.split('\n')[0];
   
   const browser = await puppeteer.launch({
     headless: "new",
-   // executablePath: "/usr/bin/chromium-browser",
-    executablePath: "/data/data/com.termux/files/usr/bin/chromium-browser",
-    args: [
+    executablePath: "/usr/bin/chromium-browser",
+     args: [
       "--no-sandbox",
       "--disable-setuid-sandbox",
       "--disable-dev-shm-usage",
