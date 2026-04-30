@@ -134,7 +134,7 @@ svgImages.forEach(img => {
       img.getAttribute("href") ||
       img.getAttribute("xlink:href");
 
-    if (if (url && (url.includes("fbcdn") || url.includes("scontent"))) {
+    if (url && (url.includes("fbcdn") || url.includes("scontent"))) {
       photo = url;
       console.log("🔥 SVG FINAL:", url);
     }
