@@ -79,15 +79,11 @@ await page.evaluate(() => {
     el.scrollIntoView({ block: "center" });
   });
 });
-// 2. center elements
-/////await page.evaluate(() => {
-  ////document.querySelectorAll("a[href*='/groups/']")
-  ////  .forEach(a => a.scrollIntoView({ block: "center" }));
-////});
+await page.waitForTimeout(2500);
+   }
 
-///await page.waitForTimeout(1500);
-    await page.waitForTimeout(2500);
-    
+     await page.waitForTimeout(5000);
+     
     // =========================
     // SCRAPE PER SCROLL
     // =========================
