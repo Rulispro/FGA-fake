@@ -27,7 +27,7 @@ process.setMaxListeners(20);
 
   console.log(`📥 [${accountName}] Buka groups...`);
 
-  await page.goto("https://www.facebook.com/groups/joins/?nav_source=tab&ordering=viewer_added", {
+  await page.goto("https://m.facebook.com/groups/joins/", {
     waitUntil: "domcontentloaded"
   });
 
@@ -247,16 +247,7 @@ page.setDefaultTimeout(120000);
   await delay(4000); // 🔥 penting
 
 //setuseragent 
-  await page.setUserAgent(
-  "Mozilla/5.0 (Linux; Android 10; Redmi Note 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
-);
-
-await page.setViewport({
-  width: 412,
-  height: 915,
-  isMobile: true,
-  hasTouch: true
-});
+  
 
  // BARU recorder dibuat
 //const recorder = new PuppeteerScreenRecorder(page);
