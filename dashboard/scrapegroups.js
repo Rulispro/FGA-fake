@@ -22,13 +22,7 @@ process.setMaxListeners(20);
     
   
 
-//BUAT RENDER
-async function waitImageRender(page) {
-  // tunggu minimal image fbcdn muncul
-  await page.waitForFunction(() => {
-    return document.querySelectorAll("img[src*='scontent'], img[src*='fbcdn']").length > 3;
-  }, { timeout: 10000 }).catch(() => {});
-}
+
 
  async function getGroupLinks(page, accountName, existingIds = []){
 
@@ -57,30 +51,35 @@ async function waitImageRender(page) {
   // =========================
   // 3️⃣ SCROLL UNTUK LOAD DATA
   // =========================
-  for (let i = 0; i < 20; i++) {
-
+ await page.evaluate(async () => {
+  const delay = (ms) => new Promise(r => setTimeout(r, ms));
+   
+   for (let i = 0; i < 20; i++) {
+window.scrollBy(0, window.innerHeight);
+    await delay(1200);
     console.log(`🔄 [${accountName}] Scroll ke-${i + 1}`);
+   }
+ });
 
-    await page.evaluate(() => {
-      window.scrollTo(0, document.body.scrollHeight);
-    });
+ ////   await page.evaluate(() => {
+   ///   window.scrollTo(0, document.body.scrollHeight);
+  ///  });
 
 // 🔥 force DOM re-render (INI YANG KAMU MAKSUD RETRY)
 //await page.evaluate(() => {
  // window.scrollBy(0, 300);
 //});
-    await waitImageRender(page);
-await page.waitForTimeout(2000);
-  //  await delay(4000 + Math.random() * 4000);
+      //  await delay(4000 + Math.random() * 4000);
 
     
 // 2. center elements
-await page.evaluate(() => {
-  document.querySelectorAll("a[href*='/groups/']")
-    .forEach(a => a.scrollIntoView({ block: "center" }));
-});
+/////await page.evaluate(() => {
+  ////document.querySelectorAll("a[href*='/groups/']")
+  ////  .forEach(a => a.scrollIntoView({ block: "center" }));
+////});
 
-await page.waitForTimeout(1500);
+///await page.waitForTimeout(1500);
+    await page.waitForTimeout(2500);
     
     // =========================
     // SCRAPE PER SCROLL
