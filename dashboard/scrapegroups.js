@@ -92,18 +92,18 @@ process.setMaxListeners(20);
 
         // ================= PHOTO =================
         let photo = null;
-        let svgImage = null; // 🔥 pindahin ke atas biar global di scope ini
+        //let svgImage = null; // 🔥 pindahin ke atas biar global di scope ini
 
-        const img = a.querySelector('image, img');
+      //  const img = a.querySelector('image, img');
 
-        if (img) {
-          photo =
-            img.src ||
-            img.getAttribute('src') ||
-            img.getAttribute('data-src') ||
-            img.getAttribute('xlink:href') ||
-            null;
-           }
+       // if (img) {
+         // photo =
+           // img.src ||
+           // img.getAttribute('src') ||
+           // img.getAttribute('data-src') ||
+            //img.getAttribute('xlink:href') ||
+          //  null;
+        //   }
         
 
              
@@ -125,22 +125,42 @@ svgImages.forEach(img => {
   }
 });
         
-// PRIORITAS FOTO
-if (!photo && svgImage) {
-  photo = svgImage.href?.baseVal;
-}
+// 2. IMG HTML
+// =======================
+if (!photo) {
+  const img = a.querySelector("img");
+  if (img && img.src && img.src.includes("fbcdn")) {
+    photo = img.src;
+    console.log("🔥 IMG:", photo);
+  }
+}   
         
 // 3️⃣ role="img"
+//if (!photo) {
+ // const roleImg = a.querySelector('[role="img"]');
+  //if (roleImg) {
+   // const bg = window.getComputedStyle(roleImg).backgroundImage;
+   // if (bg && bg.includes("url")) {
+   //   photo = bg.replace(/url\(["']?(.+?)["']?\)/, "$1");
+   // }
+ // }
+//}
+ // 3. ROLE IMG (BG)
+// =======================
 if (!photo) {
   const roleImg = a.querySelector('[role="img"]');
+
   if (roleImg) {
     const bg = window.getComputedStyle(roleImg).backgroundImage;
-    if (bg && bg.includes("url")) {
-      photo = bg.replace(/url\(["']?(.+?)["']?\)/, "$1");
+
+    const match = bg.match(/url\(["']?(.+?)["']?\)/);
+
+    if (match && match[1] && match[1].includes("fbcdn")) {
+      photo = match[1];
+      console.log("🔥 BG ROLE:", photo);
     }
   }
 }
- 
         // fallback img lain
         if (!photo) {
           const imgs = a.querySelectorAll("img");
