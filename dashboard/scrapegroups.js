@@ -153,10 +153,16 @@ if (!photo) {
             }
           });
         }
-if (!photo) {
+
+  if (!photo) {
   console.log("❌ PHOTO NULL:", id);
   console.log(a.innerHTML);
-  console.log("SVG FOUND");
+
+  if (svgImage) {
+    console.log("SVG FOUND");
+    console.log("baseVal:", svgImage.href?.baseVal);
+    console.log("attr:", svgImage.getAttribute("xlink:href"));
+  }
 }
 
         
