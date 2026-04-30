@@ -58,8 +58,12 @@ process.setMaxListeners(20);
 await page.evaluate(() => {
     window.scrollBy(0, window.innerHeight);
   });
-   await delay(4000);
+     // 🔥 tunggu render image (WAJIB)
+  await page.waitForFunction(() => {
+    return document.querySelectorAll("svg image").length > 10;
+  }, { timeout: 10000 }).catch(() => {});
 
+  
  ////   await page.evaluate(() => {
    ///   window.scrollTo(0, document.body.scrollHeight);
   ///  });
@@ -70,7 +74,11 @@ await page.evaluate(() => {
 //});
         await delay(4000 + Math.random() * 4000);
 
-    
+    await page.evaluate(() => {
+  document.querySelectorAll("img, svg image").forEach(el => {
+    el.scrollIntoView({ block: "center" });
+  });
+});
 // 2. center elements
 /////await page.evaluate(() => {
   ////document.querySelectorAll("a[href*='/groups/']")
@@ -113,12 +121,11 @@ await page.evaluate(() => {
         // ================= PHOTO =================
         let photo = null;
 
-        
-// 🔥 1. AMBIL DARI PARENT CONTAINER (INI FIX UTAMA)
-///const container =
- /// a.closest('div[role="article"]') ||
- // a.closest('div') ||
-//  document;
+// 🔥 ambil container card
+const card =
+  a.closest('div[role="article"]') ||
+  a.parentElement ||
+  a;;
         
   // 🔥 SVG IMAGE (BEST VERSION)
 const svgImages = a.querySelectorAll("svg image");
@@ -131,7 +138,7 @@ svgImages.forEach(img => {
       img.getAttribute("href") ||
       img.getAttribute("xlink:href");
 
-    if (url && url.includes("scontent")) {
+    if (url && url.includes("fbcdn") || includes("scontent")) {
       photo = url;
       console.log("🔥 SVG FINAL:", url);
     }
