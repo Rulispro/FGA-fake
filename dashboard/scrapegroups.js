@@ -124,12 +124,8 @@ const container =
   document;
         
   // 🔥 SVG IMAGE (BEST VERSION)
-const svgImages = //a.querySelectorAll("svg image");    a.querySelector("img") ||
-    a.querySelector("image") ||
-    a.querySelector("svg image") ||
-    a.closest("div")?.querySelector("img") ||
-    document.querySelector(`a[href*="/groups/${id}"] img`);
-
+const svgImages = a.querySelectorAll("svg image");
+    
 
 svgImages.forEach(img => {
   if (!photo) {
@@ -144,7 +140,18 @@ svgImages.forEach(img => {
     }
   }
 });
-        
+
+if (!photo) {
+  const img =
+    a.querySelector("img") ||
+    a.querySelector("image") ||
+    a.closest("div")?.querySelector("img");
+
+  if (img && img.src && img.src.includes("scontent")) {
+    photo = img.src;
+    console.log("🔥 IMG:", photo);
+  }
+}
 // 2. IMG HTML
 // =======================
  
