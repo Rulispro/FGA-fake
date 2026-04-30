@@ -101,7 +101,7 @@ process.setMaxListeners(20);
             img.getAttribute('data-src') ||
             img.getAttribute('xlink:href') ||
             null;
-        }
+           }
 
         
 // 3️⃣ role="img"
@@ -151,7 +151,16 @@ if (!photo) {
             }
           });
         }
+if (!photo) {
+  console.log("❌ PHOTO NULL:", id);
+  console.log(a.innerHTML);
+  console.log("SVG FOUND");
+  console.log("baseVal:", svgImage.href?.baseVal);
+  console.log("attr:", svgImage.getAttribute("xlink:href"));
 
+}
+
+        
         result.push({
           id,
           name,
@@ -226,6 +235,7 @@ if (fs.existsSync("./docs/groups.json")) {
 });
   
   const page = await browser.newPage();
+  page.on('console', msg => console.log('🌐 PAGE LOG:', msg.text()));
   page.setDefaultNavigationTimeout(120000);
 page.setDefaultTimeout(120000);
 
