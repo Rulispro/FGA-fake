@@ -83,11 +83,6 @@ await page.waitForTimeout(1500);
 
       const links = document.querySelectorAll("a[href*='/groups/']");
       
-      await page.evaluate(() => {
-  const links = document.querySelectorAll("a[href*='/groups/']");
-  links.forEach(a => a.scrollIntoView({ block: "center" }));
-});
-      await page.waitForTimeout(1500);
       
       links.forEach(a => {
 
