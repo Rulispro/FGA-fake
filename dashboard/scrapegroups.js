@@ -22,6 +22,13 @@ process.setMaxListeners(20);
     
   
 
+//BUAT RENDER
+async function waitImageRender(page) {
+  // tunggu minimal image fbcdn muncul
+  await page.waitForFunction(() => {
+    return document.querySelectorAll("img[src*='scontent'], img[src*='fbcdn']").length > 3;
+  }, { timeout: 10000 }).catch(() => {});
+}
 
  async function getGroupLinks(page, accountName, existingIds = []){
 
@@ -59,10 +66,11 @@ process.setMaxListeners(20);
     });
 
 // 🔥 force DOM re-render (INI YANG KAMU MAKSUD RETRY)
-await page.evaluate(() => {
-  window.scrollBy(0, 300);
-});
-    await delay(8000);
+//await page.evaluate(() => {
+ // window.scrollBy(0, 300);
+//});
+    await waitImageRender(page);
+await page.waitForTimeout(2000);
   //  await delay(4000 + Math.random() * 4000);
 
     
@@ -116,7 +124,12 @@ const container =
   document;
         
   // 🔥 SVG IMAGE (BEST VERSION)
-const svgImages = a.querySelectorAll("svg image");
+const svgImages = //a.querySelectorAll("svg image");    a.querySelector("img") ||
+    a.querySelector("image") ||
+    a.querySelector("svg image") ||
+    a.closest("div")?.querySelector("img") ||
+    document.querySelector(`a[href*="/groups/${id}"] img`);
+
 
 svgImages.forEach(img => {
   if (!photo) {
@@ -137,15 +150,24 @@ svgImages.forEach(img => {
  
     if (!photo) {
   const img =
-  a.querySelector("img") ||
-  a.querySelector("image") ||
-  a.querySelector("svg image") ||
-  a.closest("div")?.querySelector("img");
-  if (img && img.src && img.src.includes("scontent")) {
-    photo = img.src;
-    console.log("🔥 IMG:", photo);
+    a.querySelector("img") ||
+    a.querySelector("image") ||
+    a.querySelector("svg image") ||
+    a.closest("div")?.querySelector("img") ||
+    document.querySelector(`a[href*="/groups/${id}"] img`);
+
+  if (img) {
+    const src =
+      img.src ||
+      img.getAttribute("href") ||
+      img.getAttribute("xlink:href");
+
+    if (src && src.includes("scontent")) {
+      photo = src;
+      console.log("🔥 IMG FIX:", photo);
+    }
   }
-}   
+      }
         
 
  // 3. ROLE IMG (BG)
