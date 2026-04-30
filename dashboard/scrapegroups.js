@@ -51,16 +51,13 @@ process.setMaxListeners(20);
   // =========================
   // 3️⃣ SCROLL UNTUK LOAD DATA
   // =========================
- await page.evaluate(async () => {
-  const delay = (ms) => new Promise(r => setTimeout(r, ms));
-   
+ 
    for (let i = 0; i < 20; i++) {
      console.log(`Scroll ${i + 1}`);
      
 window.scrollBy(0, window.innerHeight);
-    await delay(1200);
-   }
  });
+   await delay(2000);
 
  ////   await page.evaluate(() => {
    ///   window.scrollTo(0, document.body.scrollHeight);
