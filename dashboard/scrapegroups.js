@@ -69,12 +69,7 @@ await page.evaluate(() => {
     // =========================
     const newData = await page.evaluate(() => {
        // 🔥 FORCE DOM STABILIZATION
-  const sleep = (ms) => {
-    const start = Date.now();
-    while (Date.now() - start < ms) {}
-  };
-      sleep(200);
-      
+  await new Promise(r => setTimeout(r, 200));
       const result = [];
 
       const links = document.querySelectorAll("a[href*='/groups/']");
