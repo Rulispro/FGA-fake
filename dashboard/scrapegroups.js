@@ -57,7 +57,7 @@ process.setMaxListeners(20);
    for (let i = 0; i < 20; i++) {
 window.scrollBy(0, window.innerHeight);
     await delay(1200);
-   // console.log(`🔄 [${accountName}] Scroll ke-${i + 1}`);
+   console.log(`🔄  Scroll ke-${i + 1}`);
    }
  });
 
