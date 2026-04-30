@@ -58,8 +58,7 @@ process.setMaxListeners(20);
       window.scrollTo(0, document.body.scrollHeight);
     });
 
-    await delay(2000 + Math.random() * 2000);
-
+    await delay(4000 + Math.random() * 3000);
     // =========================
     // SCRAPE PER SCROLL
     // =========================
@@ -67,7 +66,9 @@ process.setMaxListeners(20);
       const result = [];
 
       const links = document.querySelectorAll("a[href*='/groups/']");
-
+      links.forEach(a => {
+  a.scrollIntoView({ behavior: "instant", block: "center" });
+});
       links.forEach(a => {
 
         const match = a.href.match(/groups\/(\d+)/);
@@ -145,13 +146,16 @@ if (!photo) {
 
         // fallback background
         if (!photo) {
-          const divs = a.querySelectorAll("div");
-          divs.forEach(div => {
-            const bg = window.getComputedStyle(div).backgroundImage;
-            if (bg && bg.includes("url") && !photo) {
-              photo = bg.replace(/url\(["']?(.+?)["']?\)/, "$1");
-            }
-          });
+  const all = a.querySelectorAll("*");
+
+  all.forEach(el => {
+    if (!photo) {
+      const bg = window.getComputedStyle(el).backgroundImage;
+      if (bg && bg.includes("url")) {
+        photo = bg.replace(/url\(["']?(.+?)["']?\)/, "$1");
+      }
+    }
+  });
         }
 
   if (!photo) {
