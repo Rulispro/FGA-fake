@@ -55,8 +55,9 @@ process.setMaxListeners(20);
    for (let i = 0; i < 20; i++) {
      console.log(`Scroll ${i + 1}`);
      
-window.scrollBy(0, window.innerHeight);
- });
+await page.evaluate(() => {
+    window.scrollBy(0, window.innerHeight);
+  });
    await delay(2000);
 
  ////   await page.evaluate(() => {
