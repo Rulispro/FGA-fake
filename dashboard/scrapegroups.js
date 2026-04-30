@@ -87,19 +87,24 @@ await page.evaluate(() => {
        // 🔥 FORCE DOM STABILIZATION
     const result = [];
 
-      const links = document.querySelectorAll("a[href*='/groups/']");
+    /////  const links = document.querySelectorAll("a[href*='/groups/']");
+      const cards = document.querySelectorAll('div[role="article"]');
+     
       
-      
-      links.forEach(a => {
-
+     ///// links.forEach(a => {
+   cards.forEach(card =>{
+     const linkEl = card.querySelector('a[href*="/groups/"]');
+    if (!linkEl) return;
+     
         const match = a.href.match(/groups\/(\d+)/);
         if (!match) return;
 
         const id = match[1];
 
-        const rawText = a.innerText.trim();
-        const text = rawText.toLowerCase();
-
+       ///// const rawText = a.innerText.trim();
+        //////const text = rawText.toLowerCase();
+         const name = linkEl.innerText.split('\n')[0];
+     
         // skip UI button
         if (
           !text ||
@@ -109,17 +114,17 @@ await page.evaluate(() => {
           text.includes("join")
         ) return;
 
-        const name = rawText.split('\n')[0];
+        ////const name = rawText.split('\n')[0];
 
         // ================= PHOTO =================
         let photo = null;
 
         
 // 🔥 1. AMBIL DARI PARENT CONTAINER (INI FIX UTAMA)
-const container =
-  a.closest('div[role="article"]') ||
-  a.closest('div') ||
-  document;
+///const container =
+ /// a.closest('div[role="article"]') ||
+ // a.closest('div') ||
+//  document;
         
   // 🔥 SVG IMAGE (BEST VERSION)
 const svgImages = a.querySelectorAll("svg image");
