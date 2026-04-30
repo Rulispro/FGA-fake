@@ -80,7 +80,7 @@ await page.evaluate(() => {
   });
 });
 await page.waitForTimeout(2500);
-   }
+   
 
      await page.waitForTimeout(5000);
      
@@ -134,7 +134,7 @@ svgImages.forEach(img => {
       img.getAttribute("href") ||
       img.getAttribute("xlink:href");
 
-    if (url && url.includes("fbcdn") || includes("scontent")) {
+    if (if (url && (url.includes("fbcdn") || url.includes("scontent"))) {
       photo = url;
       console.log("🔥 SVG FINAL:", url);
     }
