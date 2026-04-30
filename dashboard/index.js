@@ -8,8 +8,15 @@ const XLSX = require("xlsx");
 const puppeteer = require("puppeteer-extra");
 const StealthPlugin = require("puppeteer-extra-plugin-stealth");
 const { PuppeteerScreenRecorder } = require("puppeteer-screen-recorder");
-
 puppeteer.use(StealthPlugin())
+puppeteer.use(
+  StealthPlugin({
+    enabledEvasions: new Set([
+      "navigator.webdriver"
+    ])
+  })
+);
+
 const groupsDB = JSON.parse(
   fs.readFileSync(
     path.join(__dirname, "..", "docs", "groups.json"),
