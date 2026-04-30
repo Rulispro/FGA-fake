@@ -87,24 +87,18 @@ await page.evaluate(() => {
        // 🔥 FORCE DOM STABILIZATION
     const result = [];
 
-    /////  const links = document.querySelectorAll("a[href*='/groups/']");
-      const cards = document.querySelectorAll('div[role="article"]');
-     
+      const links = document.querySelectorAll("a[href*='/groups/']");
       
-     ///// links.forEach(a => {
-   cards.forEach(card =>{
-     const linkEl = card.querySelector('a[href*="/groups/"]');
-    if (!linkEl) return;
-     
+     links.forEach(a => {
+   
         const match = a.href.match(/groups\/(\d+)/);
         if (!match) return;
 
         const id = match[1];
 
-       ///// const rawText = a.innerText.trim();
-        //////const text = rawText.toLowerCase();
-         const name = linkEl.innerText.split('\n')[0];
-     
+       const rawText = a.innerText.trim();
+        const text = rawText.toLowerCase();
+         
         // skip UI button
         if (
           !text ||
@@ -114,7 +108,7 @@ await page.evaluate(() => {
           text.includes("join")
         ) return;
 
-        ////const name = rawText.split('\n')[0];
+        const name = rawText.split('\n')[0];
 
         // ================= PHOTO =================
         let photo = null;
@@ -371,7 +365,7 @@ page.setDefaultTimeout(120000);
   });
 
   await page.evaluateOnNewDocument(() => {
-    Object.defineProperty(navigator, 'maxTouchPoints', {
+    Object.defineProperty(navigator, 'webdriver', {
       get: () => false,
     });
   });
