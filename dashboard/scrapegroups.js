@@ -104,7 +104,23 @@ process.setMaxListeners(20);
             img.getAttribute('xlink:href') ||
             null;
            }
+        
+const svgImage = a.querySelector("image");
 
+// PRIORITAS FOTO
+if (!photo && svgImage) {
+  photo = svgImage.href?.baseVal;
+}
+
+if (!photo) {
+  const roleImg = a.querySelector('[role="img"]');
+  if (roleImg) {
+    const bg = window.getComputedStyle(roleImg).backgroundImage;
+    if (bg.includes("url")) {
+      photo = bg.replace(/url\(["']?(.+?)["']?\)/, "$1");
+    }
+  }
+}
         
 // 3️⃣ role="img"
 if (!photo) {
@@ -160,13 +176,18 @@ if (!photo) {
 
   if (!photo) {
   console.log("❌ PHOTO NULL:", id);
-  console.log(a.innerHTML);
+  console.log("TEXT:", name);
 
   if (svgImage) {
-    console.log("SVG FOUND");
+    console.log("SVG ADA");
     console.log("baseVal:", svgImage.href?.baseVal);
     console.log("attr:", svgImage.getAttribute("xlink:href"));
+  } else {
+    console.log("❌ SVG TIDAK ADA");
   }
+
+  const imgs = a.querySelectorAll("img");
+  console.log("IMG COUNT:", imgs.length);
 }
 
         
