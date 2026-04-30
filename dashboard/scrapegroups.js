@@ -28,7 +28,7 @@ process.setMaxListeners(20);
   console.log(`📥 [${accountName}] Buka groups...`);
 
   await page.goto("https://m.facebook.com/groups/joins/", {
-    waitUntil: "domcontentloaded"
+    waitUntil: "networkidle2"
   });
 
   console.log("🌐 REAL URL:", page.url());
@@ -105,21 +105,25 @@ process.setMaxListeners(20);
             null;
            }
         
-        svgImage = a.querySelector("image");
 
-             // 2️⃣ SVG <image> (🔥 INI YANG KAMU BUTUH)
+             
 
-  if (svgImage) {
-  const url =
-    svgImage.href?.baseVal ||
-    svgImage.getAttribute("href") ||
-    svgImage.getAttribute("xlink:href");
+  // 🔥 SVG IMAGE (BEST VERSION)
+ svgImages = a.querySelectorAll("svg image");
 
-  if (url && url.includes("fbcdn")) {
-    photo = url;
-    console.log("🔥 SVG FB IMAGE:", url);
+svgImages.forEach(img => {
+  if (!photo) {
+    const url =
+      img.href?.baseVal ||
+      img.getAttribute("href") ||
+      img.getAttribute("xlink:href");
+
+    if (url && url.includes("fbcdn")) {
+      photo = url;
+      console.log("🔥 SVG FINAL:", url);
+    }
   }
-  }
+});
         
 // PRIORITAS FOTO
 if (!photo && svgImage) {
