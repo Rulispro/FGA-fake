@@ -58,17 +58,33 @@ process.setMaxListeners(20);
       window.scrollTo(0, document.body.scrollHeight);
     });
 
+// 🔥 force DOM re-render (INI YANG KAMU MAKSUD RETRY)
+await page.evaluate(() => {
+  window.scrollBy(0, 300);
+});
+    
     await delay(4000 + Math.random() * 3000);
     // =========================
     // SCRAPE PER SCROLL
     // =========================
     const newData = await page.evaluate(() => {
+       // 🔥 FORCE DOM STABILIZATION
+  const sleep = (ms) => {
+    const start = Date.now();
+    while (Date.now() - start < ms) {}
+  };
+      sleep(200);
+      
       const result = [];
 
       const links = document.querySelectorAll("a[href*='/groups/']");
-      links.forEach(a => {
-  a.scrollIntoView({ behavior: "instant", block: "center" });
+      
+      await page.evaluate(() => {
+  const links = document.querySelectorAll("a[href*='/groups/']");
+  links.forEach(a => a.scrollIntoView({ block: "center" }));
 });
+      await page.waitForTimeout(1500);
+      
       links.forEach(a => {
 
         const match = a.href.match(/groups\/(\d+)/);
@@ -92,6 +108,13 @@ process.setMaxListeners(20);
 
         // ================= PHOTO =================
         let photo = null;
+
+        
+// 🔥 1. AMBIL DARI PARENT CONTAINER (INI FIX UTAMA)
+const container =
+  a.closest('div[role="article"]') ||
+  a.closest('div') ||
+  document;
         
   // 🔥 SVG IMAGE (BEST VERSION)
 const svgImages = a.querySelectorAll("svg image");
@@ -140,7 +163,17 @@ if (!photo) {
         
         
         
+// ================= FALLBACK GLOBAL SCAN =================
+if (!photo) {
+  const globalImg = document.querySelector(
+    `a[href*="/groups/${id}"] img`
+  );
 
+  if (globalImg && globalImg.src) {
+    photo = globalImg.src;
+    console.log("🔥 GLOBAL FALLBACK IMG:", photo);
+  }
+}
   if (!photo) {
   console.log("❌ PHOTO NULL:", id);
   console.log("TEXT:", name);
