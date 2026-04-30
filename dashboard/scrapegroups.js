@@ -64,16 +64,22 @@ await page.evaluate(() => {
 });
     
     await delay(4000 + Math.random() * 3000);
+
+    
+// 2. center elements
+await page.evaluate(() => {
+  document.querySelectorAll("a[href*='/groups/']")
+    .forEach(a => a.scrollIntoView({ block: "center" }));
+});
+
+await page.waitForTimeout(1500);
+    
     // =========================
     // SCRAPE PER SCROLL
     // =========================
     const newData = await page.evaluate(() => {
        // 🔥 FORCE DOM STABILIZATION
-  await page.evaluate(() => {
-  window.scrollBy(0, 300);
-});
-await page.waitForTimeout(1000);
-      const result = [];
+    const result = [];
 
       const links = document.querySelectorAll("a[href*='/groups/']");
       
