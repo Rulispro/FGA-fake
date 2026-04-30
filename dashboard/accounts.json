@@ -12,7 +12,7 @@
     ]
     },
   {
-    "account": "senang bru",
+    "disabled account": "senang bru",
     "file": "senang_Bru",
     "cookies": [
       { "name": "c_user", "value": "61575555022850" },
@@ -24,7 +24,7 @@
     ]
     },
     {
-    "account": "Desi Amelia",
+    "disabled account": "Desi Amelia",
     "file": "Desi_Amelia",
     "cookies": [
       { "name": "c_user", "value": "61571212982142" },
@@ -36,7 +36,7 @@
     ]
     },
     {
-    "account": "Susi Susanti",
+    "disabled account": "Susi Susanti",
     "file": "Susi_Susanti",
     "cookies": [
       { "name": "c_user", "value": "61576001021086" },
@@ -120,7 +120,7 @@
     ]
     },
   {
-    "account": "Fitri YunitaSari",
+    "disabled account": "Fitri YunitaSari",
     "file": "Fitri_Yunita_Sari",
     "cookies": [
       { "name": "c_user", "value": "61576977154304" },
