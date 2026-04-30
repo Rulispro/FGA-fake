@@ -28,7 +28,7 @@ process.setMaxListeners(20);
 
   console.log(`📥 [${accountName}] Buka groups...`);
 
-  await page.goto("https://www.facebook.com/groups/joins/?nav_source=tab&ordering=viewer_added", {
+  await page.goto("https://www.facebook.com/groups/joins/", {
     waitUntil: "networkidle2"
   });
 
@@ -58,7 +58,7 @@ process.setMaxListeners(20);
 await page.evaluate(() => {
     window.scrollBy(0, window.innerHeight);
   });
-   await delay(2000);
+   await delay(4000);
 
  ////   await page.evaluate(() => {
    ///   window.scrollTo(0, document.body.scrollHeight);
@@ -68,7 +68,7 @@ await page.evaluate(() => {
 //await page.evaluate(() => {
  // window.scrollBy(0, 300);
 //});
-      //  await delay(4000 + Math.random() * 4000);
+        await delay(4000 + Math.random() * 4000);
 
     
 // 2. center elements
@@ -356,16 +356,12 @@ page.setDefaultTimeout(120000);
  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 );
   
- //await page.setViewport({
-  //width: 1366,
- // height: 768,
- // isMobile: false
-//});
-  await page.setViewport({
-  width: 900,
-  height: 1717,
-  isMobile: false,      // 🔥 ini bikin desktop mode
-  });
+ await page.setViewport({
+  width: 1366,
+  height: 768,
+  isMobile: false
+});
+  
 
  // BARU recorder dibuat
 //const recorder = new PuppeteerScreenRecorder(page);
