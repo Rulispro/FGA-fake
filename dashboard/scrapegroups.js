@@ -92,7 +92,7 @@ process.setMaxListeners(20);
 
         // ================= PHOTO =================
         let photo = null;
-        let svgImage =a.querySelector("image") || null; // 🔥 pindahin ke atas biar global di scope ini
+        let svgImage = null; // 🔥 pindahin ke atas biar global di scope ini
 
         const img = a.querySelector('image, img');
 
@@ -107,6 +107,20 @@ process.setMaxListeners(20);
         
         svgImage = a.querySelector("image");
 
+             // 2️⃣ SVG <image> (🔥 INI YANG KAMU BUTUH)
+
+  if (svgImage) {
+  const url =
+    svgImage.href?.baseVal ||
+    svgImage.getAttribute("href") ||
+    svgImage.getAttribute("xlink:href");
+
+  if (url && url.includes("fbcdn")) {
+    photo = url;
+    console.log("🔥 SVG FB IMAGE:", url);
+  }
+  }
+        
 // PRIORITAS FOTO
 if (!photo && svgImage) {
   photo = svgImage.href?.baseVal;
@@ -123,19 +137,6 @@ if (!photo) {
   }
 }
  
-     // 2️⃣ SVG <image> (🔥 INI YANG KAMU BUTUH)
-
-  if (svgImage) {
-  const url =
-    svgImage.href?.baseVal ||
-    svgImage.getAttribute("href") ||
-    svgImage.getAttribute("xlink:href");
-
-  if (url && url.includes("fbcdn")) {
-    photo = url;
-  }
-  }
-
         // fallback img lain
         if (!photo) {
           const imgs = a.querySelectorAll("img");
@@ -157,28 +158,78 @@ if (!photo) {
   all.forEach(el => {
     if (!photo) {
       const bg = window.getComputedStyle(el).backgroundImage;
-      if (bg && bg.includes("url")) {
-        photo = bg.replace(/url\(["']?(.+?)["']?\)/, "$1");
+
+      if (bg && bg !== "none" && bg.includes("url")) {
+        const match = bg.match(/url\(["']?(.+?)["']?\)/);
+
+        if (match && match[1]) {
+          const url = match[1];
+
+          // 🔥 filter biar gak ambil icon / sprite
+          if (
+            url.includes("fbcdn") || // CDN facebook
+            url.includes("scontent") // image server
+          ) {
+            photo = url;
+            console.log("🔥 BG IMAGE FOUND:", url);
+          }
+        }
       }
     }
   });
+        }
         }
 
   if (!photo) {
   console.log("❌ PHOTO NULL:", id);
   console.log("TEXT:", name);
 
-  if (svgImage) {
-    console.log("SVG ADA");
-    console.log("baseVal:", svgImage.href?.baseVal);
-    console.log("attr:", svgImage.getAttribute("xlink:href"));
-  } else {
-    console.log("❌ SVG TIDAK ADA");
-  }
+  // 🔍 semua element dalam <a>
+  const all = a.querySelectorAll("*");
 
-  const imgs = a.querySelectorAll("img");
-  console.log("IMG COUNT:", imgs.length);
-}
+  all.forEach(el => {
+    const tag = el.tagName;
+
+    // ambil semua attribute
+    const attrs = {};
+    for (let attr of el.attributes) {
+      attrs[attr.name] = attr.value;
+    }
+
+    // cek src / href penting
+    const src =
+      el.src ||
+      el.getAttribute("src") ||
+      el.getAttribute("data-src") ||
+      el.getAttribute("data-img") ||
+      el.getAttribute("xlink:href") ||
+      el.getAttribute("href") ||
+      null;
+
+    // cek background
+    const bg = window.getComputedStyle(el).backgroundImage;
+
+    // filter biar gak spam kosong
+    if (src || (bg && bg.includes("url"))) {
+      console.log("----- ELEMENT -----");
+      console.log("TAG:", tag);
+      console.log("SRC/HREF:", src);
+
+      if (bg && bg.includes("url")) {
+        console.log("BG:", bg);
+      }
+
+      console.log("ATTR:", attrs);
+
+      // 🔥 deteksi CDN FB
+      if (src && src.includes("fbcdn")) {
+        console.log("🔥 FB CDN IMAGE DETECTED:", src);
+      }
+    }
+  });
+
+  console.log("=================================");
+      }
 
         
         result.push({
