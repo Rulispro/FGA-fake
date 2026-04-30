@@ -92,24 +92,9 @@ process.setMaxListeners(20);
 
         // ================= PHOTO =================
         let photo = null;
-        //let svgImage = null; // 🔥 pindahin ke atas biar global di scope ini
-
-      //  const img = a.querySelector('image, img');
-
-       // if (img) {
-         // photo =
-           // img.src ||
-           // img.getAttribute('src') ||
-           // img.getAttribute('data-src') ||
-            //img.getAttribute('xlink:href') ||
-          //  null;
-        //   }
         
-
-             
-
   // 🔥 SVG IMAGE (BEST VERSION)
- svgImages = a.querySelectorAll("svg image");
+const svgImages = a.querySelectorAll("svg image");
 
 svgImages.forEach(img => {
   if (!photo) {
@@ -135,16 +120,7 @@ if (!photo) {
   }
 }   
         
-// 3️⃣ role="img"
-//if (!photo) {
- // const roleImg = a.querySelector('[role="img"]');
-  //if (roleImg) {
-   // const bg = window.getComputedStyle(roleImg).backgroundImage;
-   // if (bg && bg.includes("url")) {
-   //   photo = bg.replace(/url\(["']?(.+?)["']?\)/, "$1");
-   // }
- // }
-//}
+
  // 3. ROLE IMG (BG)
 // =======================
 if (!photo) {
@@ -161,47 +137,8 @@ if (!photo) {
     }
   }
 }
-        // fallback img lain
-        if (!photo) {
-          const imgs = a.querySelectorAll("img");
-          imgs.forEach(i => {
-            if (!photo) {
-              photo =
-                i.src ||
-                i.getAttribute("data-src") ||
-                i.getAttribute("xlink:href") ||
-                null;
-            }
-          });
-        }
-
-        // fallback background
-        if (!photo) {
-  const all = a.querySelectorAll("*");
-
-  all.forEach(el => {
-    if (!photo) {
-      const bg = window.getComputedStyle(el).backgroundImage;
-
-      if (bg && bg !== "none" && bg.includes("url")) {
-        const match = bg.match(/url\(["']?(.+?)["']?\)/);
-
-        if (match && match[1]) {
-          const url = match[1];
-
-          // 🔥 filter biar gak ambil icon / sprite
-          if (
-            url.includes("fbcdn") || // CDN facebook
-            url.includes("scontent") // image server
-          ) {
-            photo = url;
-            console.log("🔥 BG IMAGE FOUND:", url);
-          }
-        }
-      }
-    }
-  });
-    }
+        
+        
         
 
   if (!photo) {
@@ -270,10 +207,19 @@ if (!photo) {
     // =========================
     // FILTER HANYA YANG BARU
     // =========================
-    const fresh = newData.filter(g =>
-      !existingIds.includes(g.id) &&
-      !collected.some(c => c.id === g.id)
-    );
+    const fresh = newData.filter(g => {
+  const existing = collected.find(c => c.id === g.id);
+
+  if (!existing) return true;
+
+  // 🔥 update kalau photo sebelumnya null
+  if (!existing.photo && g.photo) {
+    existing.photo = g.photo;
+  }
+
+  return false;
+});
+    
 
     collected.push(...fresh);
 
