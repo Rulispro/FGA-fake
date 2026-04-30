@@ -92,7 +92,7 @@ process.setMaxListeners(20);
 
         // ================= PHOTO =================
         let photo = null;
-        let svgImage = null; // 🔥 pindahin ke atas biar global di scope ini
+        let svgImage =a.querySelector("image") || null; // 🔥 pindahin ke atas biar global di scope ini
 
         const img = a.querySelector('image, img');
 
@@ -125,16 +125,16 @@ if (!photo) {
  
      // 2️⃣ SVG <image> (🔥 INI YANG KAMU BUTUH)
 
-  if (!photo) {
-    const svgImage = a.querySelector("image");
-    if (svgImage) {
-     photo =
-      svgImage.href?.baseVal ||   // 🔥 paling penting
-      svgImage.getAttribute("href") ||
-      svgImage.getAttribute("xlink:href") ||
-      null;
+  if (svgImage) {
+  const url =
+    svgImage.href?.baseVal ||
+    svgImage.getAttribute("href") ||
+    svgImage.getAttribute("xlink:href");
+
+  if (url && url.includes("fbcdn")) {
+    photo = url;
   }
-}
+  }
 
         // fallback img lain
         if (!photo) {
