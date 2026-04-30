@@ -27,7 +27,7 @@ process.setMaxListeners(20);
 
   console.log(`📥 [${accountName}] Buka groups...`);
 
-  await page.goto("https://m.facebook.com/groups/joins/", {
+  await page.goto("https://www.facebook.com/groups/joins/?nav_source=tab&ordering=viewer_added", {
     waitUntil: "domcontentloaded"
   });
 
