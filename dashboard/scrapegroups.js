@@ -251,7 +251,16 @@ page.setDefaultTimeout(120000);
   await delay(4000); // 🔥 penting
 
 //setuseragent 
-  
+  await page.setUserAgent(
+ // 
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+);
+
+ await page.setViewport({
+  width: 1366,
+  height: 768,
+  isMobile: false
+});
 
  // BARU recorder dibuat
 //const recorder = new PuppeteerScreenRecorder(page);
