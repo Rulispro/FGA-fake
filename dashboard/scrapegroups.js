@@ -28,7 +28,7 @@ process.setMaxListeners(20);
 
   console.log(`📥 [${accountName}] Buka groups...`);
 
-  await page.goto("https://m.facebook.com/groups/joins/", {
+  await page.goto("https://www.facebook.com/groups/joins/?nav_source=tab&ordering=viewer_added", {
     waitUntil: "networkidle2"
   });
 
@@ -351,20 +351,19 @@ page.setDefaultTimeout(120000);
  //"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 //);
   await page.setUserAgent(
-  "Mozilla/5.0 (Linux; Android 13; SM-G991B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
+  "Mozilla/5.0 (Linux; Android 13; Redmi A3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
 );
-
  //await page.setViewport({
   //width: 1366,
  // height: 768,
  // isMobile: false
 //});
   await page.setViewport({
-  width: 390,
-  height: 844,
-  isMobile: true,
-  hasTouch: true,
-  deviceScaleFactor: 3
+  width: 900,
+  height: 1717,
+  isMobile: false,      // 🔥 ini bikin desktop mode
+  hasTouch: false,      // 🔥 penting
+  deviceScaleFactor: 1
 });
 
  // BARU recorder dibuat
@@ -375,7 +374,7 @@ page.setDefaultTimeout(120000);
   });
 
   await page.evaluateOnNewDocument(() => {
-    Object.defineProperty(navigator, 'webdriver', {
+    Object.defineProperty(navigator, 'maxTouchPoints', {
       get: () => false,
     });
   });
