@@ -91,6 +91,7 @@ process.setMaxListeners(20);
 
         // ================= PHOTO =================
         let photo = null;
+        let svgImage = null; // 🔥 pindahin ke atas biar global di scope ini
 
         const img = a.querySelector('image, img');
 
@@ -115,8 +116,7 @@ if (!photo) {
   }
 }
  
-        // 2️⃣ SVG <image> (🔥 INI YANG KAMU BUTUH)
-let svgImage = null; // 🔥 pindahin ke atas biar global di scope ini
+     // 2️⃣ SVG <image> (🔥 INI YANG KAMU BUTUH)
 
   if (!photo) {
     const svgImage = a.querySelector("image");
