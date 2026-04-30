@@ -105,21 +105,11 @@ process.setMaxListeners(20);
             null;
            }
         
-const svgImage = a.querySelector("image");
+        svgImage = a.querySelector("image");
 
 // PRIORITAS FOTO
 if (!photo && svgImage) {
   photo = svgImage.href?.baseVal;
-}
-
-if (!photo) {
-  const roleImg = a.querySelector('[role="img"]');
-  if (roleImg) {
-    const bg = window.getComputedStyle(roleImg).backgroundImage;
-    if (bg.includes("url")) {
-      photo = bg.replace(/url\(["']?(.+?)["']?\)/, "$1");
-    }
-  }
 }
         
 // 3️⃣ role="img"
