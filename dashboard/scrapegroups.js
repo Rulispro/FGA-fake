@@ -55,9 +55,10 @@ process.setMaxListeners(20);
   const delay = (ms) => new Promise(r => setTimeout(r, ms));
    
    for (let i = 0; i < 20; i++) {
+     console.log(`Scroll ${i + 1}`);
+     
 window.scrollBy(0, window.innerHeight);
     await delay(1200);
-   console.log(`🔄  Scroll ke-${i + 1}`);
    }
  });
 
