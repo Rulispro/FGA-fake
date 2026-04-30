@@ -114,9 +114,11 @@ if (!photo) {
     }
   }
 }
-
+ 
         // 2️⃣ SVG <image> (🔥 INI YANG KAMU BUTUH)
-   if (!photo) {
+let svgImage = null; // 🔥 pindahin ke atas biar global di scope ini
+
+  if (!photo) {
     const svgImage = a.querySelector("image");
     if (svgImage) {
      photo =
@@ -155,9 +157,6 @@ if (!photo) {
   console.log("❌ PHOTO NULL:", id);
   console.log(a.innerHTML);
   console.log("SVG FOUND");
-  console.log("baseVal:", svgImage.href?.baseVal);
-  console.log("attr:", svgImage.getAttribute("xlink:href"));
-
 }
 
         
