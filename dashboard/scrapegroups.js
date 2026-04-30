@@ -62,8 +62,8 @@ process.setMaxListeners(20);
 await page.evaluate(() => {
   window.scrollBy(0, 300);
 });
-    
-    await delay(4000 + Math.random() * 3000);
+    await delay(8000);
+  //  await delay(4000 + Math.random() * 4000);
 
     
 // 2. center elements
@@ -125,7 +125,7 @@ svgImages.forEach(img => {
       img.getAttribute("href") ||
       img.getAttribute("xlink:href");
 
-    if (url && url.includes("fbcdn")) {
+    if (url && url.includes("scontent")) {
       photo = url;
       console.log("🔥 SVG FINAL:", url);
     }
@@ -134,9 +134,14 @@ svgImages.forEach(img => {
         
 // 2. IMG HTML
 // =======================
-if (!photo) {
-  const img = a.querySelector("img");
-  if (img && img.src && img.src.includes("fbcdn")) {
+ 
+    if (!photo) {
+  const img =
+  a.querySelector("img") ||
+  a.querySelector("image") ||
+  a.querySelector("svg image") ||
+  a.closest("div")?.querySelector("img");
+  if (img && img.src && img.src.includes("scontent")) {
     photo = img.src;
     console.log("🔥 IMG:", photo);
   }
