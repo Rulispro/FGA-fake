@@ -177,8 +177,8 @@ if (!photo) {
       }
     }
   });
-        }
-        }
+    }
+        
 
   if (!photo) {
   console.log("❌ PHOTO NULL:", id);
