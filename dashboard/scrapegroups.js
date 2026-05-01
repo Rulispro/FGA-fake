@@ -127,8 +127,8 @@ const card =
 const svgImages = a.querySelector("svg image");
     
 
-svgImages.forEach(img => {
-  if (!photo) {
+
+  if (svgImage && !photo) {
     const url =
       img.href?.baseVal ||
       img.getAttribute("href") ||
