@@ -130,9 +130,9 @@ const svgImages = a.querySelector("svg image");
 
   if (svgImages && !photo) {
     const url =
-      img.href?.baseVal ||
-      img.getAttribute("href") ||
-      img.getAttribute("xlink:href");
+      svgImages.href?.baseVal ||
+      svgImages.getAttribute("href") ||
+      svgImages.getAttribute("xlink:href");
 
     if (url && (url.includes("fbcdn") || url.includes("scontent"))) {
       photo = url;
