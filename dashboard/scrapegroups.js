@@ -124,7 +124,7 @@ const card =
   a;;
         
   // 🔥 SVG IMAGE (BEST VERSION)
-const svgImages = a.querySelector("svg image");
+const svgImages = card.querySelector("svg image");
     
 
 
@@ -134,56 +134,36 @@ const svgImages = a.querySelector("svg image");
       svgImages.getAttribute("href") ||
       svgImages.getAttribute("xlink:href");
 
-    if (url && (url.includes("fbcdn") || url.includes("scontent"))) {
-      photo = url;
+    if (url) photo = url;
       console.log("🔥 SVG FINAL:", url);
     }
-  }
+  
 
 
 // 2. IMG HTML
 // =======================
  
-    if (!photo) {
-  const img =
-    a.querySelector("img") ||
-    a.querySelector("image") ||
-    a.querySelector("svg image") ||
-    a.closest("div")?.querySelector("img") ||
-    document.querySelector(`a[href*="/groups/${id}"] img`);
-
-  if (img) {
-    const src =
-      img.src ||
-      img.getAttribute("href") ||
-      img.getAttribute("xlink:href");
-
-    if (src && src.includes("scontent")) {
-      photo = src;
-      console.log("🔥 IMG FIX:", photo);
-    }
+// IMG
+if (!photo) {
+  const img = card.querySelector("img");
+  if (img) photo = img.src;
+}
+       // BG
+if (!photo) {
+  const el = card.querySelector('[style*="background-image"]');
+  if (el) {
+    const bg = window.getComputedStyle(el).backgroundImage;
+    const match = bg.match(/url\(["']?(.+?)["']?\)/);
+    if (match) photo = match[1];
   }
-      }
+}
+    
+  
         
 
  // 3. ROLE IMG (BG)
 // =======================
-if (!photo) {
-  const roleImg = a.querySelector('[role="img"]');
 
-  if (roleImg) {
-    const bg = window.getComputedStyle(roleImg).backgroundImage;
-
-    const match = bg.match(/url\(["']?(.+?)["']?\)/);
-
-    if (match && match[1] && match[1].includes("fbcdn")) {
-      photo = match[1];
-      console.log("🔥 BG ROLE:", photo);
-    }
-  }
-}
-        
-        
         
 // ================= FALLBACK GLOBAL SCAN =================
 if (!photo) {
