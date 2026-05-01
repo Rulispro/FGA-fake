@@ -117,15 +117,7 @@ await page.waitForTimeout(2500);
         // ================= PHOTO =================
         let photo = null;
 
-// 🔥 ambil container card
-//const card =
-//  a.closest('div[role="article"]') ||
-//  a.parentElement ||
-//  a;;
-        
-  // 🔥 SVG IMAGE (BEST VERSION)
-//const svgImages = card.querySelector("svg image");
-    
+/
 
 if (!photo) {
   const svgImages = document.querySelector(
@@ -314,7 +306,7 @@ if (fs.existsSync("./docs/groups.json")) {
 });
   
   const page = await browser.newPage();
-  page.on('console', msg => console.log('🌐 PAGE LOG:', msg.text()));
+ /// page.on('console', msg => console.log('🌐 PAGE LOG:', msg.text()));
   page.setDefaultNavigationTimeout(120000);
 page.setDefaultTimeout(120000);
 
