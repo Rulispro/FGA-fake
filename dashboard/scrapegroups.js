@@ -118,16 +118,19 @@ await page.waitForTimeout(2500);
         let photo = null;
 
 // 🔥 ambil container card
-const card =
-  a.closest('div[role="article"]') ||
-  a.parentElement ||
-  a;;
+//const card =
+//  a.closest('div[role="article"]') ||
+//  a.parentElement ||
+//  a;;
         
   // 🔥 SVG IMAGE (BEST VERSION)
-const svgImages = card.querySelector("svg image");
+//const svgImages = card.querySelector("svg image");
     
 
-
+if (!photo) {
+  const svgImage = document.querySelector(
+    `a[href*="/groups/${id}"] svg image`
+  );
   if (svgImages && !photo) {
     const url =
       svgImages.href?.baseVal ||
@@ -137,7 +140,7 @@ const svgImages = card.querySelector("svg image");
     if (url) photo = url;
       console.log("🔥 SVG FINAL:", url);
     }
-  
+}
 
 
 // 2. IMG HTML
