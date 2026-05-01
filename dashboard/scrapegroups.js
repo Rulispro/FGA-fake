@@ -124,7 +124,7 @@ const card =
   a;;
         
   // 🔥 SVG IMAGE (BEST VERSION)
-const svgImages = a.querySelectorAll("svg image");
+const svgImages = a.querySelector("svg image");
     
 
 svgImages.forEach(img => {
@@ -141,17 +141,6 @@ svgImages.forEach(img => {
   }
 });
 
-if (!photo) {
-  const img =
-    a.querySelector("img") ||
-    a.querySelector("image") ||
-    a.closest("div")?.querySelector("img");
-
-  if (img && img.src && img.src.includes("scontent")) {
-    photo = img.src;
-    console.log("🔥 IMG:", photo);
-  }
-}
 // 2. IMG HTML
 // =======================
  
