@@ -128,7 +128,7 @@ await page.waitForTimeout(2500);
     
 
 if (!photo) {
-  const svgImage = document.querySelector(
+  const svgImages = document.querySelector(
     `a[href*="/groups/${id}"] svg image`
   );
   if (svgImages && !photo) {
