@@ -128,7 +128,7 @@ const svgImages = a.querySelector("svg image");
     
 
 
-  if (svgImage && !photo) {
+  if (svgImages && !photo) {
     const url =
       img.href?.baseVal ||
       img.getAttribute("href") ||
@@ -139,7 +139,7 @@ const svgImages = a.querySelector("svg image");
       console.log("🔥 SVG FINAL:", url);
     }
   }
-});
+
 
 // 2. IMG HTML
 // =======================
