@@ -117,7 +117,7 @@ await page.waitForTimeout(2500);
         // ================= PHOTO =================
         let photo = null;
 
-/
+
 
 if (!photo) {
   const svgImages = document.querySelector(
