@@ -51,9 +51,14 @@ process.setMaxListeners(20);
   // =========================
   // 3️⃣ SCROLL UNTUK LOAD DATA
   // =========================
- 
-   for (let i = 0; i < 20; i++) {
-     console.log(`Scroll ${i + 1}`);
+ let lastCount = 0;
+let sameCount = 0;
+   
+  // for (let i = 0; i < 20; i++) {
+    // console.log(`Scroll ${i + 1}`);
+   while (true) {
+  console.log(`Scroll... total sekarang: ${collected.length}`);
+
      
 await page.evaluate(() => {
     window.scrollBy(0, window.innerHeight);
@@ -257,17 +262,33 @@ if (!photo) {
     console.log(`📦 total: ${collected.length}`);
 
     // 🔥 STOP kalau sudah 100
-    if (collected.length >= 100) {
-      console.log("🛑 Stop, sudah 100 grup");
-      break;
-    }
+  //  if (collected.length >= 100) {
+     // console.log("🛑 Stop, sudah 100 grup");
+    //  break;
+   // }
+//  }
+     if (collected.length === lastCount) {
+    sameCount++;
+    console.log(`⚠️ Tidak nambah (${sameCount})`);
+  } else {
+    sameCount = 0;
+     }
+
+     lastCount = collected.length;
+       
+
+  //console.log(`📊 Total grup diambil: ${collected.length}`);
+
+  //return collected.slice(0, 100);
+           //   }
+     
+
+  // kalau 5x scroll gak nambah → stop
+  if (sameCount >= 5) {
+    console.log("🛑 Stop: sudah mentok (tidak ada data baru)");
+    break;
   }
-
-  console.log(`📊 Total grup diambil: ${collected.length}`);
-
-  return collected.slice(0, 100);
-              }
-
+}
 
 // ===============================
 // MAIN
