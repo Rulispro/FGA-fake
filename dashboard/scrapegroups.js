@@ -284,7 +284,7 @@ if (!photo) {
      
 
   // kalau 5x scroll gak nambah → stop
-  if (sameCount >= 5) {
+  if (sameCount >= 1) {
     console.log("🛑 Stop: sudah mentok (tidak ada data baru)");
     break;
   }
