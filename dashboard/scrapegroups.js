@@ -289,6 +289,8 @@ if (!photo) {
     break;
   }
 }
+   return collected;
+}
 
 // ===============================
 // MAIN
