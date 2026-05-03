@@ -44,20 +44,20 @@ fs.writeFileSync(
 );
 
 //Parser jam 👇//
-function cocokJam(rowJam) {
-  const now = new Date(
-    new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" })
-  );
+///function cocokJam(rowJam) {
+  //const now = new Date(
+  //  new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" })
+ // );
 
-  const [h, m] = rowJam.split(":").map(Number);
+//  const [h, m] = rowJam.split(":").map(Number);
 
-  const target = new Date(now);
-  target.setHours(h, m, 0, 0);
+ // const target = new Date(now);
+ // target.setHours(h, m, 0, 0);
+//
+ // const selisih = Math.abs(now - target) / 1000 / 60; // menit
 
-  const selisih = Math.abs(now - target) / 1000 / 60; // menit
-
-  return selisih <= 120; // toleransi 120 menit (2 jam)
-}
+  //return selisih <= 120; // toleransi 120 menit (2 jam)
+//}
 //sampai sini 👆///
 //$SAMPAI SINI
 //ACAK AKUN
@@ -3081,9 +3081,9 @@ console.log("📋 Semua status rows:", statusRows);
 const rowsForAccount = groupRows.filter(row => {
   return row.account === acc.account;
 
-  if (!cocokJam(row.jam_post)) return false;
+//  if (!cocokJam(row.jam_post)) return false;
 
-  return true;
+ // return true;
 });
       //filter addFriendFollowers 
     const rowsAddFriendFollowersForAccount = addFriendFollowersRows.filter(row => {
