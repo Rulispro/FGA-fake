@@ -42,6 +42,23 @@ fs.writeFileSync(
   path.join(docsDir, "data.json"),
   JSON.stringify(docsData, null, 2)
 );
+
+//Parser jam 👇//
+function cocokJam(rowJam) {
+  const now = new Date(
+    new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" })
+  );
+
+  const [h, m] = rowJam.split(":").map(Number);
+
+  const target = new Date(now);
+  target.setHours(h, m, 0, 0);
+
+  const selisih = Math.abs(now - target) / 1000 / 60; // menit
+
+  return selisih <= 120; // toleransi 120 menit (2 jam)
+}
+//sampai sini 👆///
 //$SAMPAI SINI
 //ACAK AKUN
 function shuffleArray(arr) {
@@ -3063,6 +3080,10 @@ console.log("📋 Semua status rows:", statusRows);
       //tanggal dari selected.json
 const rowsForAccount = groupRows.filter(row => {
   return row.account === acc.account;
+
+  if (!cocokJam(row.jam_post)) return false;
+
+  return true;
 });
       //filter addFriendFollowers 
     const rowsAddFriendFollowersForAccount = addFriendFollowersRows.filter(row => {
