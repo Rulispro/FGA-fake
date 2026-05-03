@@ -3083,7 +3083,7 @@ const rowsForAccount = groupRows.filter(row => {
 
 //  if (!cocokJam(row.jam_post)) return false;
 
- // return true;
+  return true;
 });
       //filter addFriendFollowers 
     const rowsAddFriendFollowersForAccount = addFriendFollowersRows.filter(row => {
