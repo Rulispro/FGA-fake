@@ -3191,15 +3191,15 @@ else if (mode === "group") {
    //await runAccount(page, row);
  //}
 ///$BARU YANG PAKAI DOLAR
-  //for (const row of rowsForAccount) {
- // await runAccount(page, row, acc.account || acc.username, today);   
- // }
+  for (const row of rowsForAccount) {
+  await runAccount(page, row, acc.account || acc.username, today);   
+ }
   //dari selected json
-  const row = rowsForAccount[0]; // ambil 1 saja
+  ////const row = rowsForAccount[0]; // ambil 1 saja
 
-if (row) {
-  await runAccount(page, row, acc.account, today);
-}
+///if (row) {
+  ////await runAccount(page, row, acc.account, today);
+////}
 }
   
 
