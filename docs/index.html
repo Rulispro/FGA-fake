@@ -435,31 +435,35 @@ console.log("Update:", account, link, checked);
   }
 
 //HAPUS GRUP DI DAFTAR GRUP///
-  async function deleteSelectedGroups(){
+  
+    if(!groups[account]) return;
+async function deleteSelectedGroups(){
 
-    const checkedBoxes = Array.from(
+  const checkedBoxes = Array.from(
     document.querySelectorAll("#groups-list input[type=checkbox]")
   ).filter(cb => cb.checked);
 
-  console.log("CHECKED:", checkedBoxes); // debug
+  console.log("CHECKED:", checkedBoxes);
 
   if(checkedBoxes.length === 0){
     alert("⚠️ Tidak ada grup yang dicentang!");
     return;
   }
 
-  let res = await fetch("groups.json?" + Date.now());
+  let res = await fetch("groups.json");
   let groups = await res.json();
 
   checkedBoxes.forEach(cb => {
 
-    const account = cb.dataset.account;
-    const id = cb.dataset.id;
+    const account = cb.dataset.account.trim();
+    const id = cb.dataset.id.trim();
+
+    console.log("DELETE:", account, id);
 
     if(!groups[account]) return;
 
     groups[account] = groups[account].filter(
-      g => g.id !== id   // 🔥 pakai ID (lebih aman dari link)
+      g => String(g.id).trim() !== id
     );
 
     if(groups[account].length === 0){
@@ -468,7 +472,8 @@ console.log("Update:", account, link, checked);
 
   });
 
-  // 🔥 kirim ke API delete
+  console.log("HASIL AKHIR:", groups);
+
   await fetch("https://fga-fake.vercel.app/api/delete-groups", {
     method: "POST",
     headers: {
@@ -479,10 +484,8 @@ console.log("Update:", account, link, checked);
 
   alert("✅ Grup berhasil dihapus!");
 
-  setTimeout(()=>{
-    location.reload();
-  },1000);
-}
+  location.reload();
+  }
 
 
   //fungsi hapus di schedule post hasil scrape 
