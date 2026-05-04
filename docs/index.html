@@ -468,16 +468,13 @@ console.log("Update:", account, link, checked);
   });
 
   // 🔥 kirim ke API (WAJIB pakai type groups)
-  await fetch("https://fga-fake.vercel.app/api/save", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      type: "groups",
-      data: groups
-    })
-  });
+  await fetch("https://fga-fake.vercel.app/api/delete", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify(groups)
+});
 
   alert("✅ Grup berhasil dihapus!");
 
@@ -486,7 +483,7 @@ console.log("Update:", account, link, checked);
   loadGroups();
 }, 1500);
   }
-  //fungsi hapus 
+  //fungsi hapus di schedule post hasil scrape 
   
 function deleteGroup(account, link, tanggal){
 
