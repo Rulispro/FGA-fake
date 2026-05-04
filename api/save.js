@@ -1,72 +1,66 @@
 export default async function handler(req, res) {
 
+  // CORS
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-  if (req.method === "OPTIONS") return res.status(200).end();
-  if (req.method !== "POST") return res.status(405).json({ message: "Method not allowed" });
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
+  if (req.method !== "POST") {
+    return res.status(405).json({ message: "Method not allowed" });
+  }
 
   try {
-
-    const { type, data } = req.body;
-
-    if (!type || !data) {
-      return res.status(400).json({ error: "type & data wajib diisi" });
-    }
+    const newData = req.body;
 
     const owner = "Rulispro";
     const repo = "FGA-fake";
-
-    let path = "";
-    if (type === "groups") path = "docs/groups.json";
-    if (type === "selected") path = "docs/selected.json";
+    const path = "docs/selected.json";
 
     const token = process.env.GITHUB_TOKEN;
 
-    // 🔥 AMBIL FILE TERBARU (ANTI SHA ERROR)
-    const getFileRes = await fetch(
-      `https://api.github.com/repos/${owner}/${repo}/contents/${path}`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
+    const getFile = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-    const file = await getFileRes.json();
+    const file = await getFile.json();
 
-    if (!file.sha) {
-      return res.status(500).json({ error: "Gagal ambil SHA" });
+    let oldData = {};
+
+    if (file.content) {
+      oldData = JSON.parse(Buffer.from(file.content, "base64").toString());
     }
+
+    // 🔥 CLEAN DATA LAMA
+    Object.keys(oldData).forEach(acc => {
+      oldData[acc] = (oldData[acc] || []).filter(g => g.tanggal);
+    });
+
+    // 🔥 MERGE DATA BARU
+// 🔥 LANGSUNG REPLACE TOTAL
+const finalData = newData;
 
     const updated = Buffer.from(
-      JSON.stringify(data, null, 2)
-    ).toString("base64");
-
-    // 🔥 UPDATE FILE
-    const updateRes = await fetch(
-      `https://api.github.com/repos/${owner}/${repo}/contents/${path}`,
-      {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message: `update ${type} ${Date.now()}`, // 🔥 biar unik
-          content: updated,
-          sha: file.sha,
-        }),
-      }
-    );
-
-    const result = await updateRes.json();
-
-    // 🔥 HANDLE ERROR GITHUB
-    if (result.message) {
-      return res.status(500).json({
-        error: result.message,
-      });
-    }
+  JSON.stringify(finalData, null, 2)
+).toString("base64");
+    
+    await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        message: "update selected groups",
+        content: updated,
+        sha: file.sha || undefined,
+      }),
+    });
 
     return res.status(200).json({ success: true });
 
