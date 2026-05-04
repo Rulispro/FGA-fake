@@ -431,9 +431,7 @@ console.log("Update:", account, link, checked);
 
   alert("✅ Masuk ke Jadwal Posting!");
   showPage("schedulePost");
-    setTimeout(()=>{
-  loadGroups();
-}, 1500);
+    
   }
 
   //FUNGSI HAPUS GRUP DI DAFTAR GRUP
@@ -478,10 +476,8 @@ console.log("Update:", account, link, checked);
 
   alert("✅ Grup berhasil dihapus!");
 
- /// location.reload();
-    setTimeout(()=>{
-  loadGroups();
-}, 1500);
+  location.reload();
+    
   }
   //fungsi hapus di schedule post hasil scrape 
   
