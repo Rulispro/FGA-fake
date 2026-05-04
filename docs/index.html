@@ -434,9 +434,7 @@ console.log("Update:", account, link, checked);
   }
 
   //FUNGSI HAPUS GRUP DI DAFTAR GRUP
-  function deleteSelectedGroups(){
-
-  let selected = JSON.parse(localStorage.getItem("selectedGroups") || "{}");
+  async function deleteSelectedGroups(){
 
   const checkedBoxes = document.querySelectorAll("#groups-list input[type=checkbox]:checked");
 
@@ -445,36 +443,43 @@ console.log("Update:", account, link, checked);
     return;
   }
 
+  // 🔥 ambil data asli groups.json
+  let res = await fetch("groups.json?" + Date.now());
+  let groups = await res.json();
+
   checkedBoxes.forEach(cb => {
 
     const account = cb.getAttribute("data-account");
     const link = cb.getAttribute("data-link");
 
-    if(!selected[account]) return;
+    if(!groups[account]) return;
 
-    selected[account] = selected[account].filter(
-      g => g.group_link !== link
+    groups[account] = groups[account].filter(
+      g => g.link !== link   // ⚠️ ini pakai "link", bukan "group_link"
     );
 
-    if(selected[account].length === 0){
-      delete selected[account];
+    if(groups[account].length === 0){
+      delete groups[account];
     }
 
   });
 
-  localStorage.setItem("selectedGroups", JSON.stringify(selected));
-
-  // kirim ke API
-  fetch("https://fga-fake.vercel.app/api/save", {
+  // 🔥 kirim ke API (WAJIB pakai type groups)
+  await fetch("https://fga-fake.vercel.app/api/save", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify(selected)
+    body: JSON.stringify({
+      type: "groups",
+      data: groups
+    })
   });
 
   alert("✅ Grup berhasil dihapus!");
-}
+
+  location.reload();
+  }
   //fungsi hapus 
   
 function deleteGroup(account, link, tanggal){
