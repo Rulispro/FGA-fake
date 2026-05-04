@@ -4,15 +4,11 @@ export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-  if (req.method === "OPTIONS") {
-    return res.status(200).end();
-  }
-
-  if (req.method !== "POST") {
-    return res.status(405).json({ message: "Method not allowed" });
-  }
+  if (req.method === "OPTIONS") return res.status(200).end();
+  if (req.method !== "POST") return res.status(405).json({ message: "Method not allowed" });
 
   try {
+
     const { type, data } = req.body;
 
     if (!type || !data) {
@@ -22,41 +18,55 @@ export default async function handler(req, res) {
     const owner = "Rulispro";
     const repo = "FGA-fake";
 
-    // 🔥 tentukan file
     let path = "";
     if (type === "groups") path = "docs/groups.json";
     if (type === "selected") path = "docs/selected.json";
 
-    if (!path) {
-      return res.status(400).json({ error: "type tidak valid" });
-    }
-
     const token = process.env.GITHUB_TOKEN;
 
-    const getFile = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    // 🔥 AMBIL FILE TERBARU (ANTI SHA ERROR)
+    const getFileRes = await fetch(
+      `https://api.github.com/repos/${owner}/${repo}/contents/${path}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
 
-    const file = await getFile.json();
+    const file = await getFileRes.json();
+
+    if (!file.sha) {
+      return res.status(500).json({ error: "Gagal ambil SHA" });
+    }
 
     const updated = Buffer.from(
       JSON.stringify(data, null, 2)
     ).toString("base64");
 
-    await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        message: `update ${type}`,
-        content: updated,
-        sha: file.sha || undefined,
-      }),
-    });
+    // 🔥 UPDATE FILE
+    const updateRes = await fetch(
+      `https://api.github.com/repos/${owner}/${repo}/contents/${path}`,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: `update ${type} ${Date.now()}`, // 🔥 biar unik
+          content: updated,
+          sha: file.sha,
+        }),
+      }
+    );
+
+    const result = await updateRes.json();
+
+    // 🔥 HANDLE ERROR GITHUB
+    if (result.message) {
+      return res.status(500).json({
+        error: result.message,
+      });
+    }
 
     return res.status(200).json({ success: true });
 
