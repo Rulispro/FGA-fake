@@ -478,7 +478,10 @@ console.log("Update:", account, link, checked);
 
   alert("✅ Grup berhasil dihapus!");
 
-  location.reload();
+ /// location.reload();
+    setTimeout(()=>{
+  loadGroups();
+}, 1500);
   }
   //fungsi hapus 
   
