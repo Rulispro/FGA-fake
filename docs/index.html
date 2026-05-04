@@ -437,7 +437,11 @@ console.log("Update:", account, link, checked);
 //HAPUS GRUP DI DAFTAR GRUP///
   async function deleteSelectedGroups(){
 
-  const checkedBoxes = document.querySelectorAll("#groups-list input[type=checkbox]:checked");
+    const checkedBoxes = Array.from(
+    document.querySelectorAll("#groups-list input[type=checkbox]")
+  ).filter(cb => cb.checked);
+
+  console.log("CHECKED:", checkedBoxes); // debug
 
   if(checkedBoxes.length === 0){
     alert("⚠️ Tidak ada grup yang dicentang!");
