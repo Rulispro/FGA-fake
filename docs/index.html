@@ -436,7 +436,51 @@ console.log("Update:", account, link, checked);
 
 //HAPUS GRUP DI DAFTAR GRUP///
   
-  
+  async function deleteSelectedGroups(){
+
+  const checkedBoxes = Array.from(
+    document.querySelectorAll("#groups-list input[type=checkbox]:checked")
+  );
+
+  if(checkedBoxes.length === 0){
+    alert("⚠️ Tidak ada grup yang dicentang!");
+    return;
+  }
+
+  let res = await fetch("groups.json?" + Date.now());
+  let groups = await res.json();
+
+  checkedBoxes.forEach(cb => {
+
+    const account = cb.dataset.account;
+    const id = cb.dataset.id;
+
+    if(!groups[account]) return;
+
+    // 🔥 filter (hapus yang dipilih)
+    groups[account] = groups[account].filter(g => g.id != id);
+
+    // 🔥 kalau kosong, hapus account
+    if(groups[account].length === 0){
+      delete groups[account];
+    }
+
+  });
+
+  console.log("HASIL AKHIR:", groups); // debug penting
+
+  // 🔥 kirim ke API (sama konsep save)
+  await fetch("https://fga-fake.vercel.app/api/delete", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(groups)
+  });
+
+  alert("✅ Grup berhasil dihapus!");
+  location.reload();
+}
  
 
   //fungsi hapus di schedule post hasil scrape 
