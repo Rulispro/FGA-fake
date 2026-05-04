@@ -1,6 +1,5 @@
 export default async function handler(req, res) {
 
-  // CORS
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -14,11 +13,23 @@ export default async function handler(req, res) {
   }
 
   try {
-    const newData = req.body;
+    const { type, data } = req.body;
+
+    if (!type || !data) {
+      return res.status(400).json({ error: "type & data wajib diisi" });
+    }
 
     const owner = "Rulispro";
     const repo = "FGA-fake";
-    const path = "docs/selected.json";
+
+    // 🔥 tentukan file
+    let path = "";
+    if (type === "groups") path = "docs/groups.json";
+    if (type === "selected") path = "docs/selected.json";
+
+    if (!path) {
+      return res.status(400).json({ error: "type tidak valid" });
+    }
 
     const token = process.env.GITHUB_TOKEN;
 
@@ -30,25 +41,10 @@ export default async function handler(req, res) {
 
     const file = await getFile.json();
 
-    let oldData = {};
-
-    if (file.content) {
-      oldData = JSON.parse(Buffer.from(file.content, "base64").toString());
-    }
-
-    // 🔥 CLEAN DATA LAMA
-    Object.keys(oldData).forEach(acc => {
-      oldData[acc] = (oldData[acc] || []).filter(g => g.tanggal);
-    });
-
-    // 🔥 MERGE DATA BARU
-// 🔥 LANGSUNG REPLACE TOTAL
-const finalData = newData;
-
     const updated = Buffer.from(
-  JSON.stringify(finalData, null, 2)
-).toString("base64");
-    
+      JSON.stringify(data, null, 2)
+    ).toString("base64");
+
     await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
       method: "PUT",
       headers: {
@@ -56,7 +52,7 @@ const finalData = newData;
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        message: "update selected groups",
+        message: `update ${type}`,
         content: updated,
         sha: file.sha || undefined,
       }),
