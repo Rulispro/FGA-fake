@@ -1,24 +1,25 @@
 export default async function handler(req, res) {
 
+  // CORS
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-  if (req.method === "OPTIONS") return res.status(200).end();
-  if (req.method !== "POST") return res.status(405).json({ message: "Method not allowed" });
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
+  if (req.method !== "POST") {
+    return res.status(405).json({ message: "Method not allowed" });
+  }
 
   try {
-
-    const { type, data } = req.body;
-
-    let path = "";
-
-    if(type === "groups") path = "docs/groups.json";
-    else if(type === "selected") path = "docs/selected.json";
-    else return res.status(400).json({ error: "type tidak valid" });
+    const newData = req.body;
 
     const owner = "Rulispro";
     const repo = "FGA-fake";
+    const path = "docs/selected.json";
+
     const token = process.env.GITHUB_TOKEN;
 
     const getFile = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
@@ -29,10 +30,25 @@ export default async function handler(req, res) {
 
     const file = await getFile.json();
 
-    const updated = Buffer.from(
-      JSON.stringify(data, null, 2)
-    ).toString("base64");
+    let oldData = {};
 
+    if (file.content) {
+      oldData = JSON.parse(Buffer.from(file.content, "base64").toString());
+    }
+
+    // 🔥 CLEAN DATA LAMA
+    Object.keys(oldData).forEach(acc => {
+      oldData[acc] = (oldData[acc] || []).filter(g => g.tanggal);
+    });
+
+    // 🔥 MERGE DATA BARU
+// 🔥 LANGSUNG REPLACE TOTAL
+const finalData = newData;
+
+    const updated = Buffer.from(
+  JSON.stringify(finalData, null, 2)
+).toString("base64");
+    
     await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
       method: "PUT",
       headers: {
@@ -40,9 +56,9 @@ export default async function handler(req, res) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        message: `update ${type} ${Date.now()}`, // anti cache
+        message: "update selected groups",
         content: updated,
-        sha: file.sha,
+        sha: file.sha || undefined,
       }),
     });
 
@@ -51,4 +67,4 @@ export default async function handler(req, res) {
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
-      }
+}
