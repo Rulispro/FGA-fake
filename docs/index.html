@@ -278,10 +278,10 @@ body{flex-direction:column;}
 <div class="logo">🤖 BOT PRO</div>
 
 <div class="menu">
-<div id="menuResult" onclick="showPage('result')">📌 Hasil Posting</div>
-<div id="menuSchedule" onclick="showPage('schedule')">📅 Schedule xlsx</div>
-<div id="menuScheduler" onclick="showPage('schedulePost')">📅 Schedule Post hasil scrape</div>
-<div id="menuGroups" onclick="showPage('groups')">👥 DAFTAR Grup</div></div>
+<div id="menuResult" onclick="showPage('result')">📌 HASIL POSTING</div>
+<div id="menuSchedule" onclick="showPage('schedule')">📅 SCHEDULE XLSX</div>
+<div id="menuScheduler" onclick="showPage('schedulePost')">📅 SCHEDULE POST HASIL SCRAPE</div>
+<div id="menuGroups" onclick="showPage('groups')">👥 DAFTAR GRUP</div></div>
 </div>
 
 
@@ -431,22 +431,27 @@ console.log("Update:", account, link, checked);
 
   alert("✅ Masuk ke Jadwal Posting!");
   showPage("schedulePost");
+    setTimeout(()=>{
+  location.reload();
+},300);
     
   }
 
 //HAPUS GRUP DI DAFTAR GRUP///
-  
-  async function deleteSelectedGroups(){
+async function deleteSelectedGroups(){
 
   const checkedBoxes = Array.from(
     document.querySelectorAll("#groups-list input[type=checkbox]:checked")
   );
+
+  console.log("CHECKED:", checkedBoxes);
 
   if(checkedBoxes.length === 0){
     alert("⚠️ Tidak ada grup yang dicentang!");
     return;
   }
 
+  // 🔥 ambil data terbaru (anti cache)
   let res = await fetch("groups.json?" + Date.now());
   let groups = await res.json();
 
@@ -457,19 +462,22 @@ console.log("Update:", account, link, checked);
 
     if(!groups[account]) return;
 
-    // 🔥 filter (hapus yang dipilih)
+    // 🔥 hapus dari data
     groups[account] = groups[account].filter(g => g.id != id);
 
-    // 🔥 kalau kosong, hapus account
+    // 🔥 kalau kosong hapus account
     if(groups[account].length === 0){
       delete groups[account];
     }
 
+    // 🔥 langsung hilang dari UI (biar ga nunggu reload)
+    cb.closest(".card").remove();
+
   });
 
-  console.log("HASIL AKHIR:", groups); // debug penting
+  console.log("DATA SETELAH DELETE:", groups);
 
-  // 🔥 kirim ke API (sama konsep save)
+  // 🔥 kirim ke API (SEPERTI SAVE)
   await fetch("https://fga-fake.vercel.app/api/delete", {
     method: "POST",
     headers: {
@@ -479,8 +487,12 @@ console.log("Update:", account, link, checked);
   });
 
   alert("✅ Grup berhasil dihapus!");
+  
+setTimeout(()=>{
   location.reload();
+},300);
 }
+
  
 
   //fungsi hapus di schedule post hasil scrape 
@@ -512,6 +524,9 @@ function deleteGroup(account, link, tanggal){
 
   alert("✅ Grup dihapus");
   loadSchedulePost();
+  setTimeout(()=>{
+  location.reload();
+},300);
   }
 /* ================= NAVIGATION ================= */
 
