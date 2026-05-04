@@ -436,7 +436,7 @@ console.log("Update:", account, link, checked);
 
 //HAPUS GRUP DI DAFTAR GRUP///
   
-    if(!groups[account]) return;
+  
 async function deleteSelectedGroups(){
 
   const checkedBoxes = Array.from(
@@ -450,31 +450,55 @@ async function deleteSelectedGroups(){
     return;
   }
 
+  // ambil data groups
   let res = await fetch("groups.json");
   let groups = await res.json();
 
+  console.log("DATA AWAL:", groups);
+
   checkedBoxes.forEach(cb => {
 
-    const account = cb.dataset.account.trim();
-    const id = cb.dataset.id.trim();
+    const account = cb.dataset.account?.trim();
+    const id = cb.dataset.id?.trim();
 
-    console.log("DELETE:", account, id);
+    if(!account || !id){
+      console.log("SKIP (data kosong):", account, id);
+      return;
+    }
 
-    if(!groups[account]) return;
+    if(!groups[account]){
+      console.log("SKIP (account tidak ditemukan):", account);
+      return;
+    }
 
-    groups[account] = groups[account].filter(
-      g => String(g.id).trim() !== id
-    );
+    const before = groups[account].length;
 
+    groups[account] = groups[account].filter(g => {
+      if(!g.id) return true;
+      return String(g.id).trim() !== id;
+    });
+
+    const after = groups[account].length;
+
+    console.log(`DELETE ${id} dari ${account}:`, before, "→", after);
+
+    // kalau kosong, hapus akun
     if(groups[account].length === 0){
       delete groups[account];
     }
 
   });
 
-  console.log("HASIL AKHIR:", groups);
+  console.log("DATA SETELAH DELETE:", groups);
 
-  await fetch("https://fga-fake.vercel.app/api/delete-groups", {
+  // 🔥 PENGAMAN (biar ga kehapus semua)
+  if(Object.keys(groups).length === 0){
+    alert("❌ Semua data akan terhapus! Dibatalkan.");
+    return;
+  }
+
+  // kirim ke API
+  await fetch("https://fga-fake.vercel.app/api/delete", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -486,7 +510,6 @@ async function deleteSelectedGroups(){
 
   location.reload();
   }
-
 
   //fungsi hapus di schedule post hasil scrape 
   
