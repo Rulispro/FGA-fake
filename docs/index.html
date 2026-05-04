@@ -290,16 +290,16 @@ body{flex-direction:column;}
 
 <!-- ===== STATS ===== -->
 <div class="stats">
-<div class="stat"><h3>Total Posting</h3><span id="totalPost">0</span></div>
-<div class="stat"><h3>Total Group</h3><span id="totalGroup">0</span></div>
-<div class="stat"><h3>Akun Aktif</h3><span id="totalAccount">0</span></div>
+<div class="stat"><h3>TOTAL POSTING</h3><span id="totalPost">0</span></div>
+<div class="stat"><h3>TOTAL GRUP</h3><span id="totalGroup">0</span></div>
+<div class="stat"><h3>AKUN AKTIF</h3><span id="totalAccount">0</span></div>
 </div>
 
 
 <!-- ================= HASIL ================= -->
 <div id="resultPage">
 
-<div class="section-title">📌 Hasil Posting</div>
+<div class="section-title">📌 HASIL POSTING</div>
 
 <div class="filters">
 <select id="accountFilter">
@@ -316,7 +316,7 @@ body{flex-direction:column;}
 <!-- ================= SCHEDULE ROW TEMPLATE xlsx ================= -->
 <div id="schedulePage" style="display:none">
 
-<div class="section-title">📅 Jadwal Posting</div>
+<div class="section-title">📅 JADWAL POSTING</div>
 
 <div class="filters">
 <select id="scheduleAccountFilter">
@@ -351,7 +351,7 @@ body{flex-direction:column;}
 <!-- ================= GROUPS ================= -->
 <div id="groupsPage" style="display:none">
 
-<div class="section-title">👥 Pilih Grup</div>
+<div class="section-title">👥 PILIH GRUP</div>
 <div class="filters groups-header">
 <div class="filters">
 <select id="groupAccountFilter">
@@ -360,6 +360,9 @@ body{flex-direction:column;}
   <input type="date" id="scheduleDate">
   <button onclick="saveToSchedule()" class="btn-save">
     💾 SIMPAN GRUP 
+  </button>
+  <button onclick="deleteSelectedGroups()" class="btn-deleted">
+🗑️ HAPUS GRUP
   </button>
     
 </div>
@@ -429,7 +432,49 @@ console.log("Update:", account, link, checked);
   alert("✅ Masuk ke Jadwal Posting!");
   showPage("schedulePost");
   }
-  
+
+  //FUNGSI HAPUS GRUP DI DAFTAR GRUP
+  function deleteSelectedGroups(){
+
+  let selected = JSON.parse(localStorage.getItem("selectedGroups") || "{}");
+
+  const checkedBoxes = document.querySelectorAll("#groups-list input[type=checkbox]:checked");
+
+  if(checkedBoxes.length === 0){
+    alert("⚠️ Tidak ada grup yang dicentang!");
+    return;
+  }
+
+  checkedBoxes.forEach(cb => {
+
+    const account = cb.getAttribute("data-account");
+    const link = cb.getAttribute("data-link");
+
+    if(!selected[account]) return;
+
+    selected[account] = selected[account].filter(
+      g => g.group_link !== link
+    );
+
+    if(selected[account].length === 0){
+      delete selected[account];
+    }
+
+  });
+
+  localStorage.setItem("selectedGroups", JSON.stringify(selected));
+
+  // kirim ke API
+  fetch("https://fga-fake.vercel.app/api/save", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(selected)
+  });
+
+  alert("✅ Grup berhasil dihapus!");
+}
   //fungsi hapus 
   
 function deleteGroup(account, link, tanggal){
