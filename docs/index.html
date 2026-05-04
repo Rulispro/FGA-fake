@@ -431,68 +431,11 @@ console.log("Update:", account, link, checked);
 
   alert("✅ Masuk ke Jadwal Posting!");
   showPage("schedulePost");
-    setTimeout(()=>{
-  location.reload();
-},300);
+    
     
   }
 
-//HAPUS GRUP DI DAFTAR GRUP///
-async function deleteSelectedGroups(){
 
-  const checkedBoxes = Array.from(
-    document.querySelectorAll("#groups-list input[type=checkbox]:checked")
-  );
-
-  console.log("CHECKED:", checkedBoxes);
-
-  if(checkedBoxes.length === 0){
-    alert("⚠️ Tidak ada grup yang dicentang!");
-    return;
-  }
-
-  // 🔥 ambil data terbaru (anti cache)
-  let res = await fetch("groups.json?" + Date.now());
-  let groups = await res.json();
-
-  checkedBoxes.forEach(cb => {
-
-    const account = cb.dataset.account;
-    const id = cb.dataset.id;
-
-    if(!groups[account]) return;
-
-    // 🔥 hapus dari data
-    groups[account] = groups[account].filter(g => g.id != id);
-
-    // 🔥 kalau kosong hapus account
-    if(groups[account].length === 0){
-      delete groups[account];
-    }
-
-    // 🔥 langsung hilang dari UI (biar ga nunggu reload)
-    cb.closest(".card").remove();
-
-  });
-
-  console.log("DATA SETELAH DELETE:", groups);
-
-  localStorage.setItem("groupsCache", JSON.stringify(groups));
-  // 🔥 kirim ke API (SEPERTI SAVE)
-  await fetch("https://fga-fake.vercel.app/api/delete", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(groups)
-  });
-
-  alert("✅ Grup berhasil dihapus!");
-  
-setTimeout(()=>{
-  location.reload();
-},300);
-}
 
  
 
@@ -524,10 +467,7 @@ function deleteGroup(account, link, tanggal){
   });
 
   alert("✅ Grup dihapus");
-  loadSchedulePost();
-  setTimeout(()=>{
-  location.reload();
-},300);
+  
   }
 /* ================= NAVIGATION ================= */
 
@@ -759,82 +699,76 @@ dateInput.addEventListener("change",render);
 /* ================= GROUPS UNTUK DAFTAR GRUP================= */
 
 //fetch("docs/groups.json?"+Date.now())
+ fetch("groups.json?")
+.then(r=>r.json())
+.then(data=>{
+console.log("DATA GROUP:", data); 
+const list=document.getElementById("groups-list");
+const dropdown=document.getElementById("groupAccountFilter");
 
-  const list = document.getElementById("groups-list");
-const dropdown = document.getElementById("groupAccountFilter");
+/* dropdown akun */
+Object.keys(data).forEach(acc=>{
+const o=document.createElement("option");
+o.value=acc;
+o.textContent=acc;
+dropdown.appendChild(o);
+});
 
-// 🔥 RENDER DIPISAH
-function render(data){
+function render(){
 
-  list.innerHTML="";
+list.innerHTML="";
 
-  const selectedAccount = dropdown.value || "all";
+const selectedAccount=dropdown.value;
 
-  let groupsToShow = [];
+let groupsToShow=[];
 
-  if(selectedAccount==="all"){
-    Object.keys(data).forEach(acc=>{
-      groupsToShow.push(...data[acc].map(g=>({...g,account:acc})));
-    });
-  }else{
-    groupsToShow = data[selectedAccount]?.map(g=>({...g,account:selectedAccount})) || [];
-  }
+/* filter akun */
+if(selectedAccount==="all"){
+Object.keys(data).forEach(acc=>{
+groupsToShow.push(...data[acc].map(g=>({...g,account:acc})));
+});
+}else{
+groupsToShow=data[selectedAccount].map(g=>({...g,account:selectedAccount}));
+}
 
-  if(!groupsToShow.length){
-    list.innerHTML=`<div class="empty">Tidak ada grup.</div>`;
-    return;
-  }
+if(!groupsToShow.length){
+list.innerHTML=`<div class="empty">Tidak ada grup.</div>`;
+return;
+}
 
-  groupsToShow.forEach(g=>{
-    list.innerHTML+=`
+/* render */
+groupsToShow.forEach((g,index)=>{
+
+list.innerHTML+=`
 <div class="card">
+
   <div class="left">
     <input type="checkbox"
-      data-account="${g.account}"
-      data-id="${g.id}"
-      data-link="${g.link}"
-      data-name="${g.name}"
-      data-photo="${g.photo}"
-    >
-    <img src="${g.photo || 'https://via.placeholder.com/70'}" class="group-img">
-  </div>
+  data-account="${g.account}"
+  data-id="${g.id}"
+  data-link="${g.link}"
+  data-name="${g.name}"
+  data-photo="${g.photo}"
+>
+<img src="${g.photo || 'https://via.placeholder.com/70'}" class="group-img">
+</div>
 
   <div class="right">
     <div class="group-name">${g.name}</div>
   </div>
-</div>`;
-  });
-}
-///
-let cached = JSON.parse(localStorage.getItem("groupsCache") || "{}");
 
-if(Object.keys(cached).length){
-  render(cached); // tampil cepat
-}
-  
-/////
-  fetch("groups.json?" + Date.now())
-.then(r=>r.json())
-.then(data=>{
-  console.log("DATA GROUP:", data);
-
-  // 🔥 simpan cache
-  localStorage.setItem("groupsCache", JSON.stringify(data));
-
-  // 🔥 isi dropdown (reset dulu biar ga dobel)
-  dropdown.innerHTML = '<option value="all">Semua Akun</option>';
-
-  Object.keys(data).forEach(acc=>{
-    const o=document.createElement("option");
-    o.value=acc;
-    o.textContent=acc;
-    dropdown.appendChild(o);
-  });
-
-  render(data);
-
-  dropdown.addEventListener("change", ()=> render(data));
+</div>
+`;
 });
+
+}
+
+render();
+
+dropdown.addEventListener("change",render);
+
+});
+  
   
 /* ================= SCHEDULE ================= */
 
