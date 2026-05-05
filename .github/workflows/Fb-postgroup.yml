@@ -3,7 +3,7 @@ name: FB Post Group
 on:
   workflow_dispatch:
    
-   push:
+  push:
     branches:
       - main
   
