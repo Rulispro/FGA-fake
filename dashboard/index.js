@@ -8,6 +8,7 @@ const XLSX = require("xlsx");
 const puppeteer = require("puppeteer-extra");
 const StealthPlugin = require("puppeteer-extra-plugin-stealth");
 const { PuppeteerScreenRecorder } = require("puppeteer-screen-recorder");
+
 puppeteer.use(StealthPlugin())
 puppeteer.use(
   StealthPlugin({
@@ -31,17 +32,51 @@ const selectedData = JSON.parse(
   )
 );
 
-//$BARU
+//$BARU tanpa jam 👇
+//const docsDir = path.join(__dirname, "docs");
+//let docsData = [];
+//if (!fs.existsSync(docsDir)) {
+ // fs.mkdirSync(docsDir);
+//}
+
+///fs.writeFileSync(
+//  path.join(docsDir, "data.json"),
+//  JSON.stringify(docsData, null, 2)
+//);
+///👆///
+
+             ////👇 DENGAN JAM///////
 const docsDir = path.join(__dirname, "docs");
-let docsData = [];
+const dataPath = path.join(docsDir, "data.json");
+
+// 1. Pastikan folder ada
 if (!fs.existsSync(docsDir)) {
-  fs.mkdirSync(docsDir);
+  fs.mkdirSync(docsDir, { recursive: true });
 }
 
-fs.writeFileSync(
-  path.join(docsDir, "data.json"),
-  JSON.stringify(docsData, null, 2)
-);
+// 2. Load data lama (kalau ada)
+let docsData = [];
+
+if (fs.existsSync(dataPath)) {
+  try {
+    docsData = JSON.parse(fs.readFileSync(dataPath, "utf8"));
+
+    // 🛡️ jaga kalau file rusak
+    if (!Array.isArray(docsData)) {
+      docsData = [];
+    }
+
+  } catch (err) {
+    console.log("⚠️ data.json rusak, reset ulang");
+    docsData = [];
+  }
+
+} else {
+  // 3. Kalau belum ada → buat file kosong SEKALI
+  fs.writeFileSync(dataPath, JSON.stringify([], null, 2));
+}
+
+             ///DENGAN JAM 👆 ////
 
 //Parser jam 👇//
 function cocokJam(rowJam) {
@@ -2250,6 +2285,7 @@ async function runAccount(page, row, accountName, today) {
  console.log("\n🧪 runAccount row:", row);
   const account = row.account;
   const caption = row.caption;
+  const jam_post = row.jam_post;
   const mediaUrl = row.media_url || row.github_release;
   const delayMikir = Number(row.delay_mikir);
   const delayKetikMin = Number(row.delay_ketik_min);
@@ -2360,6 +2396,7 @@ console.log("➡️", groupUrl);
  docsData.push({
   account: row.account,
   tanggal: today,
+  jam_post: row.jam_post,
   mode: "group",
   group_link: groupUrl,
    //===INI JIKA SCRAPE ===//
@@ -3095,7 +3132,8 @@ console.log("📋 Semua status rows:", statusRows);
   const rowDate = parseTanggalXLSX(row.tanggal);
   if (rowDate !== today) return false;
 
-  if (!cocokJam(row.jam_post)) return false;
+  // 🔥 kalau ada jam → cek
+  if (row.jam_post && !cocokJam(row.jam_post)) return false;
 
   return true;
 });
