@@ -91,7 +91,7 @@ function cocokJam(rowJam) {
 
   const selisih = Math.abs(now - target) / 1000 / 60; // menit
 
-  return selisih <= 120; // toleransi 120 menit (2 jam)
+  return selisih <= 180; // toleransi 180 menit (3 jam)
 }
 //sampai sini 👆///
 //$SAMPAI SINI
