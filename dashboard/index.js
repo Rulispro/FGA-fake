@@ -2425,48 +2425,38 @@ console.log("➡️", groupUrl);
   console.log("SPAN_HITS:", JSON.stringify(hits));
 });
 
+  // ===== 1️⃣ Coba klik "View Discussions" (optional)
+const clickedView = await page.evaluate(() => {
+  const span = [...document.querySelectorAll("span")]
+    .find(s => /view|lihat/i.test(s.innerText));
 
-//KLIK TULISAN WRITE SOMETHING SEBELUM KOTAK CAPTION//
-//async function openComposer(page) {
-  //const opened = await page.evaluate(() => {
-    //const span = [...document.querySelectorAll("span")]
-      //.find(s =>
-        //$/write something|tulis sesuatu/i
-        //  .test(s.textContent || "")
-     // );
+  if (!span) {
+    console.log("ℹ️ Tidak ada tombol View Discussions");
+    return false;
+  }
 
-    //if (!span) return false;
+  const btn = span.closest('[data-focusable="true"]');
 
-    //const container =
-      //span.closest('[data-mcomponent="MContainer"]') ||
-      //span.closest("div");
+  if (btn) {
+    btn.click();
+    console.log("✅ Klik View Discussions");
+    return true;
+  }
 
-    //if (!container) return false;
+  console.log("⚠️ Span ketemu tapi tidak bisa diklik");
+  return false;
+});
 
-    //container.scrollIntoView({ block: "center" });
-
-   // [
-     // "pointerdown",
-      //"touchstart",
-     // "mousedown",
-    //  "mouseup",
-     // "touchend",
-     // "click"
-   // ].forEach(e =>
-      //container.dispatchEvent(
-      //  new Event(e, { bubbles: true, cancelable: true })
-     // )
-  //  );
-
-    //container.focus?.();
-   // return true;
-  //});
-
- // if (!opened) throw new Error("❌ Composer tidak berhasil diklik");
-  //console.log("✅ Composer trigger sukses");
-//}
-
-
+// kalau tadi klik → tunggu
+if (clickedView) {
+  await page.waitForTimeout(3000);
+  console.log("⏳ Tunggu setelah klik View Discussions");
+ }
+    console.log("✅ berhasil klik View Discussions");
+          
+await page.waitForTimeout(2000);
+    console.log("tunggu 2 detik");
+    
     // ===== 1️⃣ Klik composer / write something
     let writeClicked =
     await safeClickXpath(page, "//*[contains(text(),'Write something')]", "Composer") ||
