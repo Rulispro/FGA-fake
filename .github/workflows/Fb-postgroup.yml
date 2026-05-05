@@ -2,7 +2,9 @@ name: FB Post Group
 
 on:
   workflow_dispatch:
-
+   push:
+    branches:
+      - main
   #schedule:
   #  - cron: "0 9 * * *"
 
