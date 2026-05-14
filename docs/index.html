@@ -168,16 +168,24 @@ border-radius:8px;
   }
 
 .group-img{
-  
   width:60px;
   height:60px;
   border-radius:12px;
   object-fit:cover;
-  margin-bottom:10px; /* jarak ke caption */
-  opacity:1;
-  transform:none;
-}
- 
+  margin-bottom:10px;
+
+  opacity:1 !important;
+  visibility:visible !important;
+
+  background:#ddd;
+
+  transform:translateZ(0);
+  backface-visibility:hidden;
+
+  image-rendering:auto;
+  contain:paint;
+  }
+  
   #groups-list{
   width:100%;
   height:80vh;
@@ -790,6 +798,12 @@ function initVirtualScroll(){
 
   list.appendChild(spacer);
 
+  
+  // cache image
+  const loadedImages = new Set();
+
+  let lastStart = -1;
+  let lastEnd = -1;
 
   function draw(){
 
@@ -813,13 +827,23 @@ function initVirtualScroll(){
           / ITEM_HEIGHT
         ) + BUFFER
       );
+    // jangan render ulang kalau range sama
+    if(start === lastStart && end === lastEnd){
+      return;
+    }
 
+    lastStart = start;
+    lastEnd = end;
     let html = "";
 
     for(let i = start; i < end; i++){
 
       const g = allGroups[i];
-
+     
+      if(g.photo){
+        loadedImages.add(g.photo);
+  }
+  
       html += `
       <div class="card"
       style="
@@ -841,12 +865,31 @@ function initVirtualScroll(){
           >
 
           <img
-  src="${g.photo || 'https://via.placeholder.com/70'}"
-  class="group-img"
-  referrerpolicy="no-referrer"
-  crossorigin="anonymous"
-  onerror="this.src='https://via.placeholder.com/70'"
- >
+            src="${
+              loadedImages.has(g.photo)
+              ? g.photo
+              : (g.photo || 'https://via.placeholder.com/70')
+            }"
+            class="group-img"
+
+            loading="eager"
+            decoding="sync"
+
+            draggable="false"
+
+            referrerpolicy="no-referrer"
+            crossorigin="anonymous"
+
+            onerror="
+              if(!this.dataset.retry){
+                this.dataset.retry = 1;
+                this.src='${g.photo}';
+              }else{
+                this.src='https://via.placeholder.com/70';
+              }
+            "
+          >
+
         </div>
 
         <div class="right">
@@ -858,19 +901,55 @@ function initVirtualScroll(){
       </div>
       `;
     }
-requestAnimationFrame(()=>{
+cancelAnimationFrame(window.__rafGroups);
+
+window.__rafGroups = requestAnimationFrame(()=>{
+
+  const oldScroll = list.scrollTop;
+
   spacer.innerHTML = html;
+
+  // paksa browser render image dulu
+  spacer.querySelectorAll("img").forEach(img=>{
+
+    img.loading = "eager";
+    img.decoding = "sync";
+
+    // force repaint
+    img.style.display = "none";
+
+    requestAnimationFrame(()=>{
+      img.style.display = "block";
+    });
+
+  });
+
+  list.scrollTop = oldScroll;
+
 });
     
   }
 list.scrollTop = 0;
   draw();
 
-  list.addEventListener(
-    "scroll",
-    draw,
-    { passive:true }
-  );
+  let ticking = false;
+
+list.addEventListener("scroll", ()=>{
+
+  if(!ticking){
+
+    requestAnimationFrame(()=>{
+
+      draw();
+
+      ticking = false;
+
+    });
+
+    ticking = true;
+  }
+
+}, { passive:true });
 }
 
 
