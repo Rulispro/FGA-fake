@@ -174,15 +174,13 @@ border-radius:8px;
   object-fit:cover;
   margin-bottom:10px;
 
-  opacity:1 !important;
-  visibility:visible !important;
-
   background:#ddd;
 
-  
-  image-rendering:auto;
+  display:block;
 
-  
+  opacity:1;
+
+  visibility:visible;
   }
   
   #groups-list{
@@ -783,11 +781,12 @@ function render(){
 
 
 
+
+    
+  let ticking = false;
 function initVirtualScroll(){
 
   list.innerHTML = "";
-
-  
 
   const spacer = document.createElement("div");
 
@@ -795,68 +794,58 @@ function initVirtualScroll(){
     (allGroups.length * ITEM_HEIGHT) + "px";
 
   spacer.style.position = "relative";
+
   spacer.style.width = "100%";
 
   list.appendChild(spacer);
-
-  
-  // cache image
-  const loadedImages = new Set();
 
   let lastStart = -1;
   let lastEnd = -1;
 
   function draw(){
 
-    const scrollTop =
-      list.scrollTop;
+    const scrollTop = list.scrollTop;
 
-    const containerHeight =
-      list.clientHeight;
+    const containerHeight = list.clientHeight;
 
-    const start =
-      Math.max(
-        0,
-        Math.floor(scrollTop / ITEM_HEIGHT) - BUFFER
-      );
+    const start = Math.max(
+      0,
+      Math.floor(scrollTop / ITEM_HEIGHT) - BUFFER
+    );
 
-    const end =
-      Math.min(
-        allGroups.length,
-        Math.ceil(
-          (scrollTop + containerHeight)
-          / ITEM_HEIGHT
-        ) + BUFFER
-      );
-    // jangan render ulang kalau range sama
+    const end = Math.min(
+      allGroups.length,
+      Math.ceil(
+        (scrollTop + containerHeight) / ITEM_HEIGHT
+      ) + BUFFER
+    );
+
     if(start === lastStart && end === lastEnd){
       return;
     }
 
     lastStart = start;
     lastEnd = end;
-    let html = "";
+
+    spacer.innerHTML = "";
+
+    const fragment = document.createDocumentFragment();
 
     for(let i = start; i < end; i++){
 
       const g = allGroups[i];
-     
-      if(g.photo && !imageCache.has(g.photo)){
-  const img = new Image();
-  img.src = g.photo;
-  imageCache.set(g.photo, true);
-  }
-  
-      html += `
-      <div class="card"
-      style="
-      position:absolute;
-      top:${i * ITEM_HEIGHT}px;
-      left:0;
-      right:0;
-      height:${ITEM_HEIGHT - 10}px;
-      ">
 
+      const card = document.createElement("div");
+
+      card.className = "card";
+
+      card.style.position = "absolute";
+      card.style.top = (i * ITEM_HEIGHT) + "px";
+      card.style.left = "0";
+      card.style.right = "0";
+      card.style.height = (ITEM_HEIGHT - 10) + "px";
+
+      card.innerHTML = `
         <div class="left">
 
           <input type="checkbox"
@@ -868,29 +857,8 @@ function initVirtualScroll(){
           >
 
           <img
-            src="${
-              loadedImages.has(g.photo)
-              ? g.photo
-              : (g.photo || 'https://via.placeholder.com/70')
-            }"
             class="group-img"
-
-            loading="eager"
-            decoding="sync"
-
             draggable="false"
-
-            referrerpolicy="no-referrer"
-            crossorigin="anonymous"
-
-            onerror="
-              if(!this.dataset.retry){
-                this.dataset.retry = 1;
-                this.src='${g.photo}';
-              }else{
-                this.src='https://via.placeholder.com/70';
-              }
-            "
           >
 
         </div>
@@ -900,41 +868,50 @@ function initVirtualScroll(){
             ${g.name}
           </div>
         </div>
-
-      </div>
       `;
+
+      const img = card.querySelector("img");
+
+      img.src = g.photo || "https://via.placeholder.com/70";
+
+      img.loading = "lazy";
+
+      img.onerror = () => {
+
+        img.onerror = null;
+
+        img.src = "https://via.placeholder.com/70";
+
+      };
+
+      fragment.appendChild(card);
     }
-cancelAnimationFrame(window.__rafGroups);
 
-window.__rafGroups = requestAnimationFrame(()=>{
-
-  spacer.innerHTML = html;
-
-});
-    
+    spacer.appendChild(fragment);
   }
-list.scrollTop = 0;
+
   draw();
 
   let ticking = false;
 
-list.addEventListener("scroll", ()=>{
+  list.addEventListener("scroll", ()=>{
 
-  if(!ticking){
+    if(!ticking){
 
-    requestAnimationFrame(()=>{
+      requestAnimationFrame(()=>{
 
-      draw();
+        draw();
 
-      ticking = false;
+        ticking = false;
 
-    });
+      });
 
-    ticking = true;
+      ticking = true;
+    }
+
+  }, { passive:true });
+
   }
-
-}, { passive:true });
-}
 
 
 render();
