@@ -147,8 +147,6 @@ border-radius:8px;
   background:#f8fafc;
   border:1px solid #e2e8f0;
   box-shadow:0 4px 10px rgba(0,0,0,0.05);
-
-  contain:content;
   }
 
 @keyframes cardReveal{
@@ -843,10 +841,12 @@ function initVirtualScroll(){
           >
 
           <img
-            loading="lazy"
-            src="${g.photo || 'https://via.placeholder.com/70'}"
-            class="group-img">
-
+  src="${g.photo || 'https://via.placeholder.com/70'}"
+  class="group-img"
+  referrerpolicy="no-referrer"
+  crossorigin="anonymous"
+  onerror="this.src='https://via.placeholder.com/70'"
+ >
         </div>
 
         <div class="right">
