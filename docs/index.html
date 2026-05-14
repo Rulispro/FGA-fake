@@ -690,8 +690,7 @@ dateInput.addEventListener("change",render);
 
 /* ================= GROUPS UNTUK DAFTAR GRUP================= */
 
-//fetch("docs/groups.json?"+Date.now())
- fetch("groups.json?")
+  fetch("groups.json?")
 .then(r=>r.json())
 .then(data=>{
 console.log("DATA GROUP:", data); 
@@ -730,36 +729,115 @@ return;
 
 /* render */
 groupsToShow.forEach((g,index)=>{
+let currentPage = 1;
+const perPage = 50;
 
-list.innerHTML+=`
-<div class="card">
+function render(){
 
-  <div class="left">
-    <input type="checkbox"
-  data-account="${g.account}"
-  data-id="${g.id}"
-  data-link="${g.link}"
-  data-name="${g.name}"
-  data-photo="${g.photo}"
->
-<img src="${g.photo || 'https://via.placeholder.com/70'}" class="group-img">
-</div>
+  list.innerHTML = "";
 
-  <div class="right">
-    <div class="group-name">${g.name}</div>
-  </div>
+  const selectedAccount = dropdown.value;
 
-</div>
-`;
-});
+  let groupsToShow = [];
 
+  if(selectedAccount === "all"){
+
+    Object.keys(data).forEach(acc=>{
+      groupsToShow.push(
+        ...data[acc].map(g=>({...g,account:acc}))
+      );
+    });
+
+  } else {
+
+    groupsToShow =
+      data[selectedAccount].map(g=>({
+        ...g,
+        account:selectedAccount
+      }));
+  }
+
+  if(!groupsToShow.length){
+    list.innerHTML = `<div class="empty">Tidak ada grup.</div>`;
+    return;
+  }
+
+  const start = 0;
+  const end = currentPage * perPage;
+
+  const visibleGroups =
+    groupsToShow.slice(start,end);
+
+  let html = "";
+
+  visibleGroups.forEach(g=>{
+
+    html += `
+    <div class="card">
+
+      <div class="left">
+
+        <input type="checkbox"
+          data-account="${g.account}"
+          data-id="${g.id}"
+          data-link="${g.link}"
+          data-name="${g.name}"
+          data-photo="${g.photo}"
+        >
+
+        <img
+          loading="lazy"
+          src="${g.photo || 'https://via.placeholder.com/70'}"
+          class="group-img">
+
+      </div>
+
+      <div class="right">
+        <div class="group-name">
+          ${g.name}
+        </div>
+      </div>
+
+    </div>
+    `;
+  });
+
+  if(end < groupsToShow.length){
+
+    html += `
+    <button id="loadMoreBtn"
+      style="
+      width:100%;
+      padding:14px;
+      border:none;
+      border-radius:12px;
+      margin-top:20px;
+      cursor:pointer;
+      background:#2563eb;
+      color:white;
+      font-weight:bold;
+    ">
+      LOAD MORE
+    </button>
+    `;
+  }
+
+  list.innerHTML = html;
+
+  const btn =
+    document.getElementById("loadMoreBtn");
+
+  if(btn){
+
+    btn.onclick = ()=>{
+
+      currentPage++;
+
+      render();
+    };
+  }
 }
 
-render();
-
-dropdown.addEventListener("change",render);
-
-});
   
   
 /* ================= SCHEDULE ================= */
