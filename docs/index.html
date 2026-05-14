@@ -737,7 +737,7 @@ const ITEM_HEIGHT = 140;
 const BUFFER = 5;
 /* ================= IMAGE CACHE ================= */
 
-const imageCache = new Map();
+const imageCache = {};
 
 function render(){
 
@@ -823,7 +823,10 @@ function initVirtualScroll(){
     lastStart = start;
     lastEnd = end;
 
-    spacer.innerHTML = "";
+    const oldCards =
+  spacer.querySelectorAll(".card");
+
+oldCards.forEach(el => el.remove());
 
     const fragment = document.createDocumentFragment();
 
@@ -868,18 +871,33 @@ function initVirtualScroll(){
 
     const img = card.querySelector("img");
 
-      img.src = g.photo || "https://via.placeholder.com/70";
+img.loading = "lazy";
 
-      img.loading = "lazy";
+img.decoding = "async";
 
-      img.onerror = () => {
+const finalPhoto =
+  imageCache[g.photo]
+  || g.photo
+  || "https://via.placeholder.com/70";
 
-        img.onerror = null;
+img.src = finalPhoto;
 
-        img.src = "https://via.placeholder.com/70";
+img.onerror = () => {
 
-      };
+  img.onerror = null;
 
+  imageCache[g.photo] =
+    "https://via.placeholder.com/70";
+
+  img.src =
+    "https://via.placeholder.com/70";
+};
+
+img.onload = () => {
+
+  imageCache[g.photo] = img.src;
+
+};
       fragment.appendChild(card);
     }
 
