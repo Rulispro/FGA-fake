@@ -138,8 +138,18 @@ border-radius:8px;
 }
   
 .card{
+  display:flex;
+  align-items:flex-start;
+  gap:20px;
+  padding:18px;
+  border-radius:16px;
+  margin-bottom:18px;
+  background:#f8fafc;
+  border:1px solid #e2e8f0;
+  box-shadow:0 4px 10px rgba(0,0,0,0.05);
+
   contain:content;
-}
+  }
 
 @keyframes cardReveal{
   to{
@@ -702,7 +712,7 @@ Object.keys(data).forEach(acc=>{
 
 let allGroups = [];
 
-const ITEM_HEIGHT = 110;
+const ITEM_HEIGHT = 140;
 const BUFFER = 5;
 
 
@@ -763,6 +773,7 @@ function initVirtualScroll(){
     (allGroups.length * ITEM_HEIGHT) + "px";
 
   spacer.style.position = "relative";
+  spacer.style.width = "100%";
 
   list.appendChild(spacer);
 
