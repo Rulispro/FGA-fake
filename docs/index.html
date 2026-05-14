@@ -179,6 +179,14 @@ border-radius:8px;
   opacity:1;
   transform:none;
 }
+ 
+  #groups-list{
+  width:100%;
+  height:80vh;
+  overflow-y:auto;
+  position:relative;
+  }
+  
 .groups-header{
   display:flex;
   justify-content:space-between;
@@ -339,24 +347,34 @@ body{flex-direction:column;}
 
 </div>
   
-
 <!-- ================= GROUPS ================= -->
 <div id="groupsPage" style="display:none">
 
-<div class="section-title">👥 PILIH GRUP</div>
-<div class="filters groups-header">
-<div class="filters">
-<select id="groupAccountFilter">
-<option value="all">Semua Akun</option>
-</select>
-  <input type="date" id="scheduleDate">
-  <button onclick="saveToSchedule()" class="btn-save">
-    💾 SIMPAN GRUP 
-  </button>
+  <div class="section-title">👥 PILIH GRUP</div>
+
+  <!-- HEADER FILTER -->
+  <div class="filters groups-header">
+
+    <div class="filters">
+
+      <select id="groupAccountFilter">
+        <option value="all">Semua Akun</option>
+      </select>
+
+      <input type="date" id="scheduleDate">
+
+      <button onclick="saveToSchedule()" class="btn-save">
+        💾 SIMPAN GRUP
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- LIST GRUP -->
+  <div id="groups-list"></div>
 
 </div>
-
-<div id="groups-list"></div>
 
 
 </div>
@@ -762,10 +780,7 @@ function initVirtualScroll(){
 
   list.innerHTML = "";
 
-  list.style.height = "80vh";
-  list.style.overflowY = "auto";
-  list.style.position = "relative";
-
+  
 
   const spacer = document.createElement("div");
 
@@ -843,10 +858,12 @@ function initVirtualScroll(){
       </div>
       `;
     }
-
-    spacer.innerHTML = html;
+requestAnimationFrame(()=>{
+  spacer.innerHTML = html;
+});
+    
   }
-
+list.scrollTop = 0;
   draw();
 
   list.addEventListener(
