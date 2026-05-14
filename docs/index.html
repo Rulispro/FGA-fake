@@ -688,7 +688,7 @@ dateInput.addEventListener("change",render);
 /* ================= GROUPS UNTUK DAFTAR GRUP================= */
 /* ================= GROUPS UNTUK DAFTAR GRUP================= */
 
-fetch("groups.json?")
+fetch("groups.json?" + Date.now())
 .then(r=>r.json())
 .then(data=>{
 
