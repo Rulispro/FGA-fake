@@ -738,7 +738,10 @@ const BUFFER = 5;
 /* ================= IMAGE CACHE ================= */
 
 const imageCache = {};
-
+ 
+  /* ================= CHECKBOX STATE ================= */
+const checkedGroups = {};
+  
 function render(){
 
   const selectedAccount = dropdown.value;
@@ -848,12 +851,13 @@ oldCards.forEach(el => el.remove());
         <div class="left">
 
           <input type="checkbox"
-            data-account="${g.account}"
-            data-id="${g.id}"
-            data-link="${g.link}"
-            data-name="${g.name}"
-            data-photo="${g.photo}"
-          >
+  data-account="${g.account}"
+  data-id="${g.id}"
+  data-link="${g.link}"
+  data-name="${g.name}"
+  data-photo="${g.photo}"
+  ${checkedGroups[g.link] ? "checked" : ""}
+/>
 
           <img
             class="group-img"
@@ -868,6 +872,16 @@ oldCards.forEach(el => el.remove());
           </div>
         </div>
       `;
+     // ================= CHECKBOX STATE =================
+
+      const checkbox =
+        card.querySelector("input[type=checkbox]");
+
+      checkbox.addEventListener("change", () => {
+
+        checkedGroups[g.link] = checkbox.checked;
+
+      });
 
     const img = card.querySelector("img");
 
@@ -1012,10 +1026,18 @@ showPage("result");
   .addEventListener("change", loadSchedulePost);
 
   document.getElementById("scheduleDate")
-  .addEventListener("change", () => {
-    document.querySelectorAll("#groups-list input[type=checkbox]")
-      .forEach(cb => cb.checked = false);
+.addEventListener("change", () => {
+
+  // reset memory checkbox
+  Object.keys(checkedGroups).forEach(key => {
+    checkedGroups[key] = false;
   });
+
+  // reset tampilan checkbox
+  document.querySelectorAll("#groups-list input[type=checkbox]")
+    .forEach(cb => cb.checked = false);
+
+});
 </script>
 </body>
   </html>
