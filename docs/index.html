@@ -410,7 +410,9 @@ console.log("Update:", account, link, checked);
     if(checkedGroups[g.link]){
 
       const account = g.account;
-      const link = g.link;
+      const link = String(g.link)
+  .trim()
+  .replace(/,+$/, "");
       const name = g.name;
       const photo = g.photo;
 
