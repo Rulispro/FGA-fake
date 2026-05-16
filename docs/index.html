@@ -412,8 +412,12 @@ function saveToSchedule(){
     if(!window.checkedGroups[groupKey]) return;
     // cari data grup asli
     const g = allGroups.find(x =>
-      (x.link || x.group_link) === groupKey
-    );
+  (
+    x.link ||
+    x.group_link ||
+    x.grup_link
+  ) === groupKey
+);
 
     if(!g) return;
 
@@ -976,11 +980,11 @@ oldCards.forEach(el => el.remove());
           <input type="checkbox"
   data-account="${g.account}"
   data-id="${g.id}"
-  data-link="${g.link}"
-  data-name="${g.name}"
-  data-photo="${g.photo}"
-  ${window.checkedGroups[g.link || g.group_link] ? "checked" : ""}
-/>
+  data-link="${g.link || g.group_link || g.grup_link || ''}"
+data-name="${g.name || g.group_name || ''}"
+data-photo="${g.photo || g.group_photo || ''}"
+${window.checkedGroups[g.link || g.group_link || g.grup_link] ? "checked" : ""}
+  />
 
           <img
             class="group-img"
@@ -1002,8 +1006,10 @@ oldCards.forEach(el => el.remove());
 
       checkbox.addEventListener("change", () => {
 
-        const groupKey = g.link || g.group_link;
-
+        const groupKey =
+  g.link ||
+  g.group_link ||
+  g.grup_link;
 window.checkedGroups[groupKey] = checkbox.checked;      });
 
     const img = card.querySelector("img");
@@ -1013,8 +1019,9 @@ img.loading = "lazy";
 img.decoding = "async";
 
 const finalPhoto =
-  imageCache[g.photo]
+  imageCache[g.photo || g.group_photo]
   || g.photo
+  || g.group_photo
   || "https://via.placeholder.com/70";
 
 img.src = finalPhoto;
