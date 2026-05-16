@@ -391,11 +391,8 @@ console.log("Update:", account, link, checked);
   }
 
   //fungsi simpan ke local store 
-  function saveToSchedule(){
-
-  let selected = JSON.parse(
-    localStorage.getItem("selectedGroups") || "{}"
-  );
+  
+function saveToSchedule(){
 
   const date =
     document.getElementById("scheduleDate").value;
@@ -405,50 +402,68 @@ console.log("Update:", account, link, checked);
     return;
   }
 
-  allGroups.forEach(g => {
+  let selected = JSON.parse(
+    localStorage.getItem("selectedGroups") || "{}"
+  );
 
-    const groupKey = g.link || g.group_link;
+  // LOOP DARI checkedGroups
+  Object.keys(checkedGroups).forEach(groupKey => {
 
-if(checkedGroups[groupKey]){
-      const account = g.account;
-      const link = String(
-    g.link ||
-    g.group_link ||
-    ""
-  )
-  .trim()
-  .replace(/,+$/, "")
-  .replace(/\s+/g, "");
-      const name = g.name;
-      const photo = g.photo;
-       // VALIDASI LINK FACEBOOK GROUP
-  if(
-    !link ||
-    !link.includes("/groups/")
-  ){
-    console.log("❌ Skip group link kosong:", g);
-    return;
-  }
-      if(!selected[account]){
-        selected[account] = [];
-      }
+    // hanya yg dicentang
+    if(!checkedGroups[groupKey]) return;
 
-      const sudahAda = selected[account].some(
-        item =>
-          item.group_link === link &&
-          item.tanggal === date
+    // cari data grup asli
+    const g = allGroups.find(x =>
+      (x.link || x.group_link) === groupKey
+    );
+
+    if(!g) return;
+
+    const account = g.account;
+
+    const link = String(
+      g.link ||
+      g.group_link ||
+      ""
+    )
+    .trim()
+    .replace(/,+$/, "")
+    .replace(/\s+/g, "");
+
+    if(
+      !link ||
+      !link.includes("/groups/")
+    ){
+      console.log("❌ LINK INVALID:", g);
+      return;
+    }
+
+    const name = g.name || g.group_name || "";
+    const photo = g.photo || g.group_photo || "";
+
+    if(!selected[account]){
+      selected[account] = [];
+    }
+
+    // cek duplicate
+    const sudahAda =
+      selected[account].some(item =>
+
+        item.group_link === link &&
+        item.tanggal === date
+
       );
 
-      if(!sudahAda){
+    if(!sudahAda){
 
-        selected[account].push({
-          tanggal: date,
-          group_link: link,
-          group_name: name,
-          group_photo: photo
-        });
+      selected[account].push({
 
-      }
+        tanggal: date,
+        group_link: link,
+        group_name: name,
+        group_photo: photo
+
+      });
 
     }
 
@@ -456,30 +471,45 @@ if(checkedGroups[groupKey]){
 
   console.log("DATA SAVE:", selected);
 
+  // LOCAL STORAGE
   localStorage.setItem(
     "selectedGroups",
     JSON.stringify(selected)
   );
 
+  // SAVE SERVER
   fetch("https://fga-fake.vercel.app/api/save", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify(selected)
-})
-.then(r => r.text())
-.then(res => {
-  console.log("SAVE RESPONSE:", res);
-})
-.catch(err => {
-  console.log("SAVE ERROR:", err);
-});
 
-  alert("✅ Masuk ke Jadwal Posting!");
+    method: "POST",
 
-  showPage("schedulePost");
-}
+    headers:{
+      "Content-Type":"application/json"
+    },
+
+    body: JSON.stringify(selected)
+
+  })
+  .then(r => r.text())
+  .then(res => {
+
+    console.log("SAVE RESPONSE:", res);
+
+    alert("✅ Berhasil disimpan!");
+
+    loadSchedulePost();
+
+    showPage("schedulePost");
+
+  })
+  .catch(err => {
+
+    console.log("SAVE ERROR:", err);
+
+    alert("❌ Gagal save");
+
+  });
+
+  }
 
 
 
@@ -591,7 +621,7 @@ function loadSchedulePost(){
 
   dropdown.value = prevValue || "all";
 
-  let all = [];
+  window.allGroups = [];
 
   Object.keys(data).forEach(acc=>{
 
@@ -813,7 +843,7 @@ Object.keys(data).forEach(acc=>{
 
 // ================= VIRTUAL SCROLL =================
 
-let allGroups = [];
+window.allGroups = [];
 
 const ITEM_HEIGHT = 140;
 const BUFFER = 5;
@@ -829,14 +859,14 @@ function render(){
 
   const selectedAccount = dropdown.value;
 
-  allGroups = [];
+  window.allGroups = [];
 
   // filter akun
   if(selectedAccount === "all"){
 
     Object.keys(data).forEach(acc=>{
 
-      allGroups.push(
+      window.allGroups.push(
         ...data[acc].map(g=>({
           ...g,
           account:acc
@@ -847,14 +877,14 @@ function render(){
 
   } else {
 
-    allGroups =
-      data[selectedAccount].map(g=>({
-        ...g,
-        account:selectedAccount
-      }));
+    window.allGroups =
+  data[selectedAccount].map(g=>({
+    ...g,
+    account:selectedAccount
+  }));
   }
 
-  if(!allGroups.length){
+  if(!window.allGroups.length){
 
     list.innerHTML =
       `<div class="empty">Tidak ada grup.</div>`;
@@ -873,7 +903,7 @@ function initVirtualScroll(){
   const spacer = document.createElement("div");
 
   spacer.style.height =
-    (allGroups.length * ITEM_HEIGHT) + "px";
+    (window.allGroups.length * ITEM_HEIGHT) + "px";
 
   spacer.style.position = "relative";
 
@@ -896,7 +926,7 @@ function initVirtualScroll(){
     );
 
     const end = Math.min(
-      allGroups.length,
+    window.allGroups.length,
       Math.ceil(
         (scrollTop + containerHeight) / ITEM_HEIGHT
       ) + BUFFER
@@ -917,8 +947,8 @@ oldCards.forEach(el => el.remove());
     const fragment = document.createDocumentFragment();
 
     for(let i = start; i < end; i++){
-
-      const g = allGroups[i];
+    
+      const g = window.allGroups[i];
 
       const card = document.createElement("div");
 
