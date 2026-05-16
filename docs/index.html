@@ -462,12 +462,19 @@ if(checkedGroups[groupKey]){
   );
 
   fetch("https://fga-fake.vercel.app/api/save", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(selected)
-  });
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify(selected)
+})
+.then(r => r.text())
+.then(res => {
+  console.log("SAVE RESPONSE:", res);
+})
+.catch(err => {
+  console.log("SAVE ERROR:", err);
+});
 
   alert("✅ Masuk ke Jadwal Posting!");
 
