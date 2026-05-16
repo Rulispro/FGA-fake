@@ -393,44 +393,59 @@ console.log("Update:", account, link, checked);
   //fungsi simpan ke local store 
   function saveToSchedule(){
 
-  let selected = JSON.parse(localStorage.getItem("selectedGroups") || "{}");
-  const date = document.getElementById("scheduleDate").value;
+  let selected = JSON.parse(
+    localStorage.getItem("selectedGroups") || "{}"
+  );
+
+  const date =
+    document.getElementById("scheduleDate").value;
 
   if(!date){
     alert("Pilih tanggal dulu!");
     return;
   }
 
-  document.querySelectorAll("#groups-list input[type=checkbox]").forEach(cb=>{
-    
-    if(cb.checked){
+  allGroups.forEach(g => {
 
-      const account = cb.getAttribute("data-account");
-      const link = cb.getAttribute("data-link");
-      const name = cb.getAttribute("data-name");
-      const photo = cb.getAttribute("data-photo");
+    if(checkedGroups[g.link]){
 
-      if(!selected[account]) selected[account] = [];
+      const account = g.account;
+      const link = g.link;
+      const name = g.name;
+      const photo = g.photo;
+
+      if(!selected[account]){
+        selected[account] = [];
+      }
 
       const sudahAda = selected[account].some(
-        g => g.group_link === link && g.tanggal === date
+        item =>
+          item.group_link === link &&
+          item.tanggal === date
       );
 
       if(!sudahAda){
+
         selected[account].push({
           tanggal: date,
           group_link: link,
           group_name: name,
           group_photo: photo
         });
+
       }
+
     }
 
   });
 
-  localStorage.setItem("selectedGroups", JSON.stringify(selected));
+  console.log("DATA SAVE:", selected);
 
-  // kirim ke API
+  localStorage.setItem(
+    "selectedGroups",
+    JSON.stringify(selected)
+  );
+
   fetch("https://fga-fake.vercel.app/api/save", {
     method: "POST",
     headers: {
@@ -440,10 +455,9 @@ console.log("Update:", account, link, checked);
   });
 
   alert("✅ Masuk ke Jadwal Posting!");
+
   showPage("schedulePost");
-    
-    
-  }
+}
 
 
 
@@ -741,7 +755,8 @@ const imageCache = {};
  
   /* ================= CHECKBOX STATE ================= */
 const checkedGroups = {};
-  
+  window.checkedGroups = checkedGroups;
+window.allGroups = allGroups;
 function render(){
 
   const selectedAccount = dropdown.value;
