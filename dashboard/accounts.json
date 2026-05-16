@@ -48,7 +48,7 @@
     ]
     },
     {
-    "account": "Susi Riana",
+    "disabled account": "Susi Riana",
     "file": "Susi_Riana",
     "cookies": [
       { "name": "c_user", "value": "61589037995224" },
