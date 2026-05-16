@@ -407,8 +407,9 @@ console.log("Update:", account, link, checked);
 
   allGroups.forEach(g => {
 
-    if(checkedGroups[g.link]){
+    const groupKey = g.link || g.group_link;
 
+if(checkedGroups[groupKey]){
       const account = g.account;
       const link = String(
     g.link ||
@@ -885,7 +886,7 @@ oldCards.forEach(el => el.remove());
   data-link="${g.link}"
   data-name="${g.name}"
   data-photo="${g.photo}"
-  ${checkedGroups[g.link] ? "checked" : ""}
+  ${checkedGroups[g.link || g.group_link] ? "checked" : ""}
 />
 
           <img
@@ -908,8 +909,9 @@ oldCards.forEach(el => el.remove());
 
       checkbox.addEventListener("change", () => {
 
-        checkedGroups[g.link] = checkbox.checked;
+        const groupKey = g.link || g.group_link;
 
+checkedGroups[groupKey] = checkbox.checked;
       });
 
     const img = card.querySelector("img");
