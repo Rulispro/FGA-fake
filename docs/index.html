@@ -592,19 +592,30 @@ function showPage(page){
   //schedule posthasil grup terpilih /hasil scrape 
   
 
+
+  
+
+  </div>
+
+
 function loadSchedulePost(){
 
-  const list = document.getElementById("schedulePost-list");
-  const dropdown = document.getElementById("schedulePostAccountFilter");
+  const list =
+    document.getElementById("schedulePost-list");
+
+  const dropdown =
+    document.getElementById("schedulePostAccountFilter");
+
   const prevValue = dropdown.value;
 
   list.innerHTML = "Loading...";
 
-  // AMBIL DARI LOCAL STORAGE
+  // ambil dari localStorage
   const data = JSON.parse(
     localStorage.getItem("selectedGroups") || "{}"
   );
 
+  // reset dropdown
   dropdown.innerHTML =
     '<option value="all">Semua Akun</option>';
 
@@ -621,7 +632,8 @@ function loadSchedulePost(){
 
   dropdown.value = prevValue || "all";
 
-  window.allGroups = [];
+  // FIX BUG
+  let all = [];
 
   Object.keys(data).forEach(acc=>{
 
@@ -661,6 +673,7 @@ function loadSchedulePost(){
 
   list.innerHTML = "";
 
+  // kosong
   if(all.length === 0){
 
     list.innerHTML =
@@ -670,16 +683,20 @@ function loadSchedulePost(){
 
   }
 
+  // render
   all.forEach(item=>{
 
     list.innerHTML += `
+
 <div class="card">
 
   <div class="left">
+
     <img
       src="${item.group_photo || 'https://via.placeholder.com/70'}"
       class="group-img"
     >
+
   </div>
 
   <div class="right">
@@ -708,11 +725,14 @@ function loadSchedulePost(){
 
   </div>
 
-</div>`;
+</div>
+
+`;
 
   });
 
-  }
+}
+
 
 //fungsi simpan per card di schedule dari scrape grup 
 function saveSingleGroup(btn){
@@ -852,9 +872,8 @@ const BUFFER = 5;
 const imageCache = {};
  
   /* ================= CHECKBOX STATE ================= */
-const checkedGroups = {};
-  window.checkedGroups = checkedGroups;
-window.allGroups = allGroups;
+window.checkedGroups = {};
+window.allGroups = [];
 function render(){
 
   const selectedAccount = dropdown.value;
@@ -969,7 +988,7 @@ oldCards.forEach(el => el.remove());
   data-link="${g.link}"
   data-name="${g.name}"
   data-photo="${g.photo}"
-  ${checkedGroups[g.link || g.group_link] ? "checked" : ""}
+  ${window.checkedGroups[g.link || g.group_link] ? "checked" : ""}
 />
 
           <img
@@ -994,8 +1013,7 @@ oldCards.forEach(el => el.remove());
 
         const groupKey = g.link || g.group_link;
 
-checkedGroups[groupKey] = checkbox.checked;
-      });
+window.checkedGroups[groupKey] = checkbox.checked;      });
 
     const img = card.querySelector("img");
 
