@@ -554,6 +554,7 @@ function showPage(page){
 
   //schedule posthasil grup terpilih /hasil scrape 
   
+
 function loadSchedulePost(){
 
   const list = document.getElementById("schedulePost-list");
@@ -562,74 +563,119 @@ function loadSchedulePost(){
 
   list.innerHTML = "Loading...";
 
-  fetch("selected.json?" + Date.now())
-  .then(r => r.json())
-  .then(data => {
+  // AMBIL DARI LOCAL STORAGE
+  const data = JSON.parse(
+    localStorage.getItem("selectedGroups") || "{}"
+  );
 
-    dropdown.innerHTML = '<option value="all">Semua Akun</option>';
+  dropdown.innerHTML =
+    '<option value="all">Semua Akun</option>';
 
-    Object.keys(data).forEach(acc=>{
-      const o = document.createElement("option");
-      o.value = acc;
-      o.textContent = acc;
-      dropdown.appendChild(o);
-    });
+  Object.keys(data).forEach(acc=>{
 
-    dropdown.value = prevValue || "all";
+    const o = document.createElement("option");
 
-    let all = [];
+    o.value = acc;
+    o.textContent = acc;
 
-    Object.keys(data).forEach(acc=>{
-      data[acc].forEach(g=>{
-        all.push({...g, account: acc});
+    dropdown.appendChild(o);
+
+  });
+
+  dropdown.value = prevValue || "all";
+
+  let all = [];
+
+  Object.keys(data).forEach(acc=>{
+
+    data[acc].forEach(g=>{
+
+      all.push({
+        ...g,
+        account: acc
       });
-    });
 
-    // filter tanggal
-    const selectedDate = document.getElementById("calendarSchedulePost").value;
-    if(selectedDate){
-      all = all.filter(i => i.tanggal === selectedDate);
-    }
-
-    // filter akun
-    const selectedAcc = dropdown.value;
-    if(selectedAcc !== "all"){
-      all = all.filter(i => i.account === selectedAcc);
-    }
-
-    list.innerHTML = "";
-
-    if(all.length === 0){
-      list.innerHTML = `<div class="empty">Belum ada grup dipilih</div>`;
-      return;
-    }
-
-    all.forEach(item=>{
-      list.innerHTML += `
-<div class="card">
-
-  <div class="left">
-    <img src="${item.group_photo || 'https://via.placeholder.com/70'}" class="group-img">
-  </div>
-
-  <div class="right">
-    <div class="group-name">${item.group_name}</div>
-    <div style="font-size:13px;opacity:.6">
-      ${item.account} • ${item.tanggal}
-    </div>
-  </div>
-
-  <div class="action">
-    <button onclick="deleteGroup('${item.account}','${item.group_link}','${item.tanggal}')">
-      ❌
-    </button>
-  </div>
-
-</div>`;
     });
 
   });
-}
+
+  // FILTER TANGGAL
+  const selectedDate =
+    document.getElementById("calendarSchedulePost").value;
+
+  if(selectedDate){
+
+    all = all.filter(
+      i => i.tanggal === selectedDate
+    );
+
+  }
+
+  // FILTER AKUN
+  const selectedAcc = dropdown.value;
+
+  if(selectedAcc !== "all"){
+
+    all = all.filter(
+      i => i.account === selectedAcc
+    );
+
+  }
+
+  list.innerHTML = "";
+
+  if(all.length === 0){
+
+    list.innerHTML =
+      `<div class="empty">Belum ada grup dipilih</div>`;
+
+    return;
+
+  }
+
+  all.forEach(item=>{
+
+    list.innerHTML += `
+<div class="card">
+
+  <div class="left">
+    <img
+      src="${item.group_photo || 'https://via.placeholder.com/70'}"
+      class="group-img"
+    >
+  </div>
+
+  <div class="right">
+
+    <div class="group-name">
+      ${item.group_name}
+    </div>
+
+    <div style="font-size:13px;opacity:.6">
+      ${item.account} • ${item.tanggal}
+    </div>
+
+  </div>
+
+  <div class="action">
+
+    <button onclick="
+      deleteGroup(
+        '${item.account}',
+        '${item.group_link}',
+        '${item.tanggal}'
+      )
+    ">
+      ❌
+    </button>
+
+  </div>
+
+</div>`;
+
+  });
+
+  }
 
 //fungsi simpan per card di schedule dari scrape grup 
 function saveSingleGroup(btn){
