@@ -410,12 +410,24 @@ console.log("Update:", account, link, checked);
     if(checkedGroups[g.link]){
 
       const account = g.account;
-      const link = String(g.link)
+      const link = String(
+    g.link ||
+    g.group_link ||
+    ""
+  )
   .trim()
-  .replace(/,+$/, "");
+  .replace(/,+$/, "")
+  .replace(/\s+/g, "");
       const name = g.name;
       const photo = g.photo;
-
+       // VALIDASI LINK FACEBOOK GROUP
+  if(
+    !link ||
+    !link.includes("/groups/")
+  ){
+    console.log("❌ Skip group link kosong:", g);
+    return;
+  }
       if(!selected[account]){
         selected[account] = [];
       }
