@@ -407,11 +407,9 @@ function saveToSchedule(){
   );
 
   // LOOP DARI checkedGroups
-  Object.keys(checkedGroups).forEach(groupKey => {
-
+  Object.keys(window.checkedGroups).forEach(groupKey => {
     // hanya yg dicentang
-    if(!checkedGroups[groupKey]) return;
-
+    if(!window.checkedGroups[groupKey]) return;
     // cari data grup asli
     const g = allGroups.find(x =>
       (x.link || x.group_link) === groupKey
@@ -590,15 +588,7 @@ function showPage(page){
   }
 
   //schedule posthasil grup terpilih /hasil scrape 
-  
-
-
-  
-
-  </div>
-
-
-function loadSchedulePost(){
+  function loadSchedulePost(){
 
   const list =
     document.getElementById("schedulePost-list");
@@ -1161,9 +1151,9 @@ showPage("result");
 .addEventListener("change", () => {
 
   // reset memory checkbox
-  Object.keys(checkedGroups).forEach(key => {
-    checkedGroups[key] = false;
-  });
+  Object.keys(window.checkedGroups).forEach(key => {
+  window.checkedGroups[key] = false;
+});
 
   // reset tampilan checkbox
   document.querySelectorAll("#groups-list input[type=checkbox]")
