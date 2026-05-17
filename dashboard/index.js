@@ -9,7 +9,6 @@ const puppeteer = require("puppeteer-extra");
 const StealthPlugin = require("puppeteer-extra-plugin-stealth");
 const { PuppeteerScreenRecorder } = require("puppeteer-screen-recorder");
 
-puppeteer.use(StealthPlugin())
 puppeteer.use(
   StealthPlugin({
     enabledEvasions: new Set([
@@ -952,7 +951,7 @@ async function runLikeLinkPosts(page, row) {
 async function linkPost(page, groupUrl, total, delayMin, delayMax) {
   try {
     console.log("🚀 Buka halaman target");
-    await page.goto(groupUrl, { waitUntil: "networkidle2" });
+    await page.goto(groupUrl, { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(4000);
 
     let clicked = 0;
@@ -1064,7 +1063,7 @@ if (groups.length === 0) {
     console.log("➡️", groupUrl);
 
     // ===== BUKA GRUP =====
-    await page.goto(groupUrl, { waitUntil: "networkidle2" });
+    await page.goto(groupUrl, { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(4000);
 
     let clicked = 0;
@@ -1150,7 +1149,7 @@ async function runUndfriends(page, row) {
 
 
   // 1️⃣ BUKA HOME FB (WAJIB)
-  await page.goto("https://m.facebook.com", { waitUntil: "networkidle2" });
+  await page.goto("https://m.facebook.com", { waitUntil: "domcontentloaded" });
   console.log("BUKA FACEBOOK");
   await delay(3000);
 
@@ -1369,7 +1368,7 @@ console.log("🧪 LINK LOWER:", row.link_targetUsername);
 
 
   // 1️⃣ BUKA HOME FB (WAJIB)
-  await page.goto("https://m.facebook.com", { waitUntil: "networkidle2" });
+  await page.goto("https://m.facebook.com", { waitUntil: "domcontentloaded" });
   
   await delay(3000);
 // bikin array target (kalau cuma 1 link tetap aman)
@@ -1545,7 +1544,7 @@ console.log("🧪 LINK LOWER:", row.link_targetUsername);
 
 
   // 1️⃣ BUKA HOME FB (WAJIB)
-  await page.goto("https://m.facebook.com", { waitUntil: "networkidle2" });
+  await page.goto("https://m.facebook.com", { waitUntil: "domcontentloaded" });
   
   await delay(3000);
 // bikin array target (kalau cuma 1 link tetap aman)
@@ -1766,7 +1765,7 @@ async function runConfirm(page, row) {
 
 
   // 1️⃣ BUKA HOME FB (WAJIB)
-  await page.goto("https://m.facebook.com", { waitUntil: "networkidle2" });
+  await page.goto("https://m.facebook.com", { waitUntil: "domcontentloaded" });
   console.log(" buka Facebook ");
   await delay(3000);
   await page.goto("https://m.facebook.com/friends/");
@@ -1846,7 +1845,7 @@ console.log("🧪 LINK LOWER:", row.link_targetUsername);
 
 
   // 1️⃣ BUKA HOME FB (WAJIB)
-  await page.goto("https://m.facebook.com", { waitUntil: "networkidle2" });
+  await page.goto("https://m.facebook.com", { waitUntil: "domcontentloaded" });
   
   await delay(3000);
 // bikin array target (kalau cuma 1 link tetap aman)
@@ -2007,7 +2006,7 @@ async function runStatus(page, row) {
   }
 
   // 1️⃣ BUKA HOME FB (WAJIB)
-  await page.goto("https://m.facebook.com", { waitUntil: "networkidle2" });
+  await page.goto("https://m.facebook.com", { waitUntil: "domcontentloaded" });
   
   await delay(3000);
   
@@ -2370,7 +2369,7 @@ console.log(`🔗 ${groupUrl}`);
   console.log(`\n📌 [${account}] Membuka grup ${i + 1}/${selectedGroups.length}`);
 console.log("➡️", groupUrl);
     // ===== Buka grup
-    await page.goto(groupUrl, { waitUntil: "networkidle2" });
+    await page.goto(groupUrl, { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(4000);
     // DEBUG SETELAH PAGE SIAP
     //BARU YANG PAKAI DOLAR
@@ -3031,8 +3030,11 @@ accounts.forEach((a, i) => {
     // 🔁 LOOP PER AKUN
     for (const acc of accounts) {
       console.log(`\n🚀 Start akun: ${acc.account}`);
-      const context = await browser.createIncognitoBrowserContext();
-      const page = await context.newPage();
+    //tes baru dihapus sementara 👇//
+      //const context = await browser.createIncognitoBrowserContext();
+   //   const page = await context.newPage();
+      //👆//
+      const page = await browser.newPage();
       // ===== PATCH BUG userAgentData FACEBOOK (WAJIB)
       await page.evaluateOnNewDocument(() => {
         try {
@@ -3201,7 +3203,7 @@ if (rowsForAccount.length === 0 && rowsStatusForAccount.length === 0  && rowsAdd
 }
       
 
-await page.goto("https://m.facebook.com", { waitUntil: "networkidle2" });
+await page.goto("https://m.facebook.com", { waitUntil: "domcontentloaded" });
     console.log("👉 BUKA FACEBOOK.COM");
 
       await page.waitForTimeout(3000);
@@ -3296,7 +3298,10 @@ else if (mode === "likegroup") {
      //console.log(`🎬 Rekaman selesai: recording_${acc.account}.mp4`);
 
       await page.close();
-      await context.close();
+      //hapus sementara 👇
+   //   await context.close();
+      //👆//
+      
       console.log(`✅ Posting selesai untuk ${acc.account}`);
     //await delay(6000); // jeda aman antar akun
      const delayRow = rowsForAccount.find(r => r.delay_akun);
