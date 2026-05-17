@@ -14,7 +14,6 @@ jobs:
       contents: write
 
     steps:
-
       - name: Checkout repo
         uses: actions/checkout@v4
 
@@ -23,42 +22,45 @@ jobs:
         with:
           node-version: 20
 
-      # CACHE CHROMIUM
-      - name: Cache Puppeteer
+      # CACHE CHROME + NODE_MODULES
+      - name: Cache npm
         uses: actions/cache@v4
         with:
-          path: ~/.cache/puppeteer
-          key: puppeteer-${{ runner.os }}
+          path: |
+            ~/.npm
+            node_modules
+          key: npm-${{ hashFiles('package-lock.json') }}
+
+      # TAMBAH SWAP RAM
+      - name: Setup Swap Memory
+        run: |
+          sudo swapoff -a || true
+          sudo rm -f /swapfile || true
+
+          sudo dd if=/dev/zero of=/swapfile bs=1M count=4096
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+
+          free -h
+
+      - name: Install Chromium
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y chromium-browser
 
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
-      # SWAP MEMORY
-      - name: Create Swap
-        run: |
-          sudo fallocate -l 4G /swapfile
-          sudo chmod 600 /swapfile
-          sudo mkswap /swapfile
-          sudo swapon /swapfile
-          free -h
-
       - name: Run Group Bot
         run: node dashboard/index.js group
-
-      - name: Upload recordings
-        uses: actions/upload-artifact@v4
-        with:
-          name: recordings
-          path: dashboard/recording_*.mp4
+        env:
+          PUPPETEER_EXECUTABLE_PATH: /usr/bin/chromium-browser
 
       - name: Commit dashboard update
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-
-          git add docs/data.json
-          git add docs/schedule.json
-
+          git add docs/data.json docs/schedule.json
           git commit -m "Update dashboard data" || echo "No changes"
-
           git push
