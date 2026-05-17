@@ -3023,7 +3023,9 @@ accounts.forEach((a, i) => {
         "--disable-setuid-sandbox",
         "--disable-blink-features=AutomationControlled",
         "--disable-dev-shm-usage",
-        "--disable-gpu"
+        "--disable-gpu",
+        "--single-process",
+        "--no-zygote"
       ],
     });
 
