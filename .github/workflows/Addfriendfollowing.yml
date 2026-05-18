@@ -7,7 +7,7 @@ on:
    # - cron: "0 2 * * *"
 
 jobs:
-  run-addfriendfollowers:
+  run-addfriendfollowing:
     runs-on: ubuntu-latest
 
     steps:
