@@ -22,17 +22,18 @@ jobs:
         with:
           node-version: 20
 
-      # CACHE CHROME + NODE_MODULES
-      - name: Cache npm
+      # CACHE NODE_MODULES + CHROME
+      - name: Cache npm + puppeteer
         uses: actions/cache@v4
         with:
           path: |
             ~/.npm
+            ~/.cache/puppeteer
             node_modules
-          key: npm-${{ hashFiles('package-lock.json') }}
+          key: puppeteer-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
 
-      # TAMBAH SWAP RAM
-      - name: Setup Swap Memory
+      # SWAP RAM
+      - name: Setup Swap
         run: |
           sudo swapoff -a || true
           sudo rm -f /swapfile || true
@@ -44,18 +45,11 @@ jobs:
 
           free -h
 
-      - name: Install Chromium
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y chromium-browser
-
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
       - name: Run Group Bot
         run: node dashboard/index.js group
-        env:
-          PUPPETEER_EXECUTABLE_PATH: /usr/bin/chromium-browser
 
       - name: Commit dashboard update
         run: |
