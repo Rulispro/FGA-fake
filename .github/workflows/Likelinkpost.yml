@@ -7,7 +7,7 @@ on:
    # - cron: "0 2 * * *"
 
 jobs:
-  run-likelink:
+  run-likelinkpost:
     runs-on: ubuntu-latest
 
     steps:
@@ -46,10 +46,10 @@ jobs:
         run: npm install --legacy-peer-deps
 
       - name: Run LIKELINK Bot
-        run: node dashboard/index.js likelink
+        run: node dashboard/index.js likelinkpost
 
       - name: Upload recordings
         uses: actions/upload-artifact@v4
         with:
-          name: recordings-likelink
+          name: recordings-likelinkpost
           path: recording_*.mp4
