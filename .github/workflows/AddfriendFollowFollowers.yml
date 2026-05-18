@@ -2,16 +2,16 @@ name: FB Addfriendfollowers Bot
 
 on:
   workflow_dispatch:
-  #push:
-    #branches:
-     # - main
+
   schedule:
-    # Contoh: jalan jam 09:00 WIB (02:00 UTC)
     - cron: "0 2 * * *"
 
 jobs:
   run-addfriendfollowers:
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repo
@@ -22,13 +22,34 @@ jobs:
         with:
           node-version: 20
 
+      # CACHE NPM + PUPPETEER
+      - name: Cache npm + puppeteer
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            ~/.cache/puppeteer
+            node_modules
+          key: puppeteer-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      # SWAP MEMORY
+      - name: Setup Swap
+        run: |
+          sudo swapoff -a || true
+          sudo rm -f /swapfile || true
+
+          sudo dd if=/dev/zero of=/swapfile bs=1M count=4096
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+
+          free -h
+
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
       - name: Run Addfriendfollowers Bot
         run: node dashboard/index.js addfriendfollowers
-        env:
-          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
 
       - name: Upload recordings
         uses: actions/upload-artifact@v4
