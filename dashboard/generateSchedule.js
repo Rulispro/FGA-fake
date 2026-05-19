@@ -63,12 +63,11 @@ function parseTanggal(value) {
 // ===============================
 let groupCache = {};
 
-if (fs.existsSync("./docs/groups.json")) {
+if (fs.existsSync("./docs/cacheGroups.json")) {
   groupCache = JSON.parse(
-    fs.readFileSync("./docs/groups.json")
+    fs.readFileSync("./docs/cacheGroups.json")
   );
 }
-
 const schedule = {};
 
 // ===============================
@@ -232,8 +231,8 @@ if (!fs.existsSync("./docs"))
   fs.mkdirSync("./docs");
 
 fs.writeFileSync(
-  "./docs/groups.json",
-  JSON.stringify(groupCache,null,2)
+  "./docs/cacheGroups.json",
+  JSON.stringify(groupCache, null, 2)
 );
 
 fs.writeFileSync(
@@ -241,6 +240,37 @@ fs.writeFileSync(
   JSON.stringify(schedule,null,2)
 );
 
+  const groupsByAccount = {};
+
+for (const date in schedule) {
+
+  for (const item of schedule[date]) {
+
+    const acc = item.account;
+
+    if (!groupsByAccount[acc]) {
+      groupsByAccount[acc] = [];
+    }
+
+    // hindari duplicate
+    const exists = groupsByAccount[acc].some(
+      g => g.link === item.group_link
+    );
+
+    if (!exists) {
+      groupsByAccount[acc].push({
+        name: item.group_name,
+        link: item.group_link,
+        photo: item.group_photo
+      });
+    }
+  }
+}
+
+fs.writeFileSync(
+  "./docs/groups.json",
+  JSON.stringify(groupsByAccount, null, 2)
+);
 console.log("✅ schedule.json & groups.json updated");
 console.log("Total scrape run ini:", scrapeCount);
 
