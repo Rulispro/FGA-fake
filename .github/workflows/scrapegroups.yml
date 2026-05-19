@@ -12,81 +12,54 @@ jobs:
     timeout-minutes: 20
 
     steps:
-      # ===============================
-      # CHECKOUT REPO
-      # ===============================
-      - name: Checkout repo
+      - name: Checkout
         uses: actions/checkout@v4
 
-      # ===============================
-      # SETUP NODE
-      # ===============================
-      - name: Setup Node.js
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: "npm"
 
-      # ===============================
-      # CACHE NPM + PUPPETEER
-      # ===============================
-      - name: Cache npm + puppeteer
+      # CACHE CHROMIUM
+      - name: Cache Puppeteer
         uses: actions/cache@v4
         with:
-          path: |
-            ~/.npm
-            ~/.cache/puppeteer
-            node_modules
-          key: puppeteer-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          path: ~/.cache/puppeteer
+          key: puppeteer-${{ runner.os }}
 
-      # ===============================
-      # SETUP SWAP RAM
-      # ===============================
-      - name: Setup Swap
-        run: |
-          sudo swapoff -a || true
-          sudo rm -f /swapfile || true
-
-          sudo dd if=/dev/zero of=/swapfile bs=1M count=4096
-          sudo chmod 600 /swapfile
-          sudo mkswap /swapfile
-          sudo swapon /swapfile
-
-          free -h
-
-      # ===============================
-      # INSTALL DEPENDENCIES
-      # ===============================
       - name: Install Dependencies
         run: npm install --legacy-peer-deps
 
-      # ===============================
-      # INSTALL FFMPEG
-      # ===============================
-      - name: Install FFmpeg
+      # INSTALL CHROME CEPAT (bukan snap)
+      - name: Install Chrome
         run: |
-          sudo apt-get update -qq > /dev/null
-          sudo apt-get install -y ffmpeg -qq > /dev/null
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
 
-      # ===============================
-      # RUN SCRAPER + RECORDER
-      # ===============================
+      # OPTIONAL SWAP
+      - name: Add Swap Memory
+        run: |
+          sudo swapoff -a || true
+          sudo rm -f /swapfile || true
+          sudo fallocate -l 2G /swapfile
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+          free -h
+
       - name: Scrape Facebook Groups
         run: node dashboard/scrapegroups.js
         env:
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
+          PUPPETEER_EXECUTABLE_PATH: /usr/bin/google-chrome
 
-      # ===============================
-      # UPLOAD VIDEO
-      # ===============================
       - name: Upload Video Artifact
         uses: actions/upload-artifact@v4
         with:
           name: scrape-video
           path: video.mp4
 
-      # ===============================
-      # COMMIT JSON
-      # ===============================
       - name: Commit Groups
         run: |
           git config --global user.name "github-actions"
