@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 permissions:
- contents: write
+  contents: write
 
 jobs:
   build:
@@ -12,33 +12,81 @@ jobs:
     timeout-minutes: 20
 
     steps:
-      - uses: actions/checkout@v4
+      # ===============================
+      # CHECKOUT REPO
+      # ===============================
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      # ===============================
+      # SETUP NODE
+      # ===============================
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
+      # ===============================
+      # CACHE NPM + PUPPETEER
+      # ===============================
+      - name: Cache npm + puppeteer
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            ~/.cache/puppeteer
+            node_modules
+          key: puppeteer-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      # ===============================
+      # SETUP SWAP RAM
+      # ===============================
+      - name: Setup Swap
+        run: |
+          sudo swapoff -a || true
+          sudo rm -f /swapfile || true
+
+          sudo dd if=/dev/zero of=/swapfile bs=1M count=4096
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+
+          free -h
+
+      # ===============================
+      # INSTALL DEPENDENCIES
+      # ===============================
       - name: Install Dependencies
-        run: npm install
+        run: npm install --legacy-peer-deps
 
-      # install ffmpeg untuk recorder
+      # ===============================
+      # INSTALL FFMPEG
+      # ===============================
       - name: Install FFmpeg
         run: |
           sudo apt-get update -qq > /dev/null
           sudo apt-get install -y ffmpeg -qq > /dev/null
-      
-      # jalankan scraper + recorder
+
+      # ===============================
+      # RUN SCRAPER + RECORDER
+      # ===============================
       - name: Scrape Facebook Groups
         run: node dashboard/scrapegroups.js
+        env:
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
 
-      # upload video hasil recording
+      # ===============================
+      # UPLOAD VIDEO
+      # ===============================
       - name: Upload Video Artifact
         uses: actions/upload-artifact@v4
         with:
           name: scrape-video
           path: video.mp4
 
-      # commit hasil JSON
+      # ===============================
+      # COMMIT JSON
+      # ===============================
       - name: Commit Groups
         run: |
           git config --global user.name "github-actions"
