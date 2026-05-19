@@ -13,40 +13,38 @@ jobs:
 
     steps:
       # ===============================
-      # CHECKOUT REPO
+      # CHECKOUT
       # ===============================
       - name: Checkout repo
         uses: actions/checkout@v4
 
       # ===============================
-      # SETUP NODE
+      # NODE
       # ===============================
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: "npm"
 
       # ===============================
-      # CACHE NPM + PUPPETEER
+      # CACHE PUPPETEER
       # ===============================
-      - name: Cache npm + puppeteer
+      - name: Cache Puppeteer
         uses: actions/cache@v4
         with:
-          path: |
-            ~/.npm
-            ~/.cache/puppeteer
-            node_modules
-          key: puppeteer-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          path: ~/.cache/puppeteer
+          key: puppeteer-${{ runner.os }}
 
       # ===============================
-      # SETUP SWAP RAM
+      # SWAP RAM
       # ===============================
       - name: Setup Swap
         run: |
           sudo swapoff -a || true
           sudo rm -f /swapfile || true
 
-          sudo dd if=/dev/zero of=/swapfile bs=1M count=4096
+          sudo fallocate -l 2G /swapfile
           sudo chmod 600 /swapfile
           sudo mkswap /swapfile
           sudo swapon /swapfile
@@ -60,21 +58,31 @@ jobs:
         run: npm install --legacy-peer-deps
 
       # ===============================
+      # INSTALL CHROME
+      # ===============================
+      - name: Install Chrome
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
+
+      # ===============================
       # RUN SCRIPT
       # ===============================
       - name: Generate Schedule & Scrape Groups
         run: node dashboard/generateSchedule.js
+        env:
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
+          PUPPETEER_EXECUTABLE_PATH: /usr/bin/google-chrome
 
       # ===============================
-      # COMMIT FILES
+      # COMMIT
       # ===============================
       - name: Commit Changes
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
 
-          git add package-lock.json
           git add docs/schedule.json docs/groups.json
 
-          git diff --cached --quiet || git commit -m "Auto update schedule & lockfile"
+          git diff --cached --quiet || git commit -m "Auto update schedule"
           git push
