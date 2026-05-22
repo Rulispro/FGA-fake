@@ -3023,18 +3023,6 @@ accounts.forEach((a, i) => {
     // ===============================
 // BATCH ACCOUNT
 // ===============================
-const BATCH_SIZE = 5;
-
-for (let batchIndex = 0; batchIndex < accounts.length; batchIndex += BATCH_SIZE) {
-
-  const batchAccounts = accounts.slice(
-    batchIndex,
-    batchIndex + BATCH_SIZE
-  );
-
-  console.log(
-    `\n🧩 BATCH ${Math.floor(batchIndex / BATCH_SIZE) + 1}`
-  );
 
   // ===============================
   // BROWSER BARU TIAP BATCH
@@ -3375,8 +3363,7 @@ else if (mode === "likegroup") {
       //hapus sementara 👇
    //   await context.close();
       //👆//
-    await browser.close();
-      
+    
       console.log(`✅ Posting selesai untuk ${acc.account}`);
     //await delay(6000); // jeda aman antar akun
      const delayRow = rowsForAccount.find(r => r.delay_akun);
@@ -3455,22 +3442,13 @@ console.log("✅ schedule.json berhasil dibuat (group by date)");
       // ===============================
   // CLOSE BROWSER PER BATCH
   // ===============================
-  
+  await browser.close();
   console.log("🛑 Browser batch ditutup");
 
   // ===============================
   // JEDA ANTAR BATCH
   // ===============================
-  const jedaBatch =
-    Math.floor(Math.random() * 180000) + 180000;
-
-  console.log(
-    `⏳ Delay antar batch ${Math.floor(jedaBatch / 1000)} detik`
-  );
-
-  await delay(jedaBatch);
-}
-  const delayBatch =
+ const delayBatch =
   180000 + Math.floor(Math.random() * 180000);
 
 console.log(
