@@ -2969,6 +2969,10 @@ function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+function randomDelay(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 // ===== Main Puppeteer
 
 (async () => {
@@ -3015,22 +3019,49 @@ accounts.forEach((a, i) => {
     const confirmRows = templates.confirm || [];
     const likeLinkPostRows = templates.likelinkpost || [];
     const likeGroupRows= templates.likeGroup || []; 
-    const browser = await puppeteer.launch({
-      headless: "new",
-      defaultViewport: { width: 390, height: 844, isMobile: true, hasTouch: true },
-      args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-blink-features=AutomationControlled",
-        "--disable-dev-shm-usage",
-        "--disable-gpu",
-        "--single-process",
-        "--no-zygote"
-      ],
-    });
+   
+    // ===============================
+// BATCH ACCOUNT
+// ===============================
+const BATCH_SIZE = 5;
 
-    // 🔁 LOOP PER AKUN
-    for (const acc of accounts) {
+for (let batchIndex = 0; batchIndex < accounts.length; batchIndex += BATCH_SIZE) {
+
+  const batchAccounts = accounts.slice(
+    batchIndex,
+    batchIndex + BATCH_SIZE
+  );
+
+  console.log(
+    `\n🧩 BATCH ${Math.floor(batchIndex / BATCH_SIZE) + 1}`
+  );
+
+  // ===============================
+  // BROWSER BARU TIAP BATCH
+  // ===============================
+  const browser = await puppeteer.launch({
+    headless: "new",
+    defaultViewport: {
+      width: 390,
+      height: 844,
+      isMobile: true,
+      hasTouch: true
+    },
+    userDataDir: `./profiles/${acc.account}`
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-blink-features=AutomationControlled",
+      "--disable-dev-shm-usage",
+      "--disable-gpu",
+      "--no-zygote"
+    ],
+  });
+
+  // ===============================
+  // LOOP ACCOUNT DALAM BATCH
+  // ===============================
+  for (const acc of batchAccounts) {
       console.log(`\n🚀 Start akun: ${acc.account}`);
     //tes baru dihapus sementara 👇//
       //const context = await browser.createIncognitoBrowserContext();
@@ -3210,6 +3241,13 @@ await page.goto("https://m.facebook.com", { waitUntil: "domcontentloaded" });
 
       await page.waitForTimeout(3000);
       console.log("👉 Tunggu 3 detik")
+    //scroll
+      await page.evaluate(() => {
+  window.scrollBy({
+    top: 400,
+    behavior: "smooth"
+  });
+});
       
       await page.setCookie(
      ...acc.cookies.map(c => ({
@@ -3379,9 +3417,27 @@ fs.writeFileSync(
 console.log("✅ schedule.json berhasil dibuat (group by date)");
 
     //sampai sini
-    await browser.close();
-    console.log("🎉 Semua akun selesai");
-  } catch (err) {
+      // ===============================
+  // CLOSE BROWSER PER BATCH
+  // ===============================
+  await browser.close();
+
+  console.log("🛑 Browser batch ditutup");
+
+  // ===============================
+  // JEDA ANTAR BATCH
+  // ===============================
+  const jedaBatch =
+    Math.floor(Math.random() * 180000) + 180000;
+
+  console.log(
+    `⏳ Delay antar batch ${Math.floor(jedaBatch / 1000)} detik`
+  );
+
+  await delay(jedaBatch);
+}
+
+console.log("🎉 Semua batch selesai");  } catch (err) {
     console.error("❌ Error utama:", err);
   }
 })();
