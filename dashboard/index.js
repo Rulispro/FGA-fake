@@ -3360,12 +3360,17 @@ else if (mode === "likegroup") {
      //console.log(`🎬 Rekaman selesai: recording_${acc.account}.mp4`);
 
       await page.close();
-      //hapus sementara 👇
-   //   await context.close();
-      //👆//
+
+//hapus sementara 👇
+// await context.close();
+//👆//
+
+await browser.close();
+
+console.log(`🛑 Browser ditutup ${acc.account}`);
+
+console.log(`✅ Posting selesai untuk ${acc.account}`); //await delay(6000); // jeda aman antar akun
     
-      console.log(`✅ Posting selesai untuk ${acc.account}`);
-    //await delay(6000); // jeda aman antar akun
      const delayRow = rowsForAccount.find(r => r.delay_akun);
     const delayAkun = Number(delayRow?.delay_akun) || 10000;
    console.log(
@@ -3442,9 +3447,7 @@ console.log("✅ schedule.json berhasil dibuat (group by date)");
       // ===============================
   // CLOSE BROWSER PER BATCH
   // ===============================
-  await browser.close();
-  console.log("🛑 Browser batch ditutup");
-
+  
   // ===============================
   // JEDA ANTAR BATCH
   // ===============================
