@@ -30,6 +30,7 @@ jobs:
             ~/.npm
             ~/.cache/puppeteer
             node_modules
+            profiles
           key: puppeteer-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
 
       # SWAP RAM
@@ -49,7 +50,7 @@ jobs:
         run: npm install --legacy-peer-deps
 
       - name: Run Group Bot
-        run: node dashboard/index.js group
+        run: node --max-old-space-size=4096 dashboard/index.js group
 
       - name: Commit dashboard update
         run: |
