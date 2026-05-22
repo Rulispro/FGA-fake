@@ -3407,6 +3407,10 @@ console.log(
 );
       
     }
+
+  await browser.close();
+
+console.log(`🛑 Browser ditutup ${acc.account}`);
 //BARU $
     fs.writeFileSync(
   "./docs/data.json",
@@ -3467,15 +3471,7 @@ console.log("✅ schedule.json berhasil dibuat (group by date)");
   // ===============================
   // JEDA ANTAR BATCH
   // ===============================
- const delayBatch =
-  180000 + Math.floor(Math.random() * 180000);
-
-console.log(
-  `🛑 Delay batch ${Math.floor(delayBatch / 1000)} detik`
-);
-
-await delay(delayBatch);
-
+ 
 }
 
 console.log("🎉 Semua batch selesai");  } catch (err) {
