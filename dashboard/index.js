@@ -3055,8 +3055,7 @@ for (
     const browser = await puppeteer.launch({
   headless: "new",
 
-  userDataDir: `./profiles/${acc.account}`,
-
+  
   defaultViewport: {
     width: 390,
     height: 844,
@@ -3239,9 +3238,26 @@ console.log(`📋 likeGroup row ${acc.account}:`, rowsLikeGroupForAccount.length
 
 
 // kalau dua-duanya kosong → skip akun
-if (rowsForAccount.length === 0 && rowsStatusForAccount.length === 0  && rowsAddFriendFollowersForAccount.length === 0 && rowsAddFriendFollowingForAccount.length === 0 && rowsAddFriendFriendsForAccount.length === 0
-  && rowsUndfriendForAccount.length === 0 && rowsConfirmForAccount.length === 0 && rowsLikeGroupForAccount.length === 0 && rowsLikeLinkPostForAccount.length === 0) {
-  console.log("⏭️ Tidak ada jadwal group & status & addFriendFollowers & addFriendFollowing &  addFriendFriends & unfriend & confirm & likelinkpost & likeGroup hari ini");
+if (
+  rowsForAccount.length === 0 &&
+  rowsStatusForAccount.length === 0 &&
+  rowsAddFriendFollowersForAccount.length === 0 &&
+  rowsAddFriendFollowingForAccount.length === 0 &&
+  rowsAddFriendFriendsForAccount.length === 0 &&
+  rowsUndfriendForAccount.length === 0 &&
+  rowsConfirmForAccount.length === 0 &&
+  rowsLikeGroupForAccount.length === 0 &&
+  rowsLikeLinkPostForAccount.length === 0
+) {
+
+  console.log(
+    "⏭️ Tidak ada jadwal group & status & addFriend hari ini"
+  );
+
+  await browser.close();
+
+  console.log(`🛑 Browser ditutup ${acc.account}`);
+
   continue;
 }
       
