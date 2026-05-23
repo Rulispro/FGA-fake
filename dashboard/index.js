@@ -3254,8 +3254,16 @@ if (
     "⏭️ Tidak ada jadwal group & status & addFriend hari ini"
   );
 
-  await browser.close();
+  
+  // INI YANG BELUM ADA
+  await recorder.stop().catch(()=>{});
 
+  if (!page.isClosed()) {
+    await page.close().catch(()=>{});
+  }
+
+  await browser.close().catch(()=>{});
+  
   console.log(`🛑 Browser ditutup ${acc.account}`);
 
   continue;
