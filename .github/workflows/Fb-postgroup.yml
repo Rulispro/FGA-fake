@@ -30,7 +30,6 @@ jobs:
             ~/.npm
             ~/.cache/puppeteer
             node_modules
-            profiles
           key: puppeteer-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
 
       # SWAP RAM
