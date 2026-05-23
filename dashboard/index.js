@@ -3103,8 +3103,8 @@ for (
       //page.on("pageerror", err => console.log("💥 [Browser Error]", err.message));
 
       // ===== Recorder PER AKUN
-     const recorder = new PuppeteerScreenRecorder(page);
-    await recorder.start(`recording_${acc.account}.mp4`);
+   //  const recorder = new PuppeteerScreenRecorder(page);
+    //await recorder.start(`recording_${acc.account}.mp4`);
 
       // ===== Anti-detect (KODE KAMU, TETAP)
       await page.setUserAgent(
@@ -3380,9 +3380,9 @@ else if (mode === "likegroup") {
       
       
       // ===== Stop recorder
-    await recorder.stop().catch(()=>{});
+    //await recorder.stop().catch(()=>{});
     // await recorder.stop();
-     console.log(`🎬 Rekaman selesai: recording_${acc.account}.mp4`);
+   //  console.log(`🎬 Rekaman selesai: recording_${acc.account}.mp4`);
     recorder.stream = null;
 
       if (!page.isClosed()) {
@@ -3478,7 +3478,7 @@ console.log("✅ schedule.json berhasil dibuat (group by date)");
   // CLOSE BROWSER PER BATCH
   // ===============================
   const delayBatch =
-  10000 + Math.floor(Math.random() * 10000);
+  60000 + Math.floor(Math.random() * 90000);
 
 console.log(
   `🛑 Delay batch ${Math.floor(delayBatch / 1000)} detik`
