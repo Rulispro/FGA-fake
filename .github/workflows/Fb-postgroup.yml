@@ -51,6 +51,14 @@ jobs:
       - name: Run Group Bot
         run: node --max-old-space-size=4096 dashboard/index.js group
 
+      - name: Upload recordings
+        uses: actions/upload-artifact@v4
+        with:
+          name: fb-recordings
+          path: |
+            *.mp4
+          retention-days: 7
+
       - name: Commit dashboard update
         run: |
          git config user.name "github-actions"
