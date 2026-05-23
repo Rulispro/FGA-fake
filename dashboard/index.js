@@ -3372,16 +3372,21 @@ else if (mode === "likegroup") {
       
       
       // ===== Stop recorder
-     await recorder.stop();
+    await recorder.stop().catch(()=>{});
+    // await recorder.stop();
      console.log(`🎬 Rekaman selesai: recording_${acc.account}.mp4`);
+    recorder.stream = null;
 
-      await page.close();
+      if (!page.isClosed()) {
+  await page.close().catch(()=>{});
+}
 
+await browser.close().catch(()=>{});
 //hapus sementara 👇
 // await context.close();
 //👆//
 
-await browser.close();
+
 
 console.log(`🛑 Browser ditutup ${acc.account}`);
 
@@ -3465,7 +3470,7 @@ console.log("✅ schedule.json berhasil dibuat (group by date)");
   // CLOSE BROWSER PER BATCH
   // ===============================
   const delayBatch =
-  180000 + Math.floor(Math.random() * 180000);
+  10000 + Math.floor(Math.random() * 10000);
 
 console.log(
   `🛑 Delay batch ${Math.floor(delayBatch / 1000)} detik`
@@ -3478,7 +3483,9 @@ await delay(delayBatch);
  
 }
 
-console.log("🎉 Semua batch selesai");  } catch (err) {
+console.log("🎉 Semua batch selesai");  
+  process.exit(0);
+  } catch (err) {
     console.error("❌ Error utama:", err);
   }
 })();
