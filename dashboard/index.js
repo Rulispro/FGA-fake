@@ -3464,7 +3464,14 @@ console.log("✅ schedule.json berhasil dibuat (group by date)");
       // ===============================
   // CLOSE BROWSER PER BATCH
   // ===============================
-  
+  const delayBatch =
+  180000 + Math.floor(Math.random() * 180000);
+
+console.log(
+  `🛑 Delay batch ${Math.floor(delayBatch / 1000)} detik`
+);
+
+await delay(delayBatch);
   // ===============================
   // JEDA ANTAR BATCH
   // ===============================
