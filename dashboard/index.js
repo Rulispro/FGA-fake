@@ -3408,10 +3408,7 @@ console.log(
       
     }
 
-  await browser.close();
-
-console.log(`🛑 Browser ditutup ${acc.account}`);
-//BARU $
+  //BARU $
     fs.writeFileSync(
   "./docs/data.json",
   JSON.stringify(docsData, null, 2)
