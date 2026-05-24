@@ -3256,7 +3256,7 @@ if (
 
   
   // INI YANG BELUM ADA
-  await recorder.stop().catch(()=>{});
+ // await recorder.stop().catch(()=>{});
 
   if (!page.isClosed()) {
     await page.close().catch(()=>{});
