@@ -3383,7 +3383,7 @@ else if (mode === "likegroup") {
     //await recorder.stop().catch(()=>{});
     // await recorder.stop();
    //  console.log(`🎬 Rekaman selesai: recording_${acc.account}.mp4`);
-    recorder.stream = null;
+   // recorder.stream = null;
 
       if (!page.isClosed()) {
   await page.close().catch(()=>{});
