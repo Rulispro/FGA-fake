@@ -1,6 +1,6 @@
 [
   {
-    "account": "ayu Wulandari",
+    "disabled account": "ayu Wulandari",
     "file": "ayu_Wulandari",
     "cookies": [
       { "name": "c_user", "value": "61576156023619" },
@@ -12,7 +12,7 @@
     ]
     },
   {
-    "account": "senang bru",
+    "disabled account": "senang bru",
     "file": "senang_Bru",
     "cookies": [
       { "name": "c_user", "value": "61575555022850" },
@@ -24,7 +24,7 @@
     ]
     },
     {
-    "account": "Desi Amelia",
+    "disabled account": "Desi Amelia",
     "file": "Desi_Amelia",
     "cookies": [
       { "name": "c_user", "value": "61571212982142" },
@@ -36,7 +36,7 @@
     ]
     },
     {
-    "account": "Susi Susanti",
+    "disabled account": "Susi Susanti",
     "file": "Susi_Susanti",
     "cookies": [
       { "name": "c_user", "value": "61576001021086" },
@@ -48,7 +48,7 @@
     ]
     },
     {
-    "account": "Susi Riana",
+    "disabled account": "Susi Riana",
     "file": "Susi_Riana",
     "cookies": [
       { "name": "c_user", "value": "61589037995224" },
@@ -60,7 +60,7 @@
     ]
     },
     {
-    "account": "Cintya Fani",
+    "disabled account": "Cintya Fani",
     "file": "Cintya_Fani",
     "cookies": [
       { "name": "c_user", "value": "61575665438191" },
@@ -72,7 +72,7 @@
     ]
     },
     {
-    "account": "Fitri Ay",
+    "disabled account": "Fitri Ay",
     "file": "Fitri_Ay",
     "cookies": [
       { "name": "c_user", "value": "61575648700170" },
@@ -84,7 +84,7 @@
     ]
     },
     {
-    "account": "Sri Wahyuni",
+    "disabled account": "Sri Wahyuni",
     "file": "Sri_Wahyuni",
     "cookies": [
       { "name": "c_user", "value": "61576304024306" },
@@ -96,7 +96,7 @@
     ]
     },
     {
-    "account": "Vita Alvia",
+    "disabled account": "Vita Alvia",
     "file": "Vita_Alvia",
     "cookies": [
       { "name": "c_user", "value": "61576316620704" },
@@ -120,7 +120,7 @@
     ]
     },
     {
-    "account": "Andri Septian",
+    "disable account": "Andri Septian",
     "file": "Andri_Septian",
     "cookies": [
       { "name": "c_user", "value": "61576263359639" },
@@ -132,7 +132,7 @@
     ]
     },
   {
-    "account": "Fitri YunitaSari",
+    "disable account": "Fitri YunitaSari",
     "file": "Fitri_Yunita_Sari",
     "cookies": [
       { "name": "c_user", "value": "61576977154304" },
