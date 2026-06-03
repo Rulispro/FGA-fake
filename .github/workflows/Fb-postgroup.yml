@@ -6,6 +6,10 @@ on:
   schedule:
     - cron: "0 9 * * *"
 
+concurrency:
+  group: fb-post-group
+  cancel-in-progress: false
+  
 jobs:
   run-bot:
     runs-on: ubuntu-latest
@@ -61,13 +65,17 @@ jobs:
 
       - name: Commit dashboard update
         run: |
-         git config user.name "github-actions"
-         git config user.email "actions@github.com"
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
 
-         git add docs/data.json docs/schedule.json
+          git add docs/data.json docs/schedule.json
 
-         git diff --cached --quiet && echo "No changes to commit" && exit 0
+          git diff --cached --quiet && echo "No changes to commit" && exit 0
 
-         git commit -m "Update dashboard data"
+          git commit -m "Update dashboard data"
 
-         git push
+          # ambil update terbaru dulu
+          git pull --rebase origin main
+
+          # push ulang
+          git push origin main
