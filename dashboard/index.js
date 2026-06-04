@@ -3053,8 +3053,8 @@ for (
   // ===============================
   console.log(`\n🚀 Start akun: ${acc.account}`);
     const browser = await puppeteer.launch({
-  headless: "new",
-
+  headless: true,
+protocolTimeout: 5000,
   
   defaultViewport: {
     width: 390,
@@ -3258,14 +3258,52 @@ if (
   // INI YANG BELUM ADA
  // await recorder.stop().catch(()=>{});
 
+  console.log("🔴 Mulai cleanup browser");
+
+try {
+  await page.goto("about:blank", {
+    waitUntil: "domcontentloaded",
+    timeout: 5000
+  });
+} catch (e) {
+  console.log("⚠️ gagal goto blank");
+}
+
+try {
   if (!page.isClosed()) {
-    await page.close().catch(()=>{});
+    console.log("🔴 page.close()");
+    await Promise.race([
+      page.close(),
+      new Promise(resolve =>
+        setTimeout(() => {
+          console.log("⚠️ page.close timeout");
+          resolve();
+        }, 10000)
+      )
+    ]);
   }
+} catch (e) {
+  console.log("⚠️ page.close error:", e.message);
+}
 
-  await browser.close().catch(()=>{});
-  
-  console.log(`🛑 Browser ditutup ${acc.account}`);
+try {
+  console.log("🔴 browser.close()");
 
+  await Promise.race([
+    browser.close(),
+    new Promise(resolve =>
+      setTimeout(() => {
+        console.log("⚠️ browser.close timeout");
+        resolve();
+      }, 15000)
+    )
+  ]);
+
+} catch (e) {
+  console.log("⚠️ browser.close error:", e.message);
+}
+
+console.log(`🛑 Browser ditutup ${acc.account}`);
   continue;
 }
       
@@ -3385,19 +3423,52 @@ else if (mode === "likegroup") {
    //  console.log(`🎬 Rekaman selesai: recording_${acc.account}.mp4`);
    // recorder.stream = null;
 
-      if (!page.isClosed()) {
-  await page.close().catch(()=>{});
+      console.log("🔴 Mulai cleanup browser");
+
+try {
+  await page.goto("about:blank", {
+    waitUntil: "domcontentloaded",
+    timeout: 5000
+  });
+} catch (e) {
+  console.log("⚠️ gagal goto blank");
 }
 
-await browser.close().catch(()=>{});
-//hapus sementara 👇
-// await context.close();
-//👆//
+try {
+  if (!page.isClosed()) {
+    console.log("🔴 page.close()");
+    await Promise.race([
+      page.close(),
+      new Promise(resolve =>
+        setTimeout(() => {
+          console.log("⚠️ page.close timeout");
+          resolve();
+        }, 10000)
+      )
+    ]);
+  }
+} catch (e) {
+  console.log("⚠️ page.close error:", e.message);
+}
 
+try {
+  console.log("🔴 browser.close()");
 
+  await Promise.race([
+    browser.close(),
+    new Promise(resolve =>
+      setTimeout(() => {
+        console.log("⚠️ browser.close timeout");
+        resolve();
+      }, 15000)
+    )
+  ]);
+
+} catch (e) {
+  console.log("⚠️ browser.close error:", e.message);
+}
 
 console.log(`🛑 Browser ditutup ${acc.account}`);
-
 console.log(`✅ Posting selesai untuk ${acc.account}`); //await delay(6000); // jeda aman antar akun
     
      const delayRow = rowsForAccount.find(r => r.delay_akun);
