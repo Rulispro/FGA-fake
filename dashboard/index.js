@@ -3060,8 +3060,9 @@ for (
     try {
       // Menggunakan executablePath dari Environment Variable GitHub Actions jika ada
       const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || null;
-    const browser = await puppeteer.launch({
-  headless: true,
+   browser = await puppeteer.launch({
+    executablePath,
+     headless: true,
 protocolTimeout: 30000,
   
   defaultViewport: {
@@ -3084,7 +3085,7 @@ protocolTimeout: 30000,
       //const context = await browser.createIncognitoBrowserContext();
    //   const page = await context.newPage();
       //👆//
-      const page = await browser.newPage();
+      page = await browser.newPage();
       // ===== PATCH BUG userAgentData FACEBOOK (WAJIB)
       await page.evaluateOnNewDocument(() => {
         try {
@@ -3328,7 +3329,9 @@ await page.setCookie(
 await page.goto("https://m.facebook.com", { waitUntil: "domcontentloaded" });
     console.log("👉 BUKA FACEBOOK.COM");
 
-      await page.waitForTimeout(3000);
+      await new Promise(resolve =>
+  setTimeout(resolve, 3000)
+);
       console.log("👉 Tunggu 3 detik")
     //scroll
       await page.evaluate(async () => {
@@ -3497,8 +3500,49 @@ console.log(
     delay_akun: r.delay_akun
   }))
 );
-      
+    //  #BARU//👇
+catch (accountError) {
+
+  console.log(
+    `❌ Error akun ${acc.account}:`,
+    accountError.message
+  );
+
+  try {
+
+    if (page && !page.isClosed()) {
+
+      await Promise.race([
+        page.close(),
+        new Promise(resolve =>
+          setTimeout(resolve, 5000)
+        )
+      ]);
+
     }
+
+  } catch {}
+
+  try {
+
+    if (browser) {
+
+      await Promise.race([
+        browser.close(),
+        new Promise(resolve =>
+          setTimeout(resolve, 5000)
+        )
+      ]);
+
+    }
+
+  } catch {}
+
+  continue;
+}
+      ///sampai sisni👆
+    }
+
 
   //BARU $
     fs.writeFileSync(
