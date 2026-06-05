@@ -3,7 +3,7 @@ name: FB Post Group
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 9 * * *"
+    - cron: "5 9 * * *"
 
 concurrency:
   group: fb-post-group
@@ -38,7 +38,7 @@ jobs:
         run: |
           sudo swapoff -a || true
           sudo rm -f /swapfile || true
-          sudo fallocate -l 4G /swapfile || \ sudo dd if=/dev/zero of=/swapfile bs=1M count=4096
+          sudo fallocate -l 4G /swapfile || sudo dd if=/dev/zero of=/swapfile bs=1M count=4096
           sudo chmod 600 /swapfile
           sudo mkswap /swapfile
           sudo swapon /swapfile
