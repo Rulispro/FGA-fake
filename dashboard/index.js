@@ -3052,9 +3052,17 @@ for (
   // LOOP ACCOUNT DALAM BATCH
   // ===============================
   console.log(`\n🚀 Start akun: ${acc.account}`);
+
+     // Inisialisasi variabel di luar try-catch agar bisa diakses di blok catch/cleanup
+    let browser = null;
+    let page = null;
+
+    try {
+      // Menggunakan executablePath dari Environment Variable GitHub Actions jika ada
+      const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || null;
     const browser = await puppeteer.launch({
   headless: true,
-protocolTimeout: 5000,
+protocolTimeout: 30000,
   
   defaultViewport: {
     width: 390,
@@ -3549,7 +3557,7 @@ console.log("✅ schedule.json berhasil dibuat (group by date)");
   // CLOSE BROWSER PER BATCH
   // ===============================
   const delayBatch =
-  60000 + Math.floor(Math.random() * 60000);
+  45000 + Math.floor(Math.random() * 60000);
 
 console.log(
   `🛑 Delay batch ${Math.floor(delayBatch / 1000)} detik`
@@ -3567,5 +3575,6 @@ console.log("🎉 Semua batch selesai");
   } catch (err) {
     console.error("❌ Error utama:", err);
   }
+  
 })();
       
