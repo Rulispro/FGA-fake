@@ -2370,7 +2370,10 @@ console.log(`🔗 ${groupUrl}`);
 console.log("➡️", groupUrl);
     // ===== Buka grup
     await page.goto(groupUrl, { waitUntil: "domcontentloaded" });
-    await page.waitForTimeout(4000);
+          await new Promise(resolve =>
+  setTimeout(resolve, 4000)
+);
+      
     // DEBUG SETELAH PAGE SIAP
     //BARU YANG PAKAI DOLAR
 // ambil info grup DI SINI
@@ -2448,12 +2451,18 @@ const clickedView = await page.evaluate(() => {
 
 // kalau tadi klik → tunggu
 if (clickedView) {
-  await page.waitForTimeout(3000);
+        await new Promise(resolve =>
+  setTimeout(resolve, 3000)
+);
+      
   console.log("⏳ Tunggu setelah klik View Discussions");
  }
     console.log("✅ berhasil klik View Discussions");
           
-await page.waitForTimeout(2000);
+      await new Promise(resolve =>
+  setTimeout(resolve, 2000)
+);
+      
     console.log("tunggu 2 detik");
     
     // ===== 1️⃣ Klik composer / write something
@@ -2462,7 +2471,10 @@ await page.waitForTimeout(2000);
     await safeClickXpath(page, "//*[contains(text(),'Tulis sesuatu')]", "Composer") ||
     await safeClickXpath(page, "//*[contains(text(),'Tulis sesuatu...')]", "Composer");
     
-    await page.waitForTimeout(2000);
+          await new Promise(resolve =>
+  setTimeout(resolve, 3000)
+);
+      
    // 1️⃣ Klik placeholder composer
      await page.waitForSelector(
      'div[role="button"][data-mcomponent="ServerTextArea"]',
