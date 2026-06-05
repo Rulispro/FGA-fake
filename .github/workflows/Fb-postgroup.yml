@@ -2,17 +2,17 @@ name: FB Post Group
 
 on:
   workflow_dispatch:
-
   schedule:
     - cron: "0 9 * * *"
 
 concurrency:
   group: fb-post-group
   cancel-in-progress: false
-  
+
 jobs:
   run-bot:
     runs-on: ubuntu-latest
+    timeout-minutes: 360
 
     permissions:
       contents: write
@@ -26,56 +26,57 @@ jobs:
         with:
           node-version: 20
 
-      # CACHE NODE_MODULES + CHROME
-      - name: Cache npm + puppeteer
+      # CACHE NPM ONLY
+      - name: Cache npm
         uses: actions/cache@v4
         with:
-          path: |
-            ~/.npm
-            ~/.cache/puppeteer
-            node_modules
-          key: puppeteer-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
 
       # SWAP RAM
       - name: Setup Swap
         run: |
           sudo swapoff -a || true
           sudo rm -f /swapfile || true
-
-          sudo dd if=/dev/zero of=/swapfile bs=1M count=4096
+          sudo fallocate -l 4G /swapfile || sudo dd if=/dev/zero of=/dev/zero bs=1M count=4096
           sudo chmod 600 /swapfile
           sudo mkswap /swapfile
           sudo swapon /swapfile
-
           free -h
 
+      # INSTALL DEPENDENCIES
       - name: Install dependencies
+        env:
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
         run: npm install --legacy-peer-deps
 
+      # INSTALL CHROME (Diberikan ID agar output patch bisa terbaca)
+      - name: Setup Chrome
+        id: setup-chrome
+        uses: browser-actions/setup-chrome@v1
+
+      # RUN BOT
       - name: Run Group Bot
-        run: node --max-old-space-size=4096 dashboard/index.js group
+        env:
+          PUPPETEER_EXECUTABLE_PATH: ${{ steps.setup-chrome.outputs.chrome-path }}
+        run: |
+          node --max-old-space-size=4096 dashboard/index.js group
 
       - name: Upload recordings
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: fb-recordings
-          path: |
-            *.mp4
+          path: "*.mp4"
           retention-days: 1
 
       - name: Commit dashboard update
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-
           git add docs/data.json docs/schedule.json
-
           git diff --cached --quiet && echo "No changes to commit" && exit 0
-
           git commit -m "Update dashboard data"
-
-          # ambil update terbaru dulu
           git pull --rebase origin main
-
-          # push ulang
           git push origin main
+          
