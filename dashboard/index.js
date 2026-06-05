@@ -3501,7 +3501,7 @@ console.log(
   }))
 );
     //  #BARU//👇
-catch (accountError) {
+}catch (accountError) {
 
   console.log(
     `❌ Error akun ${acc.account}:`,
