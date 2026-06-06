@@ -2373,26 +2373,7 @@ console.log("➡️", groupUrl);
           await new Promise(resolve =>
   setTimeout(resolve, 4000)
 );
-  //fungsi scroll dulu
-      await page.evaluate(async () => {
 
-  function sleep(ms) {
-    return new Promise(r => setTimeout(r, ms));
-  }
-
-  window.scrollBy({
-    top: 300,
-    behavior: "smooth"
-  });
-
-  await sleep(2000);
-
-  window.scrollBy({
-    top: 500,
-    behavior: "smooth"
-  });
-
-});
       
     // DEBUG SETELAH PAGE SIAP
     //BARU YANG PAKAI DOLAR
