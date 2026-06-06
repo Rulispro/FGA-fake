@@ -2451,14 +2451,14 @@ const clickedView = await page.evaluate(() => {
 
 // kalau tadi klik → tunggu
 if (clickedView) {
-        await new Promise(resolve =>
+  console.log("✅ Klik View Discussions");
+  await new Promise(resolve =>
   setTimeout(resolve, 3000)
 );
       
-  console.log("⏳ Tunggu setelah klik View Discussions");
- }
-    console.log("✅ berhasil klik View Discussions");
-          
+} else {
+  console.log("ℹ️ Tidak ada View Discussions");
+}
       await new Promise(resolve =>
   setTimeout(resolve, 2000)
 );
