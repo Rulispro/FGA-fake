@@ -3043,7 +3043,7 @@ accounts.forEach((a, i) => {
   // ===============================
 // BATCH ACCOUNT
 // ===============================
-const BATCH_SIZE = 5;
+const BATCH_SIZE = 4;
 
 for (
   let batchIndex = 0;
