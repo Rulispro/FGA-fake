@@ -2308,7 +2308,7 @@ function readTemplate(file) {
 //--FUNGSI RUN ACCOUNT--//
 
 async function runAccount(page, row, accountName, today) {
- console.log("\n🧪 runAccount row:", row);
+  console.log("\n🧪 runAccount row:", row);
   const account = row.account;
   const caption = row.caption;
   const jam_post = row.jam_post;
@@ -2320,345 +2320,359 @@ async function runAccount(page, row, accountName, today) {
   const pauseMin = Number(row.pause_min);
   const pauseMax = Number(row.pause_max);
 
-
   // ===== PARSE DELAY GRUP DARI XLSX =====
   const delayGroupList = String(row.delay_grup || "")
-  .replace(/\./g, ",")  // ganti titik jadi koma
-  .split(/,/)           // split koma
-  .map(v => parseInt(v.trim(), 10))
-  .filter(v => !isNaN(v) && v > 0);
+    .replace(/\./g, ",")  // ganti titik jadi koma
+    .split(/,/)           // split koma
+    .map(v => parseInt(v.trim(), 10))
+    .filter(v => !isNaN(v) && v > 0);
 
   const defaultDelayGroup = 5000; // fallback kalau kosong
+  const accountNameClean = accountName || row.account;
 
-  //DARI ROW TEMPLATE XLSX 
- //tlxconst groups = String(row.grup_link || "")
-  //tlx.split(",")
- //tlx .map(g => g.replace(/[\s\r\n]+/g, "").trim()) // hapus spasi, CR, LF
-  //tlx .filter(Boolean);
-  
-  //DARI docs/selected.json
-// ambil dari selected.json berdasarkan account
-const accountNameClean = accountName || row.account;
+  // ============================================================
+  // AMBIL GRUP DARI selected.json
+  // ============================================================
+  const selectedGroupsRaw = Object.entries(selectedData).find(
+    ([key]) => normalizeName(key) === normalizeName(accountNameClean)
+  )?.[1] || [];
 
-// 🔥 ambil berdasarkan nama (ANTI SALAH NAMA)
-const selectedGroupsRaw = Object.entries(selectedData).find(
-  ([key]) => normalizeName(key) === normalizeName(accountNameClean)
-)?.[1] || [];
+  // 🔥 filter tanggal dari selected.json
+  const selectedGroups = selectedGroupsRaw.filter(
+    g => normalizeTanggal(g.tanggal) === today
+  );
 
-// 🔥 filter tanggal dari selected.json
-const selectedGroups = selectedGroupsRaw.filter(
-  g => normalizeTanggal(g.tanggal) === today
-);
-
-console.log(`📂 Selected JSON grup: ${selectedGroups.length}`);
-//sampai sini template xlsx/tlx
-  
-  // 🔥 AMBIL OFFSET UNTUK ACCOUNT INI
+  // ============================================================
+  // MAKSIMAL 3 GRUP SETIAP RUN (DENGAN OFFSET)
+  // ============================================================
   const MAX_GROUPS_PER_RUN = 3;
-  const startIndex = getOffset(account, today);
+  const startIndex = getOffset(account, today); // Offset berdasarkan account + tanggal
+  const selectedGroupsThisRun = selectedGroups.slice(
+    startIndex,
+    startIndex + MAX_GROUPS_PER_RUN
+  );
 
-  // 🔥 POTONG HANYA MAX_GROUPS_PER_RUN GRUP DARI OFFSET SAAT INI
-  const selectedGroupsThisRun = selectedGroups.slice(startIndex, startIndex + MAX_GROUPS_PER_RUN);
+  console.log(`📂 Selected JSON grup total : ${selectedGroups.length}`);
+  console.log(`📍 Offset saat ini : ${startIndex}`);
+  console.log(`🚀 Grup diproses pada run ini: ${selectedGroupsThisRun.length}`);
 
-  console.log(`📂 Selected JSON grup total: ${selectedGroups.length}`);
-  console.log(`📂 Offset saat ini: ${startIndex} → akan proses ${selectedGroupsThisRun.length} grup`);
-
-  
-   if (!account || !caption || !mediaUrl ||  selectedGroups.length === 0){//tlx groups.length === 0) {
-    console.log("⚠️ Row XLSX tidak lengkap/Tidak ada grup dari selected.json, skip:", row);
+  // ============================================================
+  // VALIDASI AWAL
+  // ============================================================
+  if (!account || !caption || !mediaUrl) {
+    console.log("⚠️ Row XLSX tidak lengkap, skip:", row);
     return;
   }
 
-  console.log(`🧠 runAccount (XLSX) → ${account}`);
-  //console.log(`🔗 Grup: ${groups.length}`);
-    //template xlsx 
-  //for (let i = 0; i < groups.length; i++) {
-    //let groupUrl = groups[i];
+  if (selectedGroupsThisRun.length === 0) {
+    if (selectedGroups.length > 0 && startIndex >= selectedGroups.length) {
+      saveOffset(account, today, 0);
+      console.log(`🔄 Semua grup ${account} tanggal ${today} sudah selesai.`);
+      console.log(`🔄 Offset di-reset ke 0 untuk siklus berikutnya.`);
+    } else {
+      console.log(`⚠️ Tidak ada grup untuk ${account} pada tanggal ${today}`);
+    }
+    return;
+  }
 
-  //dari selected json
-for (let i = 0; i < selectedGroups.length; i++) {
-  let groupUrl = selectedGroups[i].group_link;
-  const groupName = selectedGroups[i].group_name;
+  console.log(`\n🧠 runAccount (XLSX) → ${account}`);
 
-  //tetap 
+  // ============================================================
+  // LOOP MAKSIMAL 3 GRUP
+  // ============================================================
+  for (let i = 0; i < selectedGroupsThisRun.length; i++) {
+    const selectedGroup = selectedGroupsThisRun[i];
+    let groupUrl = selectedGroup.group_link;
+    const groupName = selectedGroup.group_name;
+    const actualIndex = startIndex + i;
     const groupData = groupsDB[groupUrl] || {};
- //template xlsx 
-    //console.log(`\n📌 [${account}] Grup ${i + 1}/${groups.length}`);
-// console.log(`➡️ ${groupUrl}`);
-    
-// selected.json
-console.log(`\n📌 [${account}] Grup ${i + 1}/${selectedGroups.length}`);
-console.log(`➡️ ${groupName}`);
-console.log(`🔗 ${groupUrl}`);
-  
-// ✅ Validasi URL grup
-    if (!groupUrl.startsWith("http")) {
-      groupUrl = "https://m.facebook.com/" + groupUrl.replace(/^\/+/, "");
-    }
 
-    if (!groupUrl.includes("/groups/")) {
-      console.log("❌ URL grup tidak valid, skip:", groupUrl);
-      continue; // skip kalau bukan URL grup
-    }
-  //template xlsx 
-    //console.log(`\n📌 [${account}] Membuka grup ${i + 1}/${groups.length}`);
-   // console.log("➡️", groupUrl);
+    console.log("\n========================================");
+    console.log(`📌 [${account}] Grup ${actualIndex + 1}/${selectedGroups.length}`);
+    console.log(`➡️ Nama : ${groupName}`);
+    console.log(`🔗 URL : ${groupUrl}`);
+    console.log("========================================");
 
-  //selected json 
-  console.log(`\n📌 [${account}] Membuka grup ${i + 1}/${selectedGroups.length}`);
-console.log("➡️", groupUrl);
-    // ===== Buka grup
-    await page.goto(groupUrl, { waitUntil: "domcontentloaded" });
-          await new Promise(resolve =>
-  setTimeout(resolve, 4000)
-);
+    // ==========================================================
+    // TRY/CATCH PER GRUP: Jika Grup N error, lanjut ke Grup N+1
+    // ==========================================================
+    try {
+      // --------------------------------------------------------
+      // VALIDASI & NORMALISASI URL GRUP
+      // --------------------------------------------------------
+      if (!groupUrl.startsWith("http")) {
+        groupUrl = "https://m.facebook.com/" + groupUrl.replace(/^\/+/, "");
+      }
 
-      
-    // DEBUG SETELAH PAGE SIAP
-    //BARU YANG PAKAI DOLAR
-// ambil info grup DI SINI
-//const groupInfo = await page.evaluate(() => {
- //const rawTitle = document.title || "Unknown Group";
+      if (!groupUrl.includes("/groups/")) {
+        throw new Error(`URL grup tidak valid: ${groupUrl}`);
+      }
 
-  //const name = rawTitle
-    //.replace(/\s*\|\s*Facebook/i, "")
-   // .trim();
-  
- // const img =
-  //  document.querySelector('img[src*="scontent"]') ||
-   // document.querySelector("img");
+      console.log(`\n📌 [${account}] Membuka grup ${actualIndex + 1}/${selectedGroups.length}`);
+      console.log("➡️", groupUrl);
 
- /// return {
-   // name: name,
-  //  photo: img ? img.src : null
-//  };
-//});
+      // ===== Buka grup
+      await page.goto(groupUrl, { waitUntil: "domcontentloaded", timeout: 60000 });
+      await new Promise(resolve => setTimeout(resolve, 4000));
 
-// PUSH KE FOLDER DOCS 
- docsData.push({
-  account: row.account,
-  tanggal: today,
-  jam_post: row.jam_post,
-  mode: "group",
-  group_link: groupUrl,
-   //===INI JIKA SCRAPE ===//
-  //group_name: groupInfo.name,
- // group_photo: groupInfo.photo,
-   ///===INI JIKA TANPA SCRAPE===//
-  group_name: groupData.name || groupUrl,
-  group_photo: groupData.photo || null,
-  caption: row.caption,
-  delay_group: row.delay_grup,
-  delay_akun: row.delay_akun,
-  status: "done"
-});
-    //$ SAMPAI SINI
+      // ===== DEBUG / CEK SPAN
+      await page.evaluate(() => {
+        const hits = [];
+        document.querySelectorAll("span").forEach(s => {
+          const t = s.textContent?.trim();
+          if (t && /write|tulis|pikirkan|mind|status/i.test(t)) {
+            hits.push(t);
+          }
+        });
+        console.log("SPAN_HITS:", JSON.stringify(hits));
+      });
 
-  await page.evaluate(() => {
-  const hits = [];
+      // ===== 1️⃣ Coba klik "View Discussions" (optional)
+      const clickedView = await page.evaluate(() => {
+        const span = [...document.querySelectorAll("span")]
+          .find(s => /view|lihat/i.test(s.innerText));
 
-  document.querySelectorAll("span").forEach(s => {
-    const t = s.textContent?.trim();
-    if (t && /write|tulis|pikirkan|mind|status/i.test(t)) {
-      hits.push(t);
-    }
-  });
+        if (!span) {
+          console.log("ℹ️ Tidak ada tombol View Discussions");
+          return false;
+        }
 
-  console.log("SPAN_HITS:", JSON.stringify(hits));
-});
+        const btn = span.closest('[data-focusable="true"]');
+        if (btn) {
+          btn.click();
+          console.log("✅ Klik View Discussions");
+          return true;
+        }
 
-  // ===== 1️⃣ Coba klik "View Discussions" (optional)
-const clickedView = await page.evaluate(() => {
-  const span = [...document.querySelectorAll("span")]
-    .find(s => /view|lihat/i.test(s.innerText));
+        console.log("⚠️ Span ketemu tapi tidak bisa diklik");
+        return false;
+      });
 
-  if (!span) {
-    console.log("ℹ️ Tidak ada tombol View Discussions");
-    return false;
-  }
+      if (clickedView) {
+        console.log("✅ Klik View Discussions");
+        await new Promise(resolve => setTimeout(resolve, 3000));
+      } else {
+        console.log("ℹ️ Tidak ada View Discussions");
+      }
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      console.log("tunggu 2 detik");
 
-  const btn = span.closest('[data-focusable="true"]');
+      // ===== 1️⃣ Klik composer / write something
+      let writeClicked =
+        await safeClickXpath(page, "//*[contains(text(),'Write something')]", "Composer") ||
+        await safeClickXpath(page, "//*[contains(text(),'Tulis sesuatu')]", "Composer") ||
+        await safeClickXpath(page, "//*[contains(text(),'Tulis sesuatu...')]", "Composer");
 
-  if (btn) {
-    btn.click();
-    console.log("✅ Klik View Discussions");
-    return true;
-  }
+      await new Promise(resolve => setTimeout(resolve, 3000));
 
-  console.log("⚠️ Span ketemu tapi tidak bisa diklik");
-  return false;
-});
-
-// kalau tadi klik → tunggu
-if (clickedView) {
-  console.log("✅ Klik View Discussions");
-  await new Promise(resolve =>
-  setTimeout(resolve, 3000)
-);
-      
-} else {
-  console.log("ℹ️ Tidak ada View Discussions");
-}
-      await new Promise(resolve =>
-  setTimeout(resolve, 2000)
-);
-      
-    console.log("tunggu 2 detik");
-    
-    // ===== 1️⃣ Klik composer / write something
-    let writeClicked =
-    await safeClickXpath(page, "//*[contains(text(),'Write something')]", "Composer") ||
-    await safeClickXpath(page, "//*[contains(text(),'Tulis sesuatu')]", "Composer") ||
-    await safeClickXpath(page, "//*[contains(text(),'Tulis sesuatu...')]", "Composer");
-    
-          await new Promise(resolve =>
-  setTimeout(resolve, 3000)
-);
-      
-   // 1️⃣ Klik placeholder composer
-     await page.waitForSelector(
-     'div[role="button"][data-mcomponent="ServerTextArea"]',
-      { timeout: 10000 }
-   );
-
-    await page.evaluate(() => {
-     const el = document.querySelector(
-       'div[role="button"][data-mcomponent="ServerTextArea"]'
+      // 1️⃣ Klik placeholder composer
+      await page.waitForSelector(
+        'div[role="button"][data-mcomponent="ServerTextArea"]',
+        { timeout: 10000 }
       );
-      if (!el) return;
 
-    el.scrollIntoView({ block: "center" });
+      await page.evaluate(() => {
+        const el = document.querySelector(
+          'div[role="button"][data-mcomponent="ServerTextArea"]'
+        );
+        if (!el) return;
 
-       ["touchstart","touchend","mousedown","mouseup","click"]
-        .forEach(e =>
-          el.dispatchEvent(new Event(e, { bubbles: true }))
-       );
-       });
+        el.scrollIntoView({ block: "center" });
 
-  
-await page.waitForFunction(() => {
-  return (
-    document.querySelector('div[contenteditable="true"][role="textbox"]') ||
-    document.querySelector('div[contenteditable="true"]') ||
-    document.querySelector('textarea') ||
-    document.querySelector('textarea[role="combobox"]') ||
-    document.querySelector('div[data-mcomponent="ServerTextArea"]') ||
-    document.querySelector('[aria-label]')
-  );
-}, { timeout: 30000 });
+        ["touchstart", "touchend", "mousedown", "mouseup", "click"]
+          .forEach(e => el.dispatchEvent(new Event(e, { bubbles: true })));
+      });
 
-console.log("✅ Composer textbox terdeteksi");
+      await page.waitForFunction(() => {
+        return (
+          document.querySelector('div[contenteditable="true"][role="textbox"]') ||
+          document.querySelector('div[contenteditable="true"]') ||
+          document.querySelector('textarea') ||
+          document.querySelector('textarea[role="combobox"]') ||
+          document.querySelector('div[data-mcomponent="ServerTextArea"]') ||
+          document.querySelector('[aria-label]')
+        );
+      }, { timeout: 30000 });
 
-  const boxHandle = await page.evaluateHandle(() => {
-   return (
-      document.querySelector('div[contenteditable="true"][role="textbox"]') ||
-      document.querySelector('div[contenteditable="true"]') ||
-      document.querySelector('textarea') ||
-      document.querySelector('textarea[role="combobox"]') ||
-      document.querySelector('div[data-mcomponent="ServerTextArea"]') ||
-      document.querySelector('[aria-label]')
-    );
-  });
-const box = boxHandle.asElement();
-  if (!box) {
-    throw new Error("❌ Composer textbox tidak valid");
+      console.log("✅ Composer textbox terdeteksi");
+
+      const boxHandle = await page.evaluateHandle(() => {
+        return (
+          document.querySelector('div[contenteditable="true"][role="textbox"]') ||
+          document.querySelector('div[contenteditable="true"]') ||
+          document.querySelector('textarea') ||
+          document.querySelector('textarea[role="combobox"]') ||
+          document.querySelector('div[data-mcomponent="ServerTextArea"]') ||
+          document.querySelector('[aria-label]')
+        );
+      });
+      const box = boxHandle.asElement();
+      if (!box) {
+        throw new Error("❌ Composer textbox tidak valid");
+      }
+
+      await box.focus();
+
+      await page.keyboard.down("Control");
+      await page.keyboard.press("A");
+      await page.keyboard.up("Control");
+      await page.keyboard.press("Backspace");
+
+      let captionResult;
+      try {
+        captionResult = await typeCaptionUltimate(
+          page,
+          caption,
+          delayMikir,
+          delayKetikMin,
+          delayKetikMax,
+          pauseChance,
+          pauseMin,
+          pauseMax
+        );
+      } catch (e) {
+        console.log("⚠️ Caption fatal error, skip caption:", e.message);
+      }
+
+      console.log(
+        captionResult?.ok ? "📝 Caption berhasil" : "📝 Caption dilewati"
+      );
+
+      await page.keyboard.press("Space");
+      await page.keyboard.press("Backspace");
+      console.log("✅ Caption diketik");
+
+      await delay(3000); // kasih waktu 3 detik minimal
+
+      // ===== 3️⃣ Download + upload media
+      const todayEv = process.env.DATE || new Date().toISOString().split("T")[0];
+      const originalName = mediaUrl.split("?")[0].split("/").pop();
+      const fileName = `${account}_${Date.now()}_${originalName}`;
+
+      const filePath = await downloadMedia(mediaUrl, fileName);
+      console.log(`✅ Media ${fileName} berhasil di-download.`);
+
+      const stats = fs.statSync(filePath);
+      if (stats.size === 0) {
+        throw new Error(`❌ File ${fileName} kosong! Download gagal.`);
+      }
+
+      // upload ke Facebook
+      await uploadMedia(page, filePath, fileName, "Photos");
+
+      // Cari tombol POST dengan innerText dan klik
+      const postClicked = await page.evaluate(() => {
+        const keywords = ["post", "posting", "POST", "POSTING", "bagikan"];
+        const buttons = [...document.querySelectorAll('div[role="button"]')];
+
+        const postBtn = buttons.find(btn => {
+          const text = (btn.innerText || "")
+            .replace(/\s+/g, " ")
+            .trim()
+            .toLowerCase();
+          return keywords.some(k => text === k || text.includes(k));
+        });
+
+        if (!postBtn) return false;
+
+        postBtn.scrollIntoView({ block: "center" });
+        postBtn.click();
+        return true;
+      });
+
+      if (!postClicked) {
+        throw new Error("❌ Tombol POST tidak ditemukan atau gagal diklik");
+      }
+
+      console.log("✅ Klik POST (EN+ID)");
+      await delay(3000);
+
+      // ========================================================
+      // JIKA SAMPAI TITIK INI, POSTING DIANGGAP SUKSES
+      // ========================================================
+      console.log(`✅ POSTING BERHASIL → ${groupName}`);
+
+      docsData.push({
+        account: row.account,
+        tanggal: today,
+        jam_post: jam_post,
+        mode: "group",
+        group_link: groupUrl,
+        group_name: groupData.name || groupName || groupUrl,
+        group_photo: groupData.photo || null,
+        caption: row.caption,
+        delay_group: row.delay_grup,
+        delay_akun: row.delay_akun,
+        status: "done"
+      });
+      console.log(`📝 docsData → status DONE untuk ${groupName}`);
+
+    } catch (error) {
+      // ==========================================================
+      // PENANGANAN ERROR PER GRUP (TETAP LANJUT KE GRUP BERIKUTNYA)
+      // ==========================================================
+      console.log("\n❌ ========================================");
+      console.log(`❌ GAGAL POSTING GRUP ${actualIndex + 1}/${selectedGroups.length}`);
+      console.log(`❌ Grup : ${groupName}`);
+      console.log(`❌ URL : ${groupUrl}`);
+      console.log(`❌ Error: ${error?.message || error}`);
+      console.log("❌ ========================================\n");
+
+      docsData.push({
+        account: row.account,
+        tanggal: today,
+        jam_post: jam_post,
+        mode: "group",
+        group_link: groupUrl,
+        group_name: groupData.name || groupName || groupUrl,
+        group_photo: groupData.photo || null,
+        caption: row.caption,
+        delay_group: row.delay_grup,
+        delay_akun: row.delay_akun,
+        status: "error",
+        error: error?.message || String(error)
+      });
+
+      console.log(`⚠️ Grup ${actualIndex + 1} dilewati.`);
+      console.log(`➡️ Lanjut ke grup berikutnya...`);
+    }
+
+    // ==========================================================
+    // UPDATE OFFSET SETELAH SETIAP GRUP (SUKSES MAUPUN ERROR)
+    // ==========================================================
+    saveOffset(account, today, actualIndex + 1);
+    console.log(`💾 Offset tersimpan: ${account} @ ${today} = ${actualIndex + 1}`);
+
+    // ==========================================================
+    // JEDA ANTAR GRUP DALAM SATU RUN
+    // ==========================================================
+    if (i < selectedGroupsThisRun.length - 1) {
+      const delayGrup =
+        delayGroupList.length > 0
+          ? pickRandomNoRepeat(delayGroupList)
+          : defaultDelayGroup;
+
+      console.log(`⏳ Delay sebelum grup berikutnya: ${delayGrup} ms`);
+      await delay(delayGrup);
+    }
   }
 
-   await box.focus();
-    
-   await page.keyboard.down("Control");
-   await page.keyboard.press("A");
-   await page.keyboard.up("Control");
-   await page.keyboard.press("Backspace");
-
-     let captionResult;
-try {
-  captionResult = await typeCaptionUltimate(page,
-  caption,
-  delayMikir,
-  delayKetikMin,
-  delayKetikMax,
-  pauseChance,
-  pauseMin,
-  pauseMax);
-} catch (e) {
-  console.log("⚠️ Caption fatal error, skip caption:", e.message);
-}
-
-console.log(
-  captionResult?.ok
-    ? "📝 Caption berhasil"
-    : "📝 Caption dilewati"
-);
-
-
-   await page.keyboard.press("Space");
-   await page.keyboard.press("Backspace");
-
-   console.log("✅ Caption diketik");
-
-    
-  await delay(3000); // kasih waktu 3 detik minimal
-
-
-  // ===== 3️⃣ Download + upload media
- const todayEv = process.env.DATE || new Date().toISOString().split("T")[0];
- // HARUS sama dengan nama file di Release!
-
-const originalName = mediaUrl.split("?")[0].split("/").pop();
- 
-  const fileName = `${account}_${Date.now()}_${originalName}`;
-console.log(`✅ Posting selesai untuk ${account}`);
-
- // download media → simpan return value ke filePat
-const filePath = await downloadMedia(mediaUrl, fileName);
-console.log(`✅ Media ${fileName} berhasil di-download.`);
-
-const stats = fs.statSync(filePath);
-if (stats.size === 0) {
-  throw new Error(`❌ File ${fileName} kosong! Download gagal.`);
+  // ============================================================
+  // SELESAI SELURUH RUN
+  // ============================================================
+  const finalOffset = startIndex + selectedGroupsThisRun.length;
+  console.log("\n========================================");
+  console.log(`🏁 RUN ACCOUNT SELESAI: ${account}`);
+  console.log(`📊 Total grup hari ini : ${selectedGroups.length}`);
+  console.log(`📍 Offset terakhir : ${finalOffset}`);
+  console.log(`➡️ Run berikutnya mulai grup ke-${finalOffset + 1}`);
+  console.log("========================================\n");
 }
 
 
-// upload ke Facebook
+      
 
-  
-await uploadMedia(page, filePath, fileName, "Photos");
-   
-// Cari tombol POST dengan innerText
-await page.evaluate(() => {
-  const keywords = [
-    "post", 
-    "Posting",
-    "POST",
-    "POSTING",
-    "posting",    // ID
-    "bagikan"     // ID (kadang muncul)
-  ];
 
-  const buttons = [...document.querySelectorAll('div[role="button"]')];
-
-  const postBtn = buttons.find(btn => {
-    const text = (btn.innerText || "")
-      .replace(/\s+/g, " ")
-      .trim()
-      .toLowerCase();
-
-    return keywords.some(k => text === k || text.includes(k));
-  });
-
-  if (!postBtn) return false;
-
-  postBtn.scrollIntoView({ block: "center" });
-  postBtn.click();
-
-  return true;
-});
-
-console.log("✅ Klik POST (EN+ID)");
-await delay(3000);
-console.log(`✅ Posting selesai untuk ${account}`);
-    
   //----FUNGSI MELAKUKAN LIKE POSTINGAN DI LINK GRUP ---////
     
  // await page.goto(groupUrl, { waitUntil: "networkidle2" });
@@ -2692,28 +2706,6 @@ console.log(`✅ Posting selesai untuk ${account}`);
 
  //console.log(`🎉 Selesai! ${clicked} tombol Like sudah diklik.`);
 
-
-
-
-// ⏳ JEDA ANTAR GRUP (ACAK, TANPA PENGULANGAN)
-const delayGrup =
-  delayGroupList.length > 0
-    ? pickRandomNoRepeat(delayGroupList)
-    : defaultDelayGroup;
-
-console.log(`🎲 Delay grup (acak): ${delayGrup} ms`);
-await delay(delayGrup);
-
-}
-    // 🔥 SIMPAN OFFSET UNTUK RUN BERIKUTNYA
-  const nextOffset = startIndex + selectedGroupsThisRun.length;
-  saveOffset(account, today, nextOffset);
-
-  console.log(`✅ Offset tersimpan: ${account} @ ${today} = ${nextOffset}`);
-  console.log(`📝 Run berikutnya akan mulai dari grup ke-${nextOffset + 1}`);
-
-  
-}
 
 //--FUNGSI KLIK ELEMEN WRITE SOMETHING --//
 async function safeClickEl(el) {
