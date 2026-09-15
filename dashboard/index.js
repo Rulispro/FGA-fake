@@ -2352,6 +2352,18 @@ const selectedGroups = selectedGroupsRaw.filter(
 
 console.log(`📂 Selected JSON grup: ${selectedGroups.length}`);
 //sampai sini template xlsx/tlx
+  
+  // 🔥 AMBIL OFFSET UNTUK ACCOUNT INI
+  const MAX_GROUPS_PER_RUN = 3;
+  const startIndex = getOffset(account, today);
+
+  // 🔥 POTONG HANYA MAX_GROUPS_PER_RUN GRUP DARI OFFSET SAAT INI
+  const selectedGroupsThisRun = selectedGroups.slice(startIndex, startIndex + MAX_GROUPS_PER_RUN);
+
+  console.log(`📂 Selected JSON grup total: ${selectedGroups.length}`);
+  console.log(`📂 Offset saat ini: ${startIndex} → akan proses ${selectedGroupsThisRun.length} grup`);
+
+  
    if (!account || !caption || !mediaUrl ||  selectedGroups.length === 0){//tlx groups.length === 0) {
     console.log("⚠️ Row XLSX tidak lengkap/Tidak ada grup dari selected.json, skip:", row);
     return;
@@ -2693,6 +2705,13 @@ console.log(`🎲 Delay grup (acak): ${delayGrup} ms`);
 await delay(delayGrup);
 
 }
+    // 🔥 SIMPAN OFFSET UNTUK RUN BERIKUTNYA
+  const nextOffset = startIndex + selectedGroupsThisRun.length;
+  saveOffset(account, today, nextOffset);
+
+  console.log(`✅ Offset tersimpan: ${account} @ ${today} = ${nextOffset}`);
+  console.log(`📝 Run berikutnya akan mulai dari grup ke-${nextOffset + 1}`);
+
   
 }
 
