@@ -31,6 +31,33 @@ const selectedData = JSON.parse(
   )
 );
 
+// TAMBAHKAN KODE INI DI AWAL SETELAH LOAD SELECTEDDATA (SEKITAR BARIS 27-32)
+
+// ===== LOAD/INIT OFFSET FILE BATCH CUMA JALAN MAKSIMAL 3 GRUP =====
+const offsetPath = path.join(__dirname, "..", "docs", "offset.json");
+let offsetData = {};
+
+if (fs.existsSync(offsetPath)) {
+  try {
+    offsetData = JSON.parse(fs.readFileSync(offsetPath, "utf8"));
+  } catch {
+    offsetData = {};
+  }
+} else {
+  fs.writeFileSync(offsetPath, JSON.stringify({}, null, 2));
+}
+
+function getOffset(account, today) {
+  const key = `${account}_${today}`;
+  return offsetData[key] || 0;
+}
+
+function saveOffset(account, today, offset) {
+  const key = `${account}_${today}`;
+  offsetData[key] = offset;
+  fs.writeFileSync(offsetPath, JSON.stringify(offsetData, null, 2));
+}
+
 //$BARU tanpa jam 👇
 //const docsDir = path.join(__dirname, "docs");
 //let docsData = [];
