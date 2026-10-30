@@ -2345,7 +2345,7 @@ async function runAccount(page, row, accountName, today) {
   // ============================================================
   // MAKSIMAL 3 GRUP SETIAP RUN (DENGAN OFFSET)
   // ============================================================
-  const MAX_GROUPS_PER_RUN = 3;
+  const MAX_GROUPS_PER_RUN = 2;
   const startIndex = getOffset(account, today); // Offset berdasarkan account + tanggal
   const selectedGroupsThisRun = selectedGroups.slice(
     startIndex,
