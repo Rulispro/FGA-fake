@@ -3237,19 +3237,31 @@ console.log("📋 Semua status rows:", statusRows);
 
       ///👆////
 
-      ///pakai jam 👇/////
-        const rowsForAccount = groupRows.filter(row => {
+      ///pakai jam 👇 sebelum split/////
+       ////const rowsForAccount = groupRows.filter(row => {
+ //// if (row.account !== acc.account) return false;
+
+ ////// const rowDate = parseTanggalXLSX(row.tanggal);
+////  if (rowDate !== today) return false;
+
+  // 🔥 kalau ada jam → cek
+ ///// if (row.jam_post && !cocokJam(row.jam_post)) return false;
+
+  /////return true;
+/////});
+      ////👆/////
+
+      //BARU SETELAH SPLIT 
+      const rowsForAccount = groupRows.filter(row => {
   if (row.account !== acc.account) return false;
 
   const rowDate = parseTanggalXLSX(row.tanggal);
   if (rowDate !== today) return false;
 
-  // 🔥 kalau ada jam → cek
   if (row.jam_post && !cocokJam(row.jam_post)) return false;
 
   return true;
 });
-      ////👆/////
       
       //filter addFriendFollowers 
     const rowsAddFriendFollowersForAccount = addFriendFollowersRows.filter(row => {
