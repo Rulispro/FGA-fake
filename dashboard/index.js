@@ -122,18 +122,18 @@ function cocokJam(rowJam) {
 //sampai sini 👆///
 //$SAMPAI SINI
 //ACAK AKUN
-////function shuffleArray(arr) {
-///  const shuffled = [...arr];
+function shuffleArray(arr) {
+  const shuffled = [...arr];
 
- //// for (let i = shuffled.length - 1; i > 0; i--) {
-  /////  const rand = crypto.randomBytes(4).readUInt32BE(0);
-   ///// const j = rand % (i + 1);
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const rand = crypto.randomBytes(4).readUInt32BE(0);
+    const j = rand % (i + 1);
 
-   ///// [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
- //// }
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
 
- //// return shuffled;
-/////}
+  return shuffled;
+}
 
 //NORMALISASI TANGGAL DOCS/SELECTED.JSON
 
@@ -239,47 +239,6 @@ async function typeCaptionFB(page,
 return { ok: true, method: "typeCaptionFB" };
 
   }
-
-
-/// async function debugComposerAll(page) {
-  ///console.log("\n🔎 DEBUG COMPOSER ALL ELEMENT");
-
- /// const data = await page.evaluate(() => {
-   /// const results = [];
-
-   /// document.querySelectorAll("div, textarea, span").forEach(el => {
-      ///const r = el.getBoundingClientRect();
-     /// if (r.width < 80 || r.height < 40) return;
-
-     /// const attrs = el.getAttributeNames();
-
-      ///const isCandidate =
-       /// el.isContentEditable ||
-       /// el.getAttribute("contenteditable") === "true" ||
-       /// el.tagName === "TEXTAREA" ||
-       //// el.getAttribute("role") === "textbox" ||
-       //// el.getAttribute("role") === "combobox" ||
-       /// el.getAttribute("data-mcomponent") === "ServerTextArea" ||
-       /// attrs.some(a => a.includes("aria"));
-
-      ///if (!isCandidate) return;
-
-      ///results.push({
-       /// tag: el.tagName,
-        ///role: el.getAttribute("role"),
-       /// aria: el.getAttribute("aria-label"),
-       /// data: el.getAttribute("data-mcomponent"),
-        /// contenteditable: el.getAttribute("contenteditable"),
-        ///class: (el.className || "").toString().slice(0, 60),
-       /// textPreview: (el.innerText || el.value || "").slice(0, 30)
-      ///});
-    ///});
-
-   //) return results;
- /// });
-
-//) console.log("🧪 COMPOSER ALL:", JSON.stringify(data, null, 2));
-///}
 
 //Validasinya 
 async function validateCaption(page, caption) {
@@ -388,10 +347,6 @@ async function validateCaption(page, caption) {
     return { ok: false, typed, step: "exception", error: err.message };
   }
 }
-   
-  
-
-
 
 //isi caption klik placeholder 
 async function activateComposerAndFillCaption(page, caption) {
@@ -676,12 +631,6 @@ async function typeByForceReact(page, caption) {
     : { ok: false, step: "all_failed" };
 }
 
-async function typeByExecCommand(page, caption) {
-  await page.evaluate(text => {
-    document.execCommand("insertText", false, text);
-  }, caption);
-}
-
 async function typeByKeyboard(page, caption) {
 
   // THINK BEFORE TYPE
@@ -708,36 +657,6 @@ async function typeByKeyboard(page, caption) {
   }
 
 }
-
-
-//async function typeByInputEvent(page, caption) {
- // await page.evaluate(text => {
-     //const el = document.querySelector(
-   //'div[contenteditable="true"][role="textbox"], div[contenteditable="true"], textarea'
-  //);
-  //if (!el) return false;
-
-  //  el.focus();
-
-   // el.dispatchEvent(new InputEvent("beforeinput", {
-      //inputType: "insertText",
-    //data: text,
-     // bubbles: true,
-      //cancelable: true
-    //}));
-
-   // el.textContent = text;
-
-   //el.dispatchEvent(new InputEvent("input", {
-      //inputType: "insertText",
-      //data: text,
-     // bubbles: true
-  //  }));
-
-   // return true;
-  //}, caption);
-//}
-
 
 //isi caption tambahan cara 
 async function typeCaptionUltimate(page,
@@ -909,20 +828,7 @@ function randomDelay(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-//PARSE TANGGAL LAMA TAPI JALAN ///
-//$function parseTanggalXLSX(tgl) {
- // if (!tgl) return null;
-
-  // format: M/D/YY atau MM/DD/YY
-  //const [m, d, y] = tgl.split("/");
-//
- // const year = Number(y) < 100 ? 2000 + Number(y) : Number(y);
-
- // return `${year}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
-// $ //SAMPAI SINI }
-
 //PARSER TANGGAL BARU BUAT TEST //
-
 function parseTanggalXLSX(tgl) {
   if (!tgl) return null;
 
@@ -991,8 +897,9 @@ async function runLikeLinkPosts(page, row) {
 
     await linkPost(page, groupUrl, total, delayMin, delayMax);
   }
-    }
-   // ===== FUNGSI LIKE LINK POSTINGAN =====
+}
+
+// ===== FUNGSI LIKE LINK POSTINGAN =====
 async function linkPost(page, groupUrl, total, delayMin, delayMax) {
   try {
     console.log("🚀 Buka halaman target");
@@ -1055,8 +962,6 @@ async function linkPost(page, groupUrl, total, delayMin, delayMax) {
   }
 }
 
-
-
 //FUNGSI LIKELINKGROUP
 async function runLikeLinkGroups(page, row) {
   console.log("\n🧪 runLikeLinkGroups row:", row);
@@ -1082,7 +987,6 @@ if (groups.length === 0) {
   console.log("⚠️ Tidak ada link_group, skip");
   return;
 }
-
 
   console.log(`🧠 Account: ${account}`);
   console.log(`🔢 Total Like per Grup: ${total}`);
@@ -1165,7 +1069,6 @@ if (groups.length === 0) {
   console.log("🎉 Semua grup selesai diproses");
 }
 
-
 //FUNGSI UNDFRIEND 
 async function runUndfriends(page, row) {
   console.log("🧪 ROW RAW:", row);
@@ -1184,14 +1087,10 @@ async function runUndfriends(page, row) {
   console.log("Delay XLSX:", delayMin, delayMax);
   console.log("TOTAL:", row.total);
   
-  
-  
-  
   if (!total) {
   console.log("⚠️ total kosong, skip");
   return;
   }
-
 
   // 1️⃣ BUKA HOME FB (WAJIB)
   await page.goto("https://m.facebook.com", { waitUntil: "domcontentloaded" });
@@ -1402,15 +1301,12 @@ async function runAddFriendFollowings(page, row) {
   console.log("LINK:", row.link_targetUsername);
   
   console.log("🧪 LINK DIRECT:", row.link_targetUsername);
-console.log("🧪 LINK LOWER:", row.link_targetUsername);
+  console.log("🧪 LINK LOWER:", row.link_targetUsername);
 
-  
-  
   if (!total || !linkTargetUsernameUrl) {
-  console.log("⚠️ linkTargetUsername kosong, skip");
-  return;
+    console.log("⚠️ linkTargetUsername kosong, skip");
+    return;
   }
-
 
   // 1️⃣ BUKA HOME FB (WAJIB)
   await page.goto("https://m.facebook.com", { waitUntil: "domcontentloaded" });
@@ -1560,10 +1456,10 @@ async function addFriendByUsernameFollowing(page, total,delayMin, delayMax) {
 async function runAddFriendFriends(page, row) {
   console.log("🧪 ROW RAW:", row);
   console.log("🧪 Object keys:", Object.keys(row));
- console.log("🧪 LINK DIRECT:", row.link_targetUsername);
+  console.log("🧪 LINK DIRECT:", row.link_targetUsername);
   
   for (const k in row) {
-  console.log("FIELD:", `[${k}]`);
+    console.log("FIELD:", `[${k}]`);
   }
   
   console.log(`\n📝 Mulai addFriendFriends→ ${row.account}`);
@@ -1578,15 +1474,12 @@ async function runAddFriendFriends(page, row) {
   console.log("LINK:", row.link_targetUsername);
   
   console.log("🧪 LINK DIRECT:", row.link_targetUsername);
-console.log("🧪 LINK LOWER:", row.link_targetUsername);
+  console.log("🧪 LINK LOWER:", row.link_targetUsername);
 
-  
-  
   if (!total || !linkTargetUsernameUrl) {
-  console.log("⚠️ linkTargetUsername kosong, skip");
-  return;
+    console.log("⚠️ linkTargetUsername kosong, skip");
+    return;
   }
-
 
   // 1️⃣ BUKA HOME FB (WAJIB)
   await page.goto("https://m.facebook.com", { waitUntil: "domcontentloaded" });
@@ -1788,10 +1681,10 @@ async function addFriendFromList(page, total,delayMin, delayMax) {
 async function runConfirm(page, row) {
   console.log("🧪 ROW RAW:", row);
   console.log("🧪 Object keys:", Object.keys(row));
- console.log("🧪 LINK DIRECT:", row.link_targetUsername);
+  console.log("🧪 LINK DIRECT:", row.link_targetUsername);
   
   for (const k in row) {
-  console.log("FIELD:", `[${k}]`);
+    console.log("FIELD:", `[${k}]`);
   }
   
   console.log(`\n📝 Mulai addFriendFollowers → ${row.account}`);
@@ -1804,10 +1697,9 @@ async function runConfirm(page, row) {
   console.log("TOTAL:", row.total);
   
   if (!total) {
-  console.log("⚠️ linkTargetUsername kosong, skip");
-  return;
+    console.log("⚠️ linkTargetUsername kosong, skip");
+    return;
   }
-
 
   // 1️⃣ BUKA HOME FB (WAJIB)
   await page.goto("https://m.facebook.com", { waitUntil: "domcontentloaded" });
@@ -1817,6 +1709,7 @@ async function runConfirm(page, row) {
   console.log("link frends request dibuka");
   await confirmFriendRequests(page, total, delayMin, delayMax);
 }
+
 // ==== Fungsi Confirm (ganti Add Friend) ====
 async function confirmFriendRequests(page, total, delayMin, delayMax) {
   let clicked = 0;
@@ -1854,17 +1747,16 @@ async function confirmFriendRequests(page, total, delayMin, delayMax) {
   }
 
   console.log(`🎯 Total Confirm selesai: ${clicked}`);
-
 }
 
 //FUNGSI addFriendFollowers 
 async function runAddFriendFollowers(page, row) {
   console.log("🧪 ROW RAW:", row);
   console.log("🧪 Object keys:", Object.keys(row));
- console.log("🧪 LINK DIRECT:", row.link_targetUsername);
+  console.log("🧪 LINK DIRECT:", row.link_targetUsername);
   
   for (const k in row) {
-  console.log("FIELD:", `[${k}]`);
+    console.log("FIELD:", `[${k}]`);
   }
   
   console.log(`\n📝 Mulai addFriendFollowers → ${row.account}`);
@@ -1879,15 +1771,12 @@ async function runAddFriendFollowers(page, row) {
   console.log("LINK:", row.link_targetUsername);
   
   console.log("🧪 LINK DIRECT:", row.link_targetUsername);
-console.log("🧪 LINK LOWER:", row.link_targetUsername);
+  console.log("🧪 LINK LOWER:", row.link_targetUsername);
 
-  
-  
   if (!total || !linkTargetUsernameUrl) {
-  console.log("⚠️ linkTargetUsername kosong, skip");
-  return;
+    console.log("⚠️ linkTargetUsername kosong, skip");
+    return;
   }
-
 
   // 1️⃣ BUKA HOME FB (WAJIB)
   await page.goto("https://m.facebook.com", { waitUntil: "domcontentloaded" });
@@ -2036,19 +1925,17 @@ async function runStatus(page, row) {
   const account = row.account;
   console.log(`\n📝 Post STATUS → ${account}`);
   const caption = row.caption;
-  ///const mediaUrl = row.media_url || row.github_release;
   const mediaUrl =
-  row.media_url ||
-  row.telegram_file_url ||
-  row.telegram_file_path ||
-  row.github_release;
+    row.media_url ||
+    row.telegram_file_url ||
+    row.telegram_file_path ||
+    row.github_release;
   const delayMikir = Number(row.delay_mikir);
   const delayKetikMin = Number(row.delay_ketik_min);
   const delayKetikMax = Number(row.delay_ketik_max);
   const pauseChance = Number(row.pause_chance);
   const pauseMin = Number(row.pause_min);
   const pauseMax = Number(row.pause_max);
-
 
   if (!caption && !mediaUrl) {
     console.log("⚠️ Status kosong, skip");
@@ -2103,8 +1990,6 @@ async function clickComposerStatus(page) {
   // 3️⃣ TUNGGU TEXTBOX
   await page.waitForTimeout(2000);
 
-  
-
 // 1️⃣ Klik placeholder composer
  await page.waitForSelector(
     'div[role="button"][data-mcomponent="ServerTextArea"]',
@@ -2125,7 +2010,6 @@ async function clickComposerStatus(page) {
         );
      });
 
-  
    await page.waitForFunction(() => {
      return (
      document.querySelector('div[contenteditable="true"][role="textbox"]') ||
@@ -2138,8 +2022,6 @@ async function clickComposerStatus(page) {
   }, { timeout: 30000 });
 
   console.log("✅ Composer textbox terdeteksi");
-  
-  // await debugComposerAll(page);
 
   const boxHandle = await page.evaluateHandle(() => {
   return (
@@ -2163,8 +2045,6 @@ async function clickComposerStatus(page) {
     await page.keyboard.up("Control");
   await page.keyboard.press("Backspace");
 
-  // 🔥 PAKAI FUNGSI AMAN 
-  //await typeCaptionUltimate(page, caption);
   let captionResult;
 try {
   captionResult = await typeCaptionUltimate(page,
@@ -2185,79 +2065,34 @@ console.log(
     : "📝 Caption dilewati"
 );
 
-
   await page.keyboard.press("Space");
   await page.keyboard.press("Backspace");
 
-   //console.log("✅ Caption diketik");
-
-    
  await delay(3000);
 
   // ===== 3️⃣ Download + upload media
  const today = process.env.DATE || new Date().toISOString().split("T")[0];
- // HARUS sama dengan nama file di Release!
-
-const originalName = mediaUrl.split("?")[0].split("/").pop();
- 
+ const originalName = mediaUrl.split("?")[0].split("/").pop();
   const fileName = `${account}_${Date.now()}_${originalName}`;
 console.log(`✅ Posting selesai untuk ${account}`);
 
- // download media → simpan return value ke filePat
-///const filePath = await downloadMedia(mediaUrl, fileName);
-//console.log(`✅ Media ${fileName} berhasil di-download.`);
-  async function downloadMedia(url, filename, options = {}) {
-  const botToken = options.botToken;
-  const fileId = options.fileId;
-
-  if (botToken && fileId) {
-    return downloadTelegramMedia(botToken, fileId, filename);
+ // download media → simpan return value ke filePath
+const filePath = await downloadMedia(
+  mediaUrl,
+  fileName,
+  {
+    botToken: row.telegram_bot_token,
+    fileId: row.telegram_file_id
   }
+);
+console.log(`✅ Media ${fileName} berhasil di-download.`);
 
-  const stats = fs.statSync(filePath);
+const stats = fs.statSync(filePath);
 if (stats.size === 0) {
   throw new Error(`❌ File ${fileName} kosong! Download gagal.`);
 }
 
-}
-
-  
-
-
 // upload ke Facebook
-
-  //HELPER API TELEGRAM 
-  async function getTelegramFilePath(botToken, fileId) {
-  const infoRes = await fetch(
-    `https://api.telegram.org/bot${botToken}/getFile?file_id=${fileId}`
-  );
-  const info = await infoRes.json();
-
-  if (!info.ok || !info.result?.file_path) {
-    throw new Error("Telegram getFile gagal");
-  }
-
-  return info.result.file_path;
-}
-
-async function downloadTelegramMedia(botToken, fileId, fileName) {
-  const filePath = await getTelegramFilePath(botToken, fileId);
-  const dlUrl = `https://api.telegram.org/file/bot${botToken}/${filePath}`;
-
-  const localPath = path.join(__dirname, "media", fileName);
-  const response = await fetch(dlUrl);
-
-  if (!response.ok) {
-    throw new Error(`Gagal download Telegram file: ${response.status}`);
-  }
-
-  const buffer = Buffer.from(await response.arrayBuffer());
-  fs.writeFileSync(localPath, buffer);
-
-  return localPath;
-}
-  
-  
 await uploadMedia(page, filePath, fileName, "Photos");
    
 // Cari tombol POST dengan innerText
@@ -2310,7 +2145,6 @@ function pickRandomNoRepeat(arr) {
   return picked;
 }
 
-
 // ===== HELPER =====
 function getTodayWIB() {
   return new Date(
@@ -2338,8 +2172,6 @@ function urlExists(url) {
     ).on("error", () => resolve(false));
   });
 }
-
-
 
 //VERSI BARU BUAT TEST
 function readTemplate(file) {
@@ -2377,12 +2209,11 @@ async function runAccount(page, row, accountName, today) {
   const account = row.account;
   const caption = row.caption;
   const jam_post = row.jam_post;
-////  const mediaUrl = row.media_url || row.github_release;
   const mediaUrl =
-  row.media_url ||
-  row.telegram_file_url ||
-  row.telegram_file_path ||
-  row.github_release;
+    row.media_url ||
+    row.telegram_file_url ||
+    row.telegram_file_path ||
+    row.github_release;
   const delayMikir = Number(row.delay_mikir);
   const delayKetikMin = Number(row.delay_ketik_min);
   const delayKetikMax = Number(row.delay_ketik_max);
@@ -2619,53 +2450,21 @@ async function runAccount(page, row, accountName, today) {
       const originalName = mediaUrl.split("?")[0].split("/").pop();
       const fileName = `${account}_${Date.now()}_${originalName}`;
 
-      async function downloadMedia(url, filename, options = {}) {
-  const botToken = options.botToken;
-  const fileId = options.fileId;
+      const filePath = await downloadMedia(
+        mediaUrl,
+        fileName,
+        {
+          botToken: row.telegram_bot_token,
+          fileId: row.telegram_file_id
+        }
+      );
+      console.log(`✅ Media ${fileName} berhasil di-download.`);
 
-  if (botToken && fileId) {
-    return downloadTelegramMedia(botToken, fileId, filename);
-  }
+      const stats = fs.statSync(filePath);
+      if (stats.size === 0) {
+        throw new Error(`❌ File ${fileName} kosong! Download gagal.`);
+      }
 
-  const stats = fs.statSync(filePath);
-if (stats.size === 0) {
-  throw new Error(`❌ File ${fileName} kosong! Download gagal.`);
-}
-
-}
-
-      // HELPER API TELEGRAM 
-       
-async function getTelegramFilePath(botToken, fileId) {
-  const infoRes = await fetch(
-    `https://api.telegram.org/bot${botToken}/getFile?file_id=${fileId}`
-  );
-  const info = await infoRes.json();
-
-  if (!info.ok || !info.result?.file_path) {
-    throw new Error("Telegram getFile gagal");
-  }
-
-  return info.result.file_path;
-}
-
-async function downloadTelegramMedia(botToken, fileId, fileName) {
-  const filePath = await getTelegramFilePath(botToken, fileId);
-  const dlUrl = `https://api.telegram.org/file/bot${botToken}/${filePath}`;
-
-  const localPath = path.join(__dirname, "media", fileName);
-  const response = await fetch(dlUrl);
-
-  if (!response.ok) {
-    throw new Error(`Gagal download Telegram file: ${response.status}`);
-  }
-
-  const buffer = Buffer.from(await response.arrayBuffer());
-  fs.writeFileSync(localPath, buffer);
-
-  return localPath;
-}
-      
       // upload ke Facebook
       await uploadMedia(page, filePath, fileName, "Photos");
 
@@ -2778,44 +2577,6 @@ async function downloadTelegramMedia(botToken, fileId, fileName) {
   console.log("========================================\n");
 }
 
-
-      
-
-
-  //----FUNGSI MELAKUKAN LIKE POSTINGAN DI LINK GRUP ---////
-    
- // await page.goto(groupUrl, { waitUntil: "networkidle2" });
-  //console.log(" Mulai akan lakukan like postingan");
-    
-  //let max = 10;        // jumlah like maksimal
-  //let delayMs = 3000;  // delay antar aksi (ms)
-  //let clicked = 0;
-
- // async function delay(ms) {
-   // return new Promise(res => setTimeout(res, ms));
- // }
-
- // while (clicked < max) {
-    //const button = await page.$(
-      //'div[role="button"][aria-label*="Like"],div[role="button"][aria-label*="like"], div[role="button"][aria-label*="Suka"]'
-  // );
-
-  //if (button) {
-     // await button.tap(); // ✅ simulate tap (touchscreen)
-      //clicked++;
-    //  console.log(`👍 Klik tombol Like ke-${clicked}`);
-    //} else {
-      //console.log("🔄 Tidak ada tombol Like, scroll...");
-   // }
-
-    // Scroll sedikit biar postingan baru muncul
-    //await page.evaluate(() => window.scrollBy(0, 500));
-  // await delay(delayMs);
- //}
-
- //console.log(`🎉 Selesai! ${clicked} tombol Like sudah diklik.`);
-
-
 //--FUNGSI KLIK ELEMEN WRITE SOMETHING --//
 async function safeClickEl(el) {
   if (!el) return false;
@@ -2828,25 +2589,18 @@ async function safeClickEl(el) {
   }
 }
 
-// ===== Klik composer aman pakai trigger React
-
-
-
-      
-
-
 // ===== Fungsi klik by XPath
-  async function safeClickXpath(page, xpath, desc = "elemen") {
-    try {
-      const el = await page.waitForXPath(xpath, { visible: true, timeout: 8000 });
-     await el.click();
-      console.log(`✅ Klik ${desc}`);
-     return true;
-    } catch (e) {
-     console.log(`❌ Gagal klik ${desc}:`, e.message);
-      return false;
-    }
+async function safeClickXpath(page, xpath, desc = "elemen") {
+  try {
+    const el = await page.waitForXPath(xpath, { visible: true, timeout: 8000 });
+    await el.click();
+    console.log(`✅ Klik ${desc}`);
+    return true;
+  } catch (e) {
+    console.log(`❌ Gagal klik ${desc}:`, e.message);
+    return false;
   }
+}
 
 // ===== Fungsi scan elemen verbose
 async function scanAllElementsVerbose(page, label = "Scan") {
@@ -2870,43 +2624,66 @@ async function scanAllElementsVerbose(page, label = "Scan") {
   return elements;
 }
 
-// ===== Fungsi download media dari GitHub Release
-const mediaFolder = path.join(__dirname, "media");
-if (!fs.existsSync(mediaFolder)) fs.mkdirSync(mediaFolder);
+// ===== Fungsi download media Telegram & GitHub Release
+async function getTelegramFilePath(botToken, fileId) {
+  const infoRes = await fetch(
+    `https://api.telegram.org/bot${botToken}/getFile?file_id=${fileId}`
+  );
+  const info = await infoRes.json();
 
-async function downloadMedia(url, filename) {
+  if (!info.ok || !info.result?.file_path) {
+    throw new Error("Telegram getFile gagal");
+  }
+
+  return info.result.file_path;
+}
+
+async function downloadTelegramMedia(botToken, fileId, fileName) {
+  const filePath = await getTelegramFilePath(botToken, fileId);
+  const dlUrl = `https://api.telegram.org/file/bot${botToken}/${filePath}`;
+
   const mediaFolder = path.join(__dirname, "media");
   if (!fs.existsSync(mediaFolder)) fs.mkdirSync(mediaFolder, { recursive: true });
-///sebelum split telegram 
-///  const filePath = path.join(mediaFolder, filename);
- //// const options = {
- ////   headers: { "User-Agent": "Mozilla/5.0 (PuppeteerBot)" }
-////  };
-/////setelah telegram 
 
+  const localPath = path.join(mediaFolder, fileName);
+  const response = await fetch(dlUrl);
 
-const filePath = await downloadMedia(
-  mediaUrl,
-  fileName,
-  {
-    botToken: row.telegram_bot_token,
-    fileId: row.telegram_file_id
+  if (!response.ok) {
+    throw new Error(`Gagal download Telegram file: ${response.status}`);
   }
-);
-  const options = {
-   headers: { "User-Agent": "Mozilla/5.0 (PuppeteerBot)" }
- };
-  ////////
+
+  const buffer = Buffer.from(await response.arrayBuffer());
+  fs.writeFileSync(localPath, buffer);
+
+  return localPath;
+}
+
+async function downloadMedia(url, filename, options = {}) {
+  const botToken = options.botToken;
+  const fileId = options.fileId;
+
+  if (botToken && fileId) {
+    return downloadTelegramMedia(botToken, fileId, filename);
+  }
+
+  const mediaFolder = path.join(__dirname, "media");
+  if (!fs.existsSync(mediaFolder)) fs.mkdirSync(mediaFolder, { recursive: true });
+
+  const filePath = path.join(mediaFolder, filename);
+  const opt = {
+    headers: { "User-Agent": "Mozilla/5.0 (PuppeteerBot)" }
+  };
+
   return new Promise((resolve, reject) => {
-    const request = https.get(url, options, (res) => {
-    console.log("🌐 GET:", url);
-    console.log("🔢 Status:", res.statusCode);
-    console.log("📎 Location:", res.headers.location || "(tidak ada)");
+    const request = https.get(url, opt, (res) => {
+      console.log("🌐 GET:", url);
+      console.log("🔢 Status:", res.statusCode);
+      console.log("📎 Location:", res.headers.location || "(tidak ada)");
       
       // 🔁 Handle redirect (301, 302)
       if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
         console.log("🔁 Redirect ke:", res.headers.location);
-        return resolve(downloadMedia(res.headers.location, filename));
+        return resolve(downloadMedia(res.headers.location, filename, options));
       }
 
       // ❌ Handle error status
@@ -2999,7 +2776,6 @@ async function uploadMedia(page, filePath, fileName) {
                     (await page.$('input[type="file"]'));
   if (!fileInput) {
     console.log("❌ Input file tidak ditemukan setelah klik tombol media — mencoba fallback scanning...");
-    // coba cari input secara dinamis via evaluate (fallback)
     const inputFound = await page.evaluate(() => !!document.querySelector('input[type="file"]'));
     if (!inputFound) {
       console.log("❌ Tidak ada input[type=file] di DOM. Upload gagal.");
@@ -3016,7 +2792,6 @@ async function uploadMedia(page, filePath, fileName) {
     isVideo ? "video/mp4" :
     "application/octet-stream";
 
-  // baca file dan ubah jadi base64 untuk inject via browser File API
   const fileNameOnly = path.basename(filePath);
   let fileBuffer;
   try {
@@ -3049,7 +2824,6 @@ async function uploadMedia(page, filePath, fileName) {
 
         // dispatch events so React detects change
         ["input", "change"].forEach(evt => input.dispatchEvent(new Event(evt, { bubbles: true })));
-        // extra events sometimes helpful
         ["focus", "blur", "keydown", "keyup"].forEach(evt => input.dispatchEvent(new Event(evt, { bubbles: true })));
 
         console.log("⚡ File injected ke React dengan File API browser (in-page)");
@@ -3092,7 +2866,6 @@ async function uploadMedia(page, filePath, fileName) {
       console.log("✅ Foto preview ready");
     } else {
       console.log("⏳ Tunggu preview video ...");
-      // tunggu placeholder/thumbnail berubah
       await page.waitForSelector('div[data-mcomponent="ImageArea"] img[data-type="image"], div[data-mcomponent="ServerImageArea"] img', { timeout: 120000 });
       await page.waitForFunction(() => {
         const thumbs = [...document.querySelectorAll('div[data-mcomponent="ImageArea"] img[data-type="image"], div[data-mcomponent="ServerImageArea"] img')];
@@ -3106,17 +2879,14 @@ async function uploadMedia(page, filePath, fileName) {
       console.log("✅ Video preview/thumbnail ready");
     }
 
-    // ekstra buffer waktu agar Facebook selesai memproses preview/encode
     await page.waitForTimeout(2000 + Math.floor(Math.random() * 3000));
     console.log("⏳ Buffer tambahan selesai");
   } catch (e) {
     console.log("⚠️ Preview tidak muncul dalam batas waktu, lanjutkan tetap mencoba (", e.message, ")");
   }
 
- // Tambah buffer agar Facebook encode selesai
   await page.waitForTimeout(5000);
   console.log("⏳ Tambahan waktu encode 5 detik selesai");
-
 
   // 6️⃣ Screenshot hasil preview
   const screenshotPath = path.join(__dirname, "media", "after_upload.png");
@@ -3126,17 +2896,10 @@ async function uploadMedia(page, filePath, fileName) {
   const exists = fs.existsSync(screenshotPath);
   console.log(exists ? "✅ Screenshot tersimpan dengan baik" : "❌ Screenshot gagal disimpan");
 
-   return true; //selesai 
+  return true; 
 }
 
-
 module.exports = { uploadMedia };
-
- // 7️⃣ Optional: upload screenshot ke artifact GitHub
-  if (process.env.GITHUB_ACTIONS) {
-    console.log(`📤 Screenshot siap di-upload ke artifact (gunakan actions/upload-artifact di workflow)`);
-  }
-                                          
 
 // 🕒 Fungsi delay
 function delay(ms) {
@@ -3152,7 +2915,6 @@ function randomDelay(min, max) {
 (async () => {
   try {
     console.log("🚀 Start bot...");
-   //cek mode buat workflows masing-masing 
     const mode = process.argv[2];
     console.log("🎯 MODE:", mode);
 
@@ -3165,14 +2927,13 @@ function randomDelay(min, max) {
       fs.readFileSync(__dirname + "/accounts.json", "utf8")
     );
 
-// 🔀 SHUFFLE AKUN DI SINI
-const accounts = shuffleArray(rawAccounts);
+    // 🔀 SHUFFLE AKUN DI SINI
+    const accounts = shuffleArray(rawAccounts);
 
-console.log("🔀 Urutan akun setelah shuffle:");
-accounts.forEach((a, i) => {
-  console.log(`${i + 1}. ${a.account}`);
-});
-    
+    console.log("🔀 Urutan akun setelah shuffle:");
+    accounts.forEach((a, i) => {
+      console.log(`${i + 1}. ${a.account}`);
+    });
     
     // ✅ BACA TEMPLATE SEKALI DI AWAL
     const TEMPLATE_PATH = "./dashboard/template1.xlsx";
@@ -3180,7 +2941,6 @@ accounts.forEach((a, i) => {
     if (!fs.existsSync(TEMPLATE_PATH)) {
       throw new Error("❌ template1.xlsx tidak ditemukan");
     }
-
 
     const templates = readTemplate(TEMPLATE_PATH);
     console.log("📑 Sheet terbaca:", Object.keys(templates));
@@ -3193,640 +2953,388 @@ accounts.forEach((a, i) => {
     const confirmRows = templates.confirm || [];
     const likeLinkPostRows = templates.likelinkpost || [];
     const likeGroupRows= templates.likeGroup || []; 
-   
+
+    const scheduleSlot = getScheduleSlot();
+
     // ===============================
-// BATCH ACCOUNT
-// ===============================
+    // BATCH ACCOUNT
+    // ===============================
+    const BATCH_SIZE = 4;
 
-  // ===============================
-  // BROWSER BARU TIAP BATCH
-  // ===============================
-  // ===============================
-// BATCH ACCOUNT
-// ===============================
-const BATCH_SIZE = 4;
+    for (
+      let batchIndex = 0;
+      batchIndex < accounts.length;
+      batchIndex += BATCH_SIZE
+    ) {
 
-for (
-  let batchIndex = 0;
-  batchIndex < accounts.length;
-  batchIndex += BATCH_SIZE
-) {
-
-  const batchAccounts = accounts.slice(
-    batchIndex,
-    batchIndex + BATCH_SIZE
-  );
-
-  console.log(
-    `\n🧩 BATCH ${Math.floor(batchIndex / BATCH_SIZE) + 1}`
-  );
-
-  for (const acc of batchAccounts) {
-  // ===============================
-  // LOOP ACCOUNT DALAM BATCH
-  // ===============================
-  console.log(`\n🚀 Start akun: ${acc.account}`);
-
-     // Inisialisasi variabel di luar try-catch agar bisa diakses di blok catch/cleanup
-    let browser = null;
-    let page = null;
-
-    try {
-      // Menggunakan executablePath dari Environment Variable GitHub Actions jika ada
-      const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || null;
-   browser = await puppeteer.launch({
-    executablePath,
-     headless: true,
-protocolTimeout: 30000,
-  
-  defaultViewport: {
-    width: 390,
-    height: 844,
-    isMobile: true,
-    hasTouch: true
-  },
-
-  args: [
-    "--no-sandbox",
-    "--disable-setuid-sandbox",
-    "--disable-blink-features=AutomationControlled",
-    "--disable-dev-shm-usage",
-    "--disable-gpu",
-    "--no-zygote"
-  ],
-});
-    //tes baru dihapus sementara 👇//
-      //const context = await browser.createIncognitoBrowserContext();
-   //   const page = await context.newPage();
-      //👆//
-      page = await browser.newPage();
-      // ===== PATCH BUG userAgentData FACEBOOK (WAJIB)
-      await page.evaluateOnNewDocument(() => {
-        try {
-        if (navigator.userAgentData) {
-         navigator.userAgentData.getHighEntropyValues = () => {
-         return Promise.resolve({
-          architecture: "arm",
-          model: "",
-          platform: "Android",
-          platformVersion: "10",
-          uaFullVersion: "120.0.0.0"
-           });
-           };
-         }
-        } catch (e) {
-    // silent
-        }
-       });
-      
-      await page.setBypassCSP(true);
-
-      // 🔊 Monitor console
-     // page.on("console", msg => console.log(`📢 [${acc.account}]`, msg.text()));
-      //page.on("pageerror", err => console.log("💥 [Browser Error]", err.message));
-
-      // ===== Recorder PER AKUN
-     const recorder = new PuppeteerScreenRecorder(page);
-    await recorder.start(`recording_${acc.account}.mp4`);
-
-      // ===== Anti-detect (KODE KAMU, TETAP)
-      await page.setUserAgent(
-        "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 " +
-        "(KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36"
+      const batchAccounts = accounts.slice(
+        batchIndex,
+        batchIndex + BATCH_SIZE
       );
-      await page.setViewport({
-        width: 360,
-        height: 825,
-        hasTouch: true,
-        deviceScaleFactor: 2,
-        isMobile: true
+
+      console.log(
+        `\n🧩 BATCH ${Math.floor(batchIndex / BATCH_SIZE) + 1}`
+      );
+
+      for (const acc of batchAccounts) {
+        console.log(`\n🚀 Start akun: ${acc.account}`);
+
+        let browser = null;
+        let page = null;
+
+        try {
+          const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || null;
+          browser = await puppeteer.launch({
+            executablePath,
+            headless: true,
+            protocolTimeout: 30000,
+          
+            defaultViewport: {
+              width: 390,
+              height: 844,
+              isMobile: true,
+              hasTouch: true
+            },
+
+            args: [
+              "--no-sandbox",
+              "--disable-setuid-sandbox",
+              "--disable-blink-features=AutomationControlled",
+              "--disable-dev-shm-usage",
+              "--disable-gpu",
+              "--no-zygote"
+            ],
+          });
+
+          page = await browser.newPage();
+          
+          await page.evaluateOnNewDocument(() => {
+            try {
+              if (navigator.userAgentData) {
+                navigator.userAgentData.getHighEntropyValues = () => {
+                  return Promise.resolve({
+                    architecture: "arm",
+                    model: "",
+                    platform: "Android",
+                    platformVersion: "10",
+                    uaFullVersion: "120.0.0.0"
+                  });
+                };
+              }
+            } catch (e) {}
+          });
+          
+          await page.setBypassCSP(true);
+
+          const recorder = new PuppeteerScreenRecorder(page);
+          await recorder.start(`recording_${acc.account}.mp4`);
+
+          await page.setUserAgent(
+            "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 " +
+            "(KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36"
+          );
+          await page.setViewport({
+            width: 360,
+            height: 825,
+            hasTouch: true,
+            deviceScaleFactor: 2,
+            isMobile: true
+          });
+
+          await page.evaluateOnNewDocument(() => {
+            Object.defineProperty(navigator, "webdriver", { get: () => false });
+            window.navigator.chrome = { runtime: {} };
+            Object.defineProperty(navigator, "languages", { get: () => ["id-ID", "id"] });
+            Object.defineProperty(navigator, "plugins", { get: () => [1, 2, 3, 4, 5] });
+          });
+
+          const today = new Date(
+            new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" })
+          ).toISOString().slice(0, 10);
+          
+          console.log("📅 TODAY (WIB):", today);
+
+          const rowsStatusForAccount = statusRows
+            .filter(row => row.account === acc.account)
+            .map(row => {
+              const caption = pickBySlot(row.caption || "", scheduleSlot);
+              const mediaUrl = pickBySlot(
+                row.media_url || row.telegram_file_url || row.telegram_file_path || row.github_release || "",
+                scheduleSlot
+              );
+
+              return {
+                ...row,
+                caption,
+                media_url: mediaUrl,
+                telegram_file_url: mediaUrl,
+                telegram_file_path: mediaUrl,
+                github_release: mediaUrl
+              };
+            })
+            .filter(row => {
+              const rowDate = parseTanggalXLSX(row.tanggal);
+              if (rowDate !== today) return false;
+              if (row.jam_post && !cocokJam(row.jam_post)) return false;
+              return !!(row.caption || row.media_url || row.telegram_file_url || row.telegram_file_path || row.github_release);
+            });
+          
+          const rowsForAccount = groupRows.filter(row => {
+            if (row.account !== acc.account) return false;
+
+            const rowDate = parseTanggalXLSX(row.tanggal);
+            if (rowDate !== today) return false;
+
+            if (row.jam_post && !cocokJam(row.jam_post)) return false;
+
+            return true;
+          });
+          
+          const rowsAddFriendFollowersForAccount = addFriendFollowersRows.filter(row => {
+            if (row.account !== acc.account) return false;
+            const rowDate = parseTanggalXLSX(row.tanggal);
+            return rowDate === today;
+          });
+          
+          const rowsAddFriendFollowingForAccount = addFriendFollowingRows.filter(row => {
+            if (row.account !== acc.account) return false;
+            const rowDate = parseTanggalXLSX(row.tanggal);
+            return rowDate === today;
+          });
+          
+          const rowsAddFriendFriendsForAccount = addFriendListRows.filter(row => {
+            if (row.account !== acc.account) return false;
+            const rowDate = parseTanggalXLSX(row.tanggal);
+            return rowDate === today;
+          });
+          
+          const rowsUndfriendForAccount = undFriendRows.filter(row => {
+            if (row.account !== acc.account) return false;
+            const rowDate = parseTanggalXLSX(row.tanggal);
+            return rowDate === today;
+          });
+          
+          const rowsConfirmForAccount = confirmRows.filter(row => {
+            if (row.account !== acc.account) return false;
+            const rowDate = parseTanggalXLSX(row.tanggal);
+            return rowDate === today;
+          });   
+          
+          const rowsLikeGroupForAccount = likeGroupRows.filter(row => {
+            if (row.account !== acc.account) return false;
+            const rowDate = parseTanggalXLSX(row.tanggal);
+            return rowDate === today;
+          });
+          
+          const rowsLikeLinkPostForAccount = likeLinkPostRows.filter(row => {
+            if (row.account !== acc.account) return false;
+            const rowDate = parseTanggalXLSX(row.tanggal);
+            return rowDate === today;
+          });
+
+          if (
+            rowsForAccount.length === 0 &&
+            rowsStatusForAccount.length === 0 &&
+            rowsAddFriendFollowersForAccount.length === 0 &&
+            rowsAddFriendFollowingForAccount.length === 0 &&
+            rowsAddFriendFriendsForAccount.length === 0 &&
+            rowsUndfriendForAccount.length === 0 &&
+            rowsConfirmForAccount.length === 0 &&
+            rowsLikeGroupForAccount.length === 0 &&
+            rowsLikeLinkPostForAccount.length === 0
+          ) {
+            console.log("⏭️ Tidak ada jadwal group & status & addFriend hari ini");
+
+            try {
+              await page.goto("about:blank", {
+                waitUntil: "domcontentloaded",
+                timeout: 5000
+              });
+            } catch (e) {}
+
+            try {
+              if (!page.isClosed()) {
+                await Promise.race([
+                  page.close(),
+                  new Promise(resolve => setTimeout(resolve, 10000))
+                ]);
+              }
+            } catch (e) {}
+
+            try {
+              await Promise.race([
+                browser.close(),
+                new Promise(resolve => setTimeout(resolve, 15000))
+              ]);
+            } catch (e) {}
+
+            continue;
+          }
+                
+          await page.setCookie(
+            ...acc.cookies.map(c => ({
+              name: c.name,
+              value: c.value,
+              domain: ".facebook.com",
+              path: "/",
+              secure: true
+            }))
+          );
+              
+          await page.goto("https://m.facebook.com", { waitUntil: "domcontentloaded" });
+          await new Promise(resolve => setTimeout(resolve, 3000));
+
+          await page.evaluate(async () => {
+            function sleep(ms) {
+              return new Promise(r => setTimeout(r, ms));
+            }
+
+            window.scrollBy({ top: 300, behavior: "smooth" });
+            await sleep(2000);
+            window.scrollBy({ top: 500, behavior: "smooth" });
+          });
+                
+          if (mode === "status") {
+            console.log("📌 MODE STATUS");
+            for (const row of rowsStatusForAccount) {
+              await runStatus(page, row);
+            }
+          }
+          else if (mode === "group") {
+            console.log("📌 MODE GROUP");
+            for (const row of rowsForAccount) {
+              await runAccount(page, row, acc.account || acc.username, today);   
+            }
+          }
+          else if (mode === "addfriendfollowers") {
+            for (const row of rowsAddFriendFollowersForAccount) {
+              await runAddFriendFollowers(page, row);
+            }
+          }
+          else if (mode === "addfriendfollowing") {
+            for (const row of rowsAddFriendFollowingForAccount) {
+              await runAddFriendFollowings(page, row);
+            }
+          }
+          else if (mode === "addfriendfriends") {
+            for (const row of rowsAddFriendFriendsForAccount) {
+              await runAddFriendFriends(page, row);
+            }
+          }
+          else if (mode === "undfriend") {
+            for (const row of rowsUndfriendForAccount) {
+              await runUndfriends(page, row);
+            }
+          }
+          else if (mode === "confirm") {
+            for (const row of rowsConfirmForAccount) {
+              await runConfirm(page, row);
+            }
+          }
+          else if (mode === "likelinkpost") {
+            for (const row of rowsLikeLinkPostForAccount) {
+              await runLikeLinkPosts(page, row);
+            }
+          }
+          else if (mode === "likegroup") {
+            for (const row of rowsLikeGroupForAccount) {
+              await runLikeLinkGroups(page, row);
+            }
+          }
+
+          await recorder.stop().catch(()=>{});
+          console.log(`🎬 Rekaman selesai: recording_${acc.account}.mp4`);
+
+          try {
+            await page.goto("about:blank", {
+              waitUntil: "domcontentloaded",
+              timeout: 5000
+            });
+          } catch (e) {}
+
+          try {
+            if (!page.isClosed()) {
+              await Promise.race([
+                page.close(),
+                new Promise(resolve => setTimeout(resolve, 10000))
+              ]);
+            }
+          } catch (e) {}
+
+          try {
+            await Promise.race([
+              browser.close(),
+              new Promise(resolve => setTimeout(resolve, 15000))
+            ]);
+          } catch (e) {}
+
+          const delayRow = rowsForAccount.find(r => r.delay_akun);
+          const delayAkun = Number(delayRow?.delay_akun) || 10000;
+          await delay(delayAkun);
+
+        } catch (accountError) {
+          console.log(`❌ Error akun ${acc.account}:`, accountError.message);
+
+          try {
+            if (page && !page.isClosed()) {
+              await Promise.race([
+                page.close(),
+                new Promise(resolve => setTimeout(resolve, 5000))
+              ]);
+            }
+          } catch {}
+
+          try {
+            if (browser) {
+              await Promise.race([
+                browser.close(),
+                new Promise(resolve => setTimeout(resolve, 5000))
+              ]);
+            }
+          } catch {}
+
+          continue;
+        }
+      }
+
+      fs.writeFileSync(
+        "./docs/data.json",
+        JSON.stringify(docsData, null, 2)
+      );
+      console.log("✅ data.json berhasil dibuat");
+
+      const scheduleByDate = {};
+
+      groupRows.forEach(row => {
+        const date = parseTanggalXLSX(row.tanggal);
+
+        if (!scheduleByDate[date]) {
+          scheduleByDate[date] = [];
+        }
+
+        scheduleByDate[date].push({
+          account: row.account,
+          group_name: row.group_name || "Unknown Group",
+          caption: row.caption || "",
+          group_link: row.grup_link,
+          photo: row.group_photo || ""
+        });
       });
 
-      await page.evaluateOnNewDocument(() => {
-        Object.defineProperty(navigator, "webdriver", { get: () => false });
-        window.navigator.chrome = { runtime: {} };
-        Object.defineProperty(navigator, "languages", { get: () => ["id-ID", "id"] });
-        Object.defineProperty(navigator, "plugins", { get: () => [1, 2, 3, 4, 5] });
-      });
-
-
-      const today = new Date(
-  new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" })
-).toISOString().slice(0, 10);
-      console.log("📅 TODAY (WIB):", today);
-console.log("📋 Semua status rows:", statusRows);
-     
-     //filter status sebelum split
-   ///   const rowsStatusForAccount = statusRows.filter(row => {
- //// if (row.account !== acc.account) return false;
-
- /// const rowDate = parseTanggalXLSX(row.tanggal);
-////  return rowDate === today;
-/////});
-
-      ////setelah split
-
-      const rowsStatusForAccount = statusRows
-  .filter(row => row.account === acc.account)
-  .map(row => {
-    const caption = pickBySlot(row.caption || "", scheduleSlot);
-    const mediaUrl = pickBySlot(row.media_url || row.github_release || "", scheduleSlot);
-
-    return {
-      ...row,
-      caption,
-      media_url: mediaUrl,
-      github_release: mediaUrl
-    };
-  })
-  .filter(row => {
-    const rowDate = parseTanggalXLSX(row.tanggal);
-    if (rowDate !== today) return false;
-    if (row.jam_post && !cocokJam(row.jam_post)) return false;
-    return !!(row.caption || row.media_url || row.github_release);
-  });
-      
-   //coba baru filter grup darinrow template xlsx 
-    // const rowsForAccount = groupRows.filter(row => {
-   // if (row.account !== acc.account) return false;
-  //  const rowDate = parseTanggalXLSX(row.tanggal);
-//  return rowDate === today;
-// });
-
-      //tanggal dari selected.json 👇////
-//const rowsForAccount = groupRows.filter(row => {
- /// return row.account === acc.account;
-
-
-
-//  return true;
-///});
-
-      ///👆////
-
-      ///pakai jam 👇 sebelum split/////
-       ////const rowsForAccount = groupRows.filter(row => {
- //// if (row.account !== acc.account) return false;
-
- ////// const rowDate = parseTanggalXLSX(row.tanggal);
-////  if (rowDate !== today) return false;
-
-  // 🔥 kalau ada jam → cek
- ///// if (row.jam_post && !cocokJam(row.jam_post)) return false;
-
-  /////return true;
-/////});
-      ////👆/////
-
-      //BARU SETELAH SPLIT 
-      const rowsForAccount = groupRows.filter(row => {
-  if (row.account !== acc.account) return false;
-
-  const rowDate = parseTanggalXLSX(row.tanggal);
-  if (rowDate !== today) return false;
-
-  if (row.jam_post && !cocokJam(row.jam_post)) return false;
-
-  return true;
-});
-      
-      //filter addFriendFollowers 
-    const rowsAddFriendFollowersForAccount = addFriendFollowersRows.filter(row => {
-  if (row.account !== acc.account) return false;
-
-  const rowDate = parseTanggalXLSX(row.tanggal);
-  return rowDate === today;
-});
-      //filter addFriendFollowing
-      const rowsAddFriendFollowingForAccount = addFriendFollowingRows.filter(row => {
-  if (row.account !== acc.account) return false;
-
-  const rowDate = parseTanggalXLSX(row.tanggal);
-  return rowDate === today;
-});
-      //filter friends
-      const rowsAddFriendFriendsForAccount = addFriendListRows.filter(row => {
-  if (row.account !== acc.account) return false;
-
-  const rowDate = parseTanggalXLSX(row.tanggal);
-  return rowDate === today;
-});
-     //filter unfriend 
-      const rowsUndfriendForAccount = undFriendRows.filter(row => {
-  if (row.account !== acc.account) return false;
-
-  const rowDate = parseTanggalXLSX(row.tanggal);
-  return rowDate === today;
-});
-      //filter confirm 
-      const rowsConfirmForAccount = confirmRows.filter(row => {
-  if (row.account !== acc.account) return false;
-
-  const rowDate = parseTanggalXLSX(row.tanggal);
-  return rowDate === today;
-});   
-      //filter likeGroup 
-      const rowsLikeGroupForAccount = likeGroupRows.filter(row => {
-  if (row.account !== acc.account) return false;
-
-  const rowDate = parseTanggalXLSX(row.tanggal);
-  return rowDate === today;
-});
-     //filter likelinkpost 
-      const rowsLikeLinkPostForAccount = likeLinkPostRows.filter(row => {
-  if (row.account !== acc.account) return false;
-
-  const rowDate = parseTanggalXLSX(row.tanggal);
-  return rowDate === today;
-});
-
-console.log("ACCOUNT JSON:", `[${acc.account}]`);
-console.log(`📋 Row untuk ${acc.account}:`, rowsForAccount.length);
-      //baru 
-console.log(`📋 Group row ${acc.account}:`, rowsForAccount.length);
-console.log(`📋 Status row ${acc.account}:`, rowsStatusForAccount.length);
-console.log(`📋 addFriendFollowers row ${acc.account}:`, rowsAddFriendFollowersForAccount.length);
-console.log(`📋 addFriendFollowings row ${acc.account}:`, rowsAddFriendFollowingForAccount.length); 
-console.log(`📋 addFriendListRows row ${acc.account}:`, rowsAddFriendFriendsForAccount.length);
-console.log(`📋 undfriend row ${acc.account}:`, rowsUndfriendForAccount.length);
-console.log(`📋 confirm row ${acc.account}:`, rowsConfirmForAccount.length);
-console.log(`📋 likelinkpost row ${acc.account}:`, rowsLikeLinkPostForAccount.length);
-console.log(`📋 likeGroup row ${acc.account}:`, rowsLikeGroupForAccount.length);
-
-
-// kalau dua-duanya kosong → skip akun
-if (
-  rowsForAccount.length === 0 &&
-  rowsStatusForAccount.length === 0 &&
-  rowsAddFriendFollowersForAccount.length === 0 &&
-  rowsAddFriendFollowingForAccount.length === 0 &&
-  rowsAddFriendFriendsForAccount.length === 0 &&
-  rowsUndfriendForAccount.length === 0 &&
-  rowsConfirmForAccount.length === 0 &&
-  rowsLikeGroupForAccount.length === 0 &&
-  rowsLikeLinkPostForAccount.length === 0
-) {
-
-  console.log(
-    "⏭️ Tidak ada jadwal group & status & addFriend hari ini"
-  );
-
-  
-  // INI YANG BELUM ADA
- // await recorder.stop().catch(()=>{});
-
-  console.log("🔴 Mulai cleanup browser");
-
-try {
-  await page.goto("about:blank", {
-    waitUntil: "domcontentloaded",
-    timeout: 5000
-  });
-} catch (e) {
-  console.log("⚠️ gagal goto blank");
-}
-
-try {
-  if (!page.isClosed()) {
-    console.log("🔴 page.close()");
-    await Promise.race([
-      page.close(),
-      new Promise(resolve =>
-        setTimeout(() => {
-          console.log("⚠️ page.close timeout");
-          resolve();
-        }, 10000)
-      )
-    ]);
-  }
-} catch (e) {
-  console.log("⚠️ page.close error:", e.message);
-}
-
-try {
-  console.log("🔴 browser.close()");
-
-  await Promise.race([
-    browser.close(),
-    new Promise(resolve =>
-      setTimeout(() => {
-        console.log("⚠️ browser.close timeout");
-        resolve();
-      }, 15000)
-    )
-  ]);
-
-} catch (e) {
-  console.log("⚠️ browser.close error:", e.message);
-}
-
-console.log(`🛑 Browser ditutup ${acc.account}`);
-  continue;
-}
-      
-await page.setCookie(
-  ...acc.cookies.map(c => ({
-    name: c.name,
-    value: c.value,
-    domain: ".facebook.com",
-    path: "/",
-    secure: true
-  }))
-);
-    
-await page.goto("https://m.facebook.com", { waitUntil: "domcontentloaded" });
-    console.log("👉 BUKA FACEBOOK.COM");
-
-      await new Promise(resolve =>
-  setTimeout(resolve, 3000)
-);
-      console.log("👉 Tunggu 3 detik")
-    //scroll
-      await page.evaluate(async () => {
-
-  function sleep(ms) {
-    return new Promise(r => setTimeout(r, ms));
-  }
-
-  window.scrollBy({
-    top: 300,
-    behavior: "smooth"
-  });
-
-  await sleep(2000);
-
-  window.scrollBy({
-    top: 500,
-    behavior: "smooth"
-  });
-
-});
-      
-      
-      
-if (mode === "status") {
-  console.log("📌 MODE STATUS");
-
-  for (const row of rowsStatusForAccount) {
-    await runStatus(page, row);
-  }
-}
-
-else if (mode === "group") {
-  console.log("📌 MODE GROUP");
-
- //lama tapi jalan
- //for(const row of rowsForAccount) {
-   //await runAccount(page, row);
- //}
-///$BARU YANG PAKAI DOLAR
-  for (const row of rowsForAccount) {
-  await runAccount(page, row, acc.account || acc.username, today);   
- }
-  //dari selected json
-  ////const row = rowsForAccount[0]; // ambil 1 saja
-
-///if (row) {
-  ////await runAccount(page, row, acc.account, today);
-////}
-}
-  
-
-else if (mode === "addfriendfollowers") {
-  for (const row of rowsAddFriendFollowersForAccount) {
-    await runAddFriendFollowers(page, row);
-  }
-}
-
-else if (mode === "addfriendfollowing") {
-  for (const row of rowsAddFriendFollowingForAccount) {
-    await runAddFriendFollowings(page, row);
-  }
-}
-
-else if (mode === "addfriendfriends") {
-  for (const row of rowsAddFriendFriendsForAccount) {
-    await runAddFriendFriends(page, row);
-  }
-}
-
-else if (mode === "undfriend") {
-  for (const row of rowsUndfriendForAccount) {
-    await runUndfriends(page, row);
-  }
-}
-
-else if (mode === "confirm") {
-  for (const row of rowsConfirmForAccount) {
-    await runConfirm(page, row);
-  }
-}
-
-else if (mode === "likelinkpost") {
-  for (const row of rowsLikeLinkPostForAccount) {
-    await runLikeLinkPosts(page, row);
-  }
-}
-
-else if (mode === "likegroup") {
-  for (const row of rowsLikeGroupForAccount) {
-    await runLikeLinkGroups(page, row);
-  }
-}
-
-      
-      
-      // ===== Stop recorder
-    await recorder.stop().catch(()=>{});
-    await recorder.stop();
-    console.log(`🎬 Rekaman selesai: recording_${acc.account}.mp4`);
-    recorder.stream = null;
-
-      console.log("🔴 Mulai cleanup browser");
-
-try {
-  await page.goto("about:blank", {
-    waitUntil: "domcontentloaded",
-    timeout: 5000
-  });
-} catch (e) {
-  console.log("⚠️ gagal goto blank");
-}
-
-try {
-  if (!page.isClosed()) {
-    console.log("🔴 page.close()");
-    await Promise.race([
-      page.close(),
-      new Promise(resolve =>
-        setTimeout(() => {
-          console.log("⚠️ page.close timeout");
-          resolve();
-        }, 10000)
-      )
-    ]);
-  }
-} catch (e) {
-  console.log("⚠️ page.close error:", e.message);
-}
-
-try {
-  console.log("🔴 browser.close()");
-
-  await Promise.race([
-    browser.close(),
-    new Promise(resolve =>
-      setTimeout(() => {
-        console.log("⚠️ browser.close timeout");
-        resolve();
-      }, 15000)
-    )
-  ]);
-
-} catch (e) {
-  console.log("⚠️ browser.close error:", e.message);
-}
-
-console.log(`🛑 Browser ditutup ${acc.account}`);
-console.log(`✅ Posting selesai untuk ${acc.account}`); //await delay(6000); // jeda aman antar akun
-    
-     const delayRow = rowsForAccount.find(r => r.delay_akun);
-    const delayAkun = Number(delayRow?.delay_akun) || 10000;
-   console.log(
-  "🕒 Delay dari row tanggal:",
-  delayRow?.delay_akun,
-  "→ dipakai:",
-  delayAkun
-);
-
-await delay(delayAkun);
-console.log(
-  "DEBUG tanggal:",
-  rowsForAccount.map(r => ({
-    tanggal_raw: r.tanggal,
-    tanggal_parse: parseTanggalXLSX(r.tanggal),
-    delay_akun: r.delay_akun
-  }))
-);
-    //  #BARU//👇
-}catch (accountError) {
-
-  console.log(
-    `❌ Error akun ${acc.account}:`,
-    accountError.message
-  );
-
-  try {
-
-    if (page && !page.isClosed()) {
-
-      await Promise.race([
-        page.close(),
-        new Promise(resolve =>
-          setTimeout(resolve, 5000)
-        )
-      ]);
-
+      fs.writeFileSync(
+        "./docs/schedule.json",
+        JSON.stringify(scheduleByDate, null, 2)
+      );
+      console.log("✅ schedule.json berhasil dibuat (group by date)");
+
+      const delayBatch = 50000 + Math.floor(Math.random() * 60000);
+      console.log(`🛑 Delay batch ${Math.floor(delayBatch / 1000)} detik`);
+      await delay(delayBatch);
     }
 
-  } catch {}
-
-  try {
-
-    if (browser) {
-
-      await Promise.race([
-        browser.close(),
-        new Promise(resolve =>
-          setTimeout(resolve, 5000)
-        )
-      ]);
-
-    }
-
-  } catch {}
-
-  continue;
-}
-      ///sampai sisni👆
-    }
-
-
-  //BARU $
-    fs.writeFileSync(
-  "./docs/data.json",
-  JSON.stringify(docsData, null, 2)
-);
-
-console.log("✅ data.json berhasil dibuat");
-    //$
-    //cek buat lihat schedule 
-    const scheduleData = {};
-
-for (const row of groupRows) {
-  const date = parseTanggalXLSX(row.tanggal);
-
-  if (!scheduleData[date]) {
-    scheduleData[date] = [];
-  }
-
-  scheduleData[date].push({
-    account: row.account,
-    group_name: row.nama_grup || row.group_name || "-",
-    group_link: row.link || row.group_link || "-",
-    caption: row.caption || "-",
-    photo: row.foto || row.photo || ""
-  });
-}
-
-const scheduleByDate = {};
-
-groupRows.forEach(row => {
-  const date = parseTanggalXLSX(row.tanggal);
-
-  if (!scheduleByDate[date]) {
-    scheduleByDate[date] = [];
-  }
-
-  scheduleByDate[date].push({
-    account: row.account,
-    group_name: row.group_name || "Unknown Group",
-    caption: row.caption || "",
-    group_link: row.grup_link,
-    photo: row.group_photo || ""
-  });
-});
-
-fs.writeFileSync(
-  "./docs/schedule.json",
-  JSON.stringify(scheduleByDate, null, 2)
-);
-
-console.log("✅ schedule.json berhasil dibuat (group by date)");
-
-    //sampai sini
-      // ===============================
-  // CLOSE BROWSER PER BATCH
-  // ===============================
-  const delayBatch =
-  50000 + Math.floor(Math.random() * 60000);
-
-console.log(
-  `🛑 Delay batch ${Math.floor(delayBatch / 1000)} detik`
-);
-
-await delay(delayBatch);
-  // ===============================
-  // JEDA ANTAR BATCH
-  // ===============================
- 
-}
-
-console.log("🎉 Semua batch selesai");  
-  process.exit(0);
+    console.log("🎉 Semua batch selesai");  
+    process.exit(0);
   } catch (err) {
     console.error("❌ Error utama:", err);
   }
-  
 })();
-      
