@@ -3211,13 +3211,35 @@ protocolTimeout: 30000,
       console.log("📅 TODAY (WIB):", today);
 console.log("📋 Semua status rows:", statusRows);
      
-     //filter status 
-      const rowsStatusForAccount = statusRows.filter(row => {
-  if (row.account !== acc.account) return false;
+     //filter status sebelum split
+   ///   const rowsStatusForAccount = statusRows.filter(row => {
+ //// if (row.account !== acc.account) return false;
 
-  const rowDate = parseTanggalXLSX(row.tanggal);
-  return rowDate === today;
-});
+ /// const rowDate = parseTanggalXLSX(row.tanggal);
+////  return rowDate === today;
+/////});
+
+      ////setelah split
+
+      const rowsStatusForAccount = statusRows
+  .filter(row => row.account === acc.account)
+  .map(row => {
+    const caption = pickBySlot(row.caption || "", scheduleSlot);
+    const mediaUrl = pickBySlot(row.media_url || row.github_release || "", scheduleSlot);
+
+    return {
+      ...row,
+      caption,
+      media_url: mediaUrl,
+      github_release: mediaUrl
+    };
+  })
+  .filter(row => {
+    const rowDate = parseTanggalXLSX(row.tanggal);
+    if (rowDate !== today) return false;
+    if (row.jam_post && !cocokJam(row.jam_post)) return false;
+    return !!(row.caption || row.media_url || row.github_release);
+  });
       
    //coba baru filter grup darinrow template xlsx 
     // const rowsForAccount = groupRows.filter(row => {
