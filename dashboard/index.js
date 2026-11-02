@@ -2036,7 +2036,12 @@ async function runStatus(page, row) {
   const account = row.account;
   console.log(`\n📝 Post STATUS → ${account}`);
   const caption = row.caption;
-  const mediaUrl = row.media_url || row.github_release;
+  ///const mediaUrl = row.media_url || row.github_release;
+  const mediaUrl =
+  row.media_url ||
+  row.telegram_file_url ||
+  row.telegram_file_path ||
+  row.github_release;
   const delayMikir = Number(row.delay_mikir);
   const delayKetikMin = Number(row.delay_ketik_min);
   const delayKetikMax = Number(row.delay_ketik_max);
@@ -2330,7 +2335,12 @@ async function runAccount(page, row, accountName, today) {
   const account = row.account;
   const caption = row.caption;
   const jam_post = row.jam_post;
-  const mediaUrl = row.media_url || row.github_release;
+////  const mediaUrl = row.media_url || row.github_release;
+  const mediaUrl =
+  row.media_url ||
+  row.telegram_file_url ||
+  row.telegram_file_path ||
+  row.github_release;
   const delayMikir = Number(row.delay_mikir);
   const delayKetikMin = Number(row.delay_ketik_min);
   const delayKetikMax = Number(row.delay_ketik_max);
