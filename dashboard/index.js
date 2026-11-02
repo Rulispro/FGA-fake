@@ -152,6 +152,24 @@ function normalizeTanggal(tgl) {
   return tgl;
 }
 
+//FUNGSI HELPER SPLIT SCHEDULE 
+function splitCsv(value) {
+  return String(value ?? "")
+    .split(",")
+    .map(v => v.trim())
+    .filter(Boolean);
+}
+
+function getScheduleSlot() {
+  const slot = Number(process.env.SCHEDULE_SLOT || process.env.RUN_SLOT || 0);
+  return Number.isFinite(slot) ? slot : 0;
+}
+
+function pickBySlot(value, slotIndex) {
+  const items = splitCsv(value);
+  if (!items.length) return "";
+  return items[slotIndex] || items[0];
+}
 //HELPER ISI CAPTION 
 async function clearComposer(page) {
   await page.keyboard.down("Control");
