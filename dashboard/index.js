@@ -2877,12 +2877,26 @@ if (!fs.existsSync(mediaFolder)) fs.mkdirSync(mediaFolder);
 async function downloadMedia(url, filename) {
   const mediaFolder = path.join(__dirname, "media");
   if (!fs.existsSync(mediaFolder)) fs.mkdirSync(mediaFolder, { recursive: true });
+///sebelum split telegram 
+///  const filePath = path.join(mediaFolder, filename);
+ //// const options = {
+ ////   headers: { "User-Agent": "Mozilla/5.0 (PuppeteerBot)" }
+////  };
+/////setelah telegram 
 
-  const filePath = path.join(mediaFolder, filename);
+
+const filePath = await downloadMedia(
+  mediaUrl,
+  fileName,
+  {
+    botToken: row.telegram_bot_token,
+    fileId: row.telegram_file_id
+  }
+);
   const options = {
-    headers: { "User-Agent": "Mozilla/5.0 (PuppeteerBot)" }
-  };
-
+   headers: { "User-Agent": "Mozilla/5.0 (PuppeteerBot)" }
+ };
+  ////////
   return new Promise((resolve, reject) => {
     const request = https.get(url, options, (res) => {
     console.log("🌐 GET:", url);
