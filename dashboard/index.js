@@ -2215,6 +2215,37 @@ if (stats.size === 0) {
 
 // upload ke Facebook
 
+  //HELPER API TELEGRAM 
+  async function getTelegramFilePath(botToken, fileId) {
+  const infoRes = await fetch(
+    `https://api.telegram.org/bot${botToken}/getFile?file_id=${fileId}`
+  );
+  const info = await infoRes.json();
+
+  if (!info.ok || !info.result?.file_path) {
+    throw new Error("Telegram getFile gagal");
+  }
+
+  return info.result.file_path;
+}
+
+async function downloadTelegramMedia(botToken, fileId, fileName) {
+  const filePath = await getTelegramFilePath(botToken, fileId);
+  const dlUrl = `https://api.telegram.org/file/bot${botToken}/${filePath}`;
+
+  const localPath = path.join(__dirname, "media", fileName);
+  const response = await fetch(dlUrl);
+
+  if (!response.ok) {
+    throw new Error(`Gagal download Telegram file: ${response.status}`);
+  }
+
+  const buffer = Buffer.from(await response.arrayBuffer());
+  fs.writeFileSync(localPath, buffer);
+
+  return localPath;
+}
+  
   
 await uploadMedia(page, filePath, fileName, "Photos");
    
@@ -2585,6 +2616,38 @@ async function runAccount(page, row, accountName, today) {
         throw new Error(`❌ File ${fileName} kosong! Download gagal.`);
       }
 
+      // HELPER API TELEGRAM 
+       
+async function getTelegramFilePath(botToken, fileId) {
+  const infoRes = await fetch(
+    `https://api.telegram.org/bot${botToken}/getFile?file_id=${fileId}`
+  );
+  const info = await infoRes.json();
+
+  if (!info.ok || !info.result?.file_path) {
+    throw new Error("Telegram getFile gagal");
+  }
+
+  return info.result.file_path;
+}
+
+async function downloadTelegramMedia(botToken, fileId, fileName) {
+  const filePath = await getTelegramFilePath(botToken, fileId);
+  const dlUrl = `https://api.telegram.org/file/bot${botToken}/${filePath}`;
+
+  const localPath = path.join(__dirname, "media", fileName);
+  const response = await fetch(dlUrl);
+
+  if (!response.ok) {
+    throw new Error(`Gagal download Telegram file: ${response.status}`);
+  }
+
+  const buffer = Buffer.from(await response.arrayBuffer());
+  fs.writeFileSync(localPath, buffer);
+
+  return localPath;
+}
+      
       // upload ke Facebook
       await uploadMedia(page, filePath, fileName, "Photos");
 
