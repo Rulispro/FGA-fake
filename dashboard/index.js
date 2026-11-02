@@ -2204,13 +2204,24 @@ const originalName = mediaUrl.split("?")[0].split("/").pop();
 console.log(`✅ Posting selesai untuk ${account}`);
 
  // download media → simpan return value ke filePat
-const filePath = await downloadMedia(mediaUrl, fileName);
-console.log(`✅ Media ${fileName} berhasil di-download.`);
+///const filePath = await downloadMedia(mediaUrl, fileName);
+//console.log(`✅ Media ${fileName} berhasil di-download.`);
+  async function downloadMedia(url, filename, options = {}) {
+  const botToken = options.botToken;
+  const fileId = options.fileId;
 
-const stats = fs.statSync(filePath);
+  if (botToken && fileId) {
+    return downloadTelegramMedia(botToken, fileId, filename);
+  }
+
+  const stats = fs.statSync(filePath);
 if (stats.size === 0) {
   throw new Error(`❌ File ${fileName} kosong! Download gagal.`);
 }
+
+}
+
+  
 
 
 // upload ke Facebook
@@ -2608,13 +2619,20 @@ async function runAccount(page, row, accountName, today) {
       const originalName = mediaUrl.split("?")[0].split("/").pop();
       const fileName = `${account}_${Date.now()}_${originalName}`;
 
-      const filePath = await downloadMedia(mediaUrl, fileName);
-      console.log(`✅ Media ${fileName} berhasil di-download.`);
+      async function downloadMedia(url, filename, options = {}) {
+  const botToken = options.botToken;
+  const fileId = options.fileId;
 
-      const stats = fs.statSync(filePath);
-      if (stats.size === 0) {
-        throw new Error(`❌ File ${fileName} kosong! Download gagal.`);
-      }
+  if (botToken && fileId) {
+    return downloadTelegramMedia(botToken, fileId, filename);
+  }
+
+  const stats = fs.statSync(filePath);
+if (stats.size === 0) {
+  throw new Error(`❌ File ${fileName} kosong! Download gagal.`);
+}
+
+}
 
       // HELPER API TELEGRAM 
        
