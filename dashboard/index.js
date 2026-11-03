@@ -2737,6 +2737,96 @@ async function downloadTelegramMedia(botToken, fileId, fileName) {
   return localPath;
 }
 
+//HELPER TELEGRAM 
+// ==========================================
+// HELPER TELEGRAM SYNC & DOWNLOAD
+// ==========================================
+function loadJadwalFile() {
+  const jadwalPath = path.join(__dirname, "..", "docs", "jadwal.json");
+  if (!fs.existsSync(jadwalPath)) return {};
+  try {
+    return JSON.parse(fs.readFileSync(jadwalPath, "utf8"));
+  } catch {
+    return {};
+  }
+}
+
+function saveJadwalFile(data) {
+  const jadwalPath = path.join(__dirname, "..", "docs", "jadwal.json");
+  fs.writeFileSync(jadwalPath, JSON.stringify(data, null, 2));
+}
+
+function getTodayKey() {
+  return new Date(
+    new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" })
+  ).toISOString().slice(0, 10);
+}
+
+function getCurrentSlotName() {
+  const slot = (process.env.SCHEDULE_SLOT || process.env.JADWAL_SLOT || "").toUpperCase();
+  if (slot) return slot;
+
+  const hour = new Date(
+    new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" })
+  ).getHours();
+
+  if (hour >= 0 && hour < 12) return "PAGI";
+  if (hour >= 12 && hour < 18) return "SIANG";
+  return "MALAM";
+}
+
+function popNextTelegramFileId(accountName, dateKey, slotName) {
+  const jadwal = loadJadwalFile();
+  const arr = Array.isArray(jadwal[accountName]?.[dateKey]?.[slotName])
+    ? jadwal[accountName][dateKey][slotName]
+    : [];
+
+  if (!arr.length) return null;
+
+  const nextId = arr.shift();
+  jadwal[accountName] = jadwal[accountName] || {};
+  jadwal[accountName][dateKey] = jadwal[accountName][dateKey] || {};
+  jadwal[accountName][dateKey][slotName] = arr;
+
+  saveJadwalFile(jadwal);
+  return nextId;
+}
+
+async function getTelegramFilePath(botToken, fileId) {
+  const infoRes = await fetch(
+    `https://api.telegram.org/bot${botToken}/getFile?file_id=${fileId}`
+  );
+  const info = await infoRes.json();
+
+  if (!info.ok || !info.result?.file_path) {
+    throw new Error("Telegram getFile gagal");
+  }
+
+  return info.result.file_path;
+}
+
+async function downloadTelegramMedia(botToken, fileId, fileName) {
+  const filePath = await getTelegramFilePath(botToken, fileId);
+  const dlUrl = `https://api.telegram.org/file/bot${botToken}/${filePath}`;
+
+  const mediaFolder = path.join(__dirname, "media");
+  if (!fs.existsSync(mediaFolder)) fs.mkdirSync(mediaFolder, { recursive: true });
+
+  const localPath = path.join(mediaFolder, fileName);
+  const response = await fetch(dlUrl);
+
+  if (!response.ok) {
+    throw new Error(`Gagal download Telegram file: ${response.status}`);
+  }
+
+  const buffer = Buffer.from(await response.arrayBuffer());
+  fs.writeFileSync(localPath, buffer);
+
+  return localPath;
+}
+
+////
+    
 async function downloadMedia(url, filename, options = {}) {
   const botToken = options.botToken;
   const fileId = options.fileId;
