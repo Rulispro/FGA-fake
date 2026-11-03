@@ -1,6 +1,6 @@
 [
   {
-    "disabled account": "ayu Wulandari",
+    "account": "ayu Wulandari",
     "file": "ayu_Wulandari",
     "cookies": [
       { "name": "c_user", "value": "61576156023619" },
@@ -48,7 +48,7 @@
     ]
     },
     {
-    "account": "Susi Riana",
+    "disabled account": "Susi Riana",
     "file": "Susi_Riana",
     "cookies": [
       { "name": "c_user", "value": "61589037995224" },
@@ -108,7 +108,7 @@
     ]
     },
   {
-    "account": "Siska Karismatik",
+    "disabled account": "Siska Karismatik",
     "file": "Siska_Karismatik",
     "cookies": [
       { "name": "c_user", "value": "61568815267377" },
