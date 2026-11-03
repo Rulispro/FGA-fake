@@ -152,24 +152,6 @@ function normalizeTanggal(tgl) {
   return tgl;
 }
 
-//FUNGSI HELPER SPLIT SCHEDULE 
-function splitCsv(value) {
-  return String(value ?? "")
-    .split(",")
-    .map(v => v.trim())
-    .filter(Boolean);
-}
-
-function getScheduleSlot() {
-  const slot = Number(process.env.SCHEDULE_SLOT || process.env.RUN_SLOT || 0);
-  return Number.isFinite(slot) ? slot : 0;
-}
-
-function pickBySlot(value, slotIndex) {
-  const items = splitCsv(value);
-  if (!items.length) return "";
-  return items[slotIndex] || items[0];
-}
 //HELPER ISI CAPTION 
 async function clearComposer(page) {
   await page.keyboard.down("Control");
@@ -3061,12 +3043,12 @@ function randomDelay(min, max) {
     );
 
 // 🔀 SHUFFLE AKUN DI SINI
-///const accounts = shuffleArray(rawAccounts);
+const accounts = shuffleArray(rawAccounts);
 
-////console.log("🔀 Urutan akun setelah shuffle:");
-////accounts.forEach((a, i) => {
- //// console.log(`${i + 1}. ${a.account}`);
-/////});
+console.log("🔀 Urutan akun setelah shuffle:");
+accounts.forEach((a, i) => {
+  console.log(`${i + 1}. ${a.account}`);
+});
     
     
     // ✅ BACA TEMPLATE SEKALI DI AWAL
@@ -3099,7 +3081,7 @@ function randomDelay(min, max) {
   // ===============================
 // BATCH ACCOUNT
 // ===============================
-const BATCH_SIZE = 6;
+const BATCH_SIZE = 4;
 
 for (
   let batchIndex = 0;
@@ -3211,35 +3193,13 @@ protocolTimeout: 30000,
       console.log("📅 TODAY (WIB):", today);
 console.log("📋 Semua status rows:", statusRows);
      
-     //filter status sebelum split
-   ///   const rowsStatusForAccount = statusRows.filter(row => {
- //// if (row.account !== acc.account) return false;
+     //filter status 
+      const rowsStatusForAccount = statusRows.filter(row => {
+  if (row.account !== acc.account) return false;
 
- /// const rowDate = parseTanggalXLSX(row.tanggal);
-////  return rowDate === today;
-/////});
-
-      ////setelah split
-
-      const rowsStatusForAccount = statusRows
-  .filter(row => row.account === acc.account)
-  .map(row => {
-    const caption = pickBySlot(row.caption || "", scheduleSlot);
-    const mediaUrl = pickBySlot(row.media_url || row.github_release || "", scheduleSlot);
-
-    return {
-      ...row,
-      caption,
-      media_url: mediaUrl,
-      github_release: mediaUrl
-    };
-  })
-  .filter(row => {
-    const rowDate = parseTanggalXLSX(row.tanggal);
-    if (rowDate !== today) return false;
-    if (row.jam_post && !cocokJam(row.jam_post)) return false;
-    return !!(row.caption || row.media_url || row.github_release);
-  });
+  const rowDate = parseTanggalXLSX(row.tanggal);
+  return rowDate === today;
+});
       
    //coba baru filter grup darinrow template xlsx 
     // const rowsForAccount = groupRows.filter(row => {
@@ -3259,31 +3219,19 @@ console.log("📋 Semua status rows:", statusRows);
 
       ///👆////
 
-      ///pakai jam 👇 sebelum split/////
-       ////const rowsForAccount = groupRows.filter(row => {
- //// if (row.account !== acc.account) return false;
-
- ////// const rowDate = parseTanggalXLSX(row.tanggal);
-////  if (rowDate !== today) return false;
-
-  // 🔥 kalau ada jam → cek
- ///// if (row.jam_post && !cocokJam(row.jam_post)) return false;
-
-  /////return true;
-/////});
-      ////👆/////
-
-      //BARU SETELAH SPLIT 
-      const rowsForAccount = groupRows.filter(row => {
+      ///pakai jam 👇/////
+        const rowsForAccount = groupRows.filter(row => {
   if (row.account !== acc.account) return false;
 
   const rowDate = parseTanggalXLSX(row.tanggal);
   if (rowDate !== today) return false;
 
+  // 🔥 kalau ada jam → cek
   if (row.jam_post && !cocokJam(row.jam_post)) return false;
 
   return true;
 });
+      ////👆/////
       
       //filter addFriendFollowers 
     const rowsAddFriendFollowersForAccount = addFriendFollowersRows.filter(row => {
