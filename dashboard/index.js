@@ -152,6 +152,59 @@ function normalizeTanggal(tgl) {
   return tgl;
 }
 
+//function load jadwal telegram 
+function loadJadwalFile() {
+  const jadwalPath = path.join(__dirname, "..", "docs", "jadwal.json");
+  if (!fs.existsSync(jadwalPath)) return {};
+  try {
+    return JSON.parse(fs.readFileSync(jadwalPath, "utf8"));
+  } catch {
+    return {};
+  }
+}
+
+function saveJadwalFile(data) {
+  const jadwalPath = path.join(__dirname, "..", "docs", "jadwal.json");
+  fs.writeFileSync(jadwalPath, JSON.stringify(data, null, 2));
+}
+
+function getTodayKey() {
+  return new Date(
+    new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" })
+  ).toISOString().slice(0, 10);
+}
+
+function getCurrentSlotName() {
+  const slot = (process.env.SCHEDULE_SLOT || process.env.JADWAL_SLOT || "").toUpperCase();
+  if (slot) return slot;
+
+  const hour = new Date(
+    new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" })
+  ).getHours();
+
+  if (hour >= 0 && hour < 12) return "PAGI";
+  if (hour >= 12 &&  hour < 18) return "SIANG";
+  return "MALAM";
+}
+
+function popNextTelegramFileId(accountName, dateKey, slotName) {
+  const jadwal = loadJadwalFile();
+  const arr = Array.isArray(jadwal[accountName]?.[dateKey]?.[slotName])
+    ? jadwal[accountName][dateKey][slotName]
+    : [];
+
+  if (!arr.length) return null;
+
+  const nextId = arr.shift();
+  jadwal[accountName] = jadwal[accountName] || {};
+  jadwal[accountName][dateKey] = jadwal[accountName][dateKey] || {};
+  jadwal[accountName][dateKey][slotName] = arr;
+
+  saveJadwalFile(jadwal);
+  return nextId;
+}
+
+
 //FUNGSI HELPER SPLIT SCHEDULE 
 function splitCsv(value) {
   return String(value ?? "")
