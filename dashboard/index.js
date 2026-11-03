@@ -122,18 +122,18 @@ function cocokJam(rowJam) {
 //sampai sini 👆///
 //$SAMPAI SINI
 //ACAK AKUN
-////function shuffleArray(arr) {
-///  const shuffled = [...arr];
+function shuffleArray(arr) {
+  const shuffled = [...arr];
 
- //// for (let i = shuffled.length - 1; i > 0; i--) {
-  /////  const rand = crypto.randomBytes(4).readUInt32BE(0);
-   ///// const j = rand % (i + 1);
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const rand = crypto.randomBytes(4).readUInt32BE(0);
+    const j = rand % (i + 1);
 
-   ///// [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
- //// }
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
 
- //// return shuffled;
-/////}
+  return shuffled;
+}
 
 //NORMALISASI TANGGAL DOCS/SELECTED.JSON
 
@@ -2345,7 +2345,7 @@ async function runAccount(page, row, accountName, today) {
   // ============================================================
   // MAKSIMAL 3 GRUP SETIAP RUN (DENGAN OFFSET)
   // ============================================================
-  const MAX_GROUPS_PER_RUN = 2;
+  const MAX_GROUPS_PER_RUN = 3;
   const startIndex = getOffset(account, today); // Offset berdasarkan account + tanggal
   const selectedGroupsThisRun = selectedGroups.slice(
     startIndex,
