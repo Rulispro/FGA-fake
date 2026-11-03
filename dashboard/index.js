@@ -1984,6 +1984,16 @@ async function runStatus(page, row) {
     row.telegram_file_id ||
     row.telegram_file_path ||
     row.github_release;
+    const todayKey = getTodayKey();
+  const currentSlot = getCurrentSlotName();
+
+  if (!mediaUrl) {
+    const scheduleFileId = popNextTelegramFileId(account, todayKey, currentSlot);
+    if (scheduleFileId) {
+      mediaUrl = `https://api.telegram.org/file/bot${process.env.TELEGRAM_BOT_TOKEN}/${scheduleFileId}`;
+      console.log(`📥 Mengambil media dari antrean Telegram slot ${currentSlot}: ${scheduleFileId}`);
+    }
+  }
   const delayMikir = Number(row.delay_mikir);
   const delayKetikMin = Number(row.delay_ketik_min);
   const delayKetikMax = Number(row.delay_ketik_max);
@@ -2281,6 +2291,17 @@ async function runAccount(page, row, accountName, today) {
     row.telegram_file_id ||
     row.telegram_file_path ||
     row.github_release;
+   const todayKey = getTodayKey();
+  const currentSlot = getCurrentSlotName();
+
+  if (!mediaUrl) {
+    const scheduleFileId = popNextTelegramFileId(account, todayKey, currentSlot);
+    if (scheduleFileId) {
+      mediaUrl = `https://api.telegram.org/file/bot${process.env.TELEGRAM_BOT_TOKEN}/${scheduleFileId}`;
+      console.log(`📥 Mengambil media dari antrean Telegram slot ${currentSlot}: ${scheduleFileId}`);
+    }
+  }
+  
   const delayMikir = Number(row.delay_mikir);
   const delayKetikMin = Number(row.delay_ketik_min);
   const delayKetikMax = Number(row.delay_ketik_max);
