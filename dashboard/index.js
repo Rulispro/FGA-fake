@@ -2060,7 +2060,7 @@ const hasMedia = Boolean(mediaSource.url || mediaSource.fileId);
   const pauseMin = Number(row.pause_min);
   const pauseMax = Number(row.pause_max);
 
-  if (!caption && !mediaUrl) {
+  if (!caption && !hasMedia) {
     console.log("⚠️ Status kosong, skip");
     return;
   }
@@ -2394,7 +2394,7 @@ const hasMedia = Boolean(mediaSource.url || mediaSource.fileId);
   // ============================================================
   // VALIDASI AWAL
   // ============================================================
-  if (!account || !caption || !mediaUrl) {
+  if (!account || !caption || !hasMedia) {
     console.log("⚠️ Row XLSX tidak lengkap, skip:", row);
     return;
   }
