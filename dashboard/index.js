@@ -1972,6 +1972,55 @@ async function addFriendByUsernameFollowers(page, total,delayMin, delayMax) {
 
 }
 
+//HELPER GETFILE TELEGRAM
+
+function resolveMediaSource(account, row) {
+  const botToken = row.telegram_bot_token || process.env.TELEGRAM_BOT_TOKEN;
+
+  // Sumber yang sudah berupa URL langsung.
+  const directUrl = [
+    row.media_url,
+    row.github_release,
+    row.telegram_file_url
+  ]
+    .map(value => String(value || "").trim())
+    .find(value => /^https?:\/\//i.test(value));
+
+  if (directUrl) {
+    return { url: directUrl, fileId: "" };
+  }
+
+  // telegram_file_path adalah path hasil Telegram getFile, bukan file_id.
+  const telegramFilePath = String(row.telegram_file_path || "").trim();
+  if (telegramFilePath) {
+    if (/^https?:\/\//i.test(telegramFilePath)) {
+      return { url: telegramFilePath, fileId: "" };
+    }
+
+    if (!botToken) {
+      throw new Error("TELEGRAM_BOT_TOKEN diperlukan untuk telegram_file_path");
+    }
+
+    return {
+      url: `https://api.telegram.org/file/bot${botToken}/${telegramFilePath}`,
+      fileId: ""
+    };
+  }
+
+  // file_id dari row; jika kosong, ambil ID antrean akun/tanggal/slot ini.
+  const todayKey = getTodayKey();
+  const currentSlot = getCurrentSlotName();
+  const fileId =
+    String(row.telegram_file_id || "").trim() ||
+    String(popNextTelegramFileId(account, todayKey, currentSlot) || "").trim();
+
+  if (fileId && !botToken) {
+    throw new Error("TELEGRAM_BOT_TOKEN diperlukan untuk mengunduh Telegram file_id");
+  }
+
+  return { url: "", fileId };
+}
+
 //FUNGSI POSTING STATUS 
 async function runStatus(page, row) {
   console.log(`\n📝 Post STATUS → ${row.account}`);
