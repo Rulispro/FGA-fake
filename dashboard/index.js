@@ -2172,7 +2172,17 @@ console.log(
 
   // ===== 3️⃣ Download + upload media
  const today = process.env.DATE || new Date().toISOString().split("T")[0];
- const originalName = mediaUrl.split("?")[0].split("/").pop();
+/// const originalName = mediaUrl.split("?")[0].split("/").pop();
+  const originalName = mediaSource.url
+  ? mediaSource.url.split("?")[0].split("/").pop()
+  : "telegram-media";
+
+const fileName = `${account}_${Date.now()}_${originalName}`;
+
+const filePath = await downloadMedia(mediaSource.url, fileName, {
+  botToken: mediaSource.botToken,
+  fileId: mediaSource.fileId || undefined
+});
   const fileName = `${account}_${Date.now()}_${originalName}`;
 console.log(`✅ Posting selesai untuk ${account}`);
 
@@ -2548,7 +2558,18 @@ const hasMedia = Boolean(mediaSource.url || mediaSource.fileId);
 
       // ===== 3️⃣ Download + upload media
       const todayEv = process.env.DATE || new Date().toISOString().split("T")[0];
-      const originalName = mediaUrl.split("?")[0].split("/").pop();
+      ////const originalName = mediaUrl.split("?")[0].split("/").pop();
+      const originalName = mediaSource.url
+  ? mediaSource.url.split("?")[0].split("/").pop()
+  : "telegram-media";
+
+const fileName = `${account}_${Date.now()}_${originalName}`;
+
+const filePath = await downloadMedia(mediaSource.url, fileName, {
+  botToken: mediaSource.botToken,
+  fileId: mediaSource.fileId || undefined
+});
+      
       const fileName = `${account}_${Date.now()}_${originalName}`;
 
       const filePath = await downloadMedia(
