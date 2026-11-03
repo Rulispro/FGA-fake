@@ -2027,22 +2027,9 @@ async function runStatus(page, row) {
   const account = row.account;
   console.log(`\n📝 Post STATUS → ${account}`);
   const caption = row.caption;
-  let mediaUrl =
-    row.media_url ||
-    row.telegram_file_url ||
-    row.telegram_file_id ||
-    row.telegram_file_path ||
-    row.github_release;
-    const todayKey = getTodayKey();
-  const currentSlot = getCurrentSlotName();
-
-  if (!mediaUrl) {
-    const scheduleFileId = popNextTelegramFileId(account, todayKey, currentSlot);
-    if (scheduleFileId) {
-      mediaUrl = `https://api.telegram.org/file/bot${process.env.TELEGRAM_BOT_TOKEN}/${scheduleFileId}`;
-      console.log(`📥 Mengambil media dari antrean Telegram slot ${currentSlot}: ${scheduleFileId}`);
-    }
-  }
+  const mediaSource = resolveMediaSource(account, row);
+const mediaUrl = mediaSource.url;
+const hasMedia = Boolean(mediaSource.url || mediaSource.fileId);
   const delayMikir = Number(row.delay_mikir);
   const delayKetikMin = Number(row.delay_ketik_min);
   const delayKetikMax = Number(row.delay_ketik_max);
@@ -2324,22 +2311,9 @@ async function runAccount(page, row, accountName, today) {
   const account = row.account;
   const caption = row.caption;
   const jam_post = row.jam_post;
-  let mediaUrl =
-    row.media_url ||
-    row.telegram_file_url ||
-    row.telegram_file_id ||
-    row.telegram_file_path ||
-    row.github_release;
-   const todayKey = getTodayKey();
-  const currentSlot = getCurrentSlotName();
-
-  if (!mediaUrl) {
-    const scheduleFileId = popNextTelegramFileId(account, todayKey, currentSlot);
-    if (scheduleFileId) {
-      mediaUrl = `https://api.telegram.org/file/bot${process.env.TELEGRAM_BOT_TOKEN}/${scheduleFileId}`;
-      console.log(`📥 Mengambil media dari antrean Telegram slot ${currentSlot}: ${scheduleFileId}`);
-    }
-  }
+    const mediaSource = resolveMediaSource(account, row);
+const mediaUrl = mediaSource.url;
+const hasMedia = Boolean(mediaSource.url || mediaSource.fileId);
   
   const delayMikir = Number(row.delay_mikir);
   const delayKetikMin = Number(row.delay_ketik_min);
