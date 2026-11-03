@@ -1978,7 +1978,7 @@ async function runStatus(page, row) {
   const account = row.account;
   console.log(`\n📝 Post STATUS → ${account}`);
   const caption = row.caption;
-  const mediaUrl =
+  let mediaUrl =
     row.media_url ||
     row.telegram_file_url ||
     row.telegram_file_id ||
@@ -2141,17 +2141,7 @@ console.log(
 console.log(`✅ Posting selesai untuk ${account}`);
 
 
-   let finalMediaUrl = mediaUrl;
-
-const todayKey = getTodayKey();
-const currentSlot = getCurrentSlotName();
-
-if (!finalMediaUrl) {
-  const scheduleFileId = popNextTelegramFileId(account, todayKey, currentSlot);
-  if (scheduleFileId) {
-    finalMediaUrl = `https://api.telegram.org/file/bot${process.env.TELEGRAM_BOT_TOKEN}/${scheduleFileId}`;
-  }
-}
+   
  // download media → simpan return value ke filePath
 const filePath = await downloadMedia(
   mediaUrl,
