@@ -1981,6 +1981,7 @@ async function runStatus(page, row) {
   const mediaUrl =
     row.media_url ||
     row.telegram_file_url ||
+    row.telegram_file_id ||
     row.telegram_file_path ||
     row.github_release;
   const delayMikir = Number(row.delay_mikir);
@@ -2129,6 +2130,18 @@ console.log(
   const fileName = `${account}_${Date.now()}_${originalName}`;
 console.log(`✅ Posting selesai untuk ${account}`);
 
+
+   let finalMediaUrl = mediaUrl;
+
+const todayKey = getTodayKey();
+const currentSlot = getCurrentSlotName();
+
+if (!finalMediaUrl) {
+  const scheduleFileId = popNextTelegramFileId(account, todayKey, currentSlot);
+  if (scheduleFileId) {
+    finalMediaUrl = `https://api.telegram.org/file/bot${process.env.TELEGRAM_BOT_TOKEN}/${scheduleFileId}`;
+  }
+}
  // download media → simpan return value ke filePath
 const filePath = await downloadMedia(
   mediaUrl,
@@ -2265,6 +2278,7 @@ async function runAccount(page, row, accountName, today) {
   const mediaUrl =
     row.media_url ||
     row.telegram_file_url ||
+    row.telegram_file_id ||
     row.telegram_file_path ||
     row.github_release;
   const delayMikir = Number(row.delay_mikir);
@@ -2503,6 +2517,18 @@ async function runAccount(page, row, accountName, today) {
       const originalName = mediaUrl.split("?")[0].split("/").pop();
       const fileName = `${account}_${Date.now()}_${originalName}`;
 
+      let finalMediaUrl = mediaUrl;
+
+      const todayKey = getTodayKey();
+     const currentSlot = getCurrentSlotName();
+
+      if (!finalMediaUrl) {
+       const scheduleFileId = popNextTelegramFileId(account, todayKey, currentSlot);
+      if (scheduleFileId) {
+       finalMediaUrl = `https://api.telegram.org/file/bot${process.env.TELEGRAM_BOT_TOKEN}/${scheduleFileId}`;
+       }
+      }
+      
       const filePath = await downloadMedia(
         mediaUrl,
         fileName,
