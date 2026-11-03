@@ -3061,12 +3061,12 @@ function randomDelay(min, max) {
     );
 
 // 🔀 SHUFFLE AKUN DI SINI
-const accounts = shuffleArray(rawAccounts);
+///const accounts = shuffleArray(rawAccounts);
 
-console.log("🔀 Urutan akun setelah shuffle:");
-accounts.forEach((a, i) => {
-  console.log(`${i + 1}. ${a.account}`);
-});
+////console.log("🔀 Urutan akun setelah shuffle:");
+////accounts.forEach((a, i) => {
+ //// console.log(`${i + 1}. ${a.account}`);
+/////});
     
     
     // ✅ BACA TEMPLATE SEKALI DI AWAL
