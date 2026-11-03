@@ -3139,7 +3139,7 @@ function randomDelay(min, max) {
     // ===============================
     // BATCH ACCOUNT
     // ===============================
-    const BATCH_SIZE = 4;
+    const BATCH_SIZE = 3;
 
     for (
       let batchIndex = 0;
@@ -3166,7 +3166,7 @@ function randomDelay(min, max) {
           const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || null;
           browser = await puppeteer.launch({
             executablePath,
-            headless: new,
+            headless: true,
             protocolTimeout: 30000,
           
             defaultViewport: {
