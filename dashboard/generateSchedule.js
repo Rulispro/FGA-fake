@@ -114,9 +114,14 @@ for (const row of rows) {
 
   const accountName = String(row.account).trim();
 
+///  const accountData = accounts.find(
+   /// acc => acc.account.trim() === accountName
+///  );
+
   const accountData = accounts.find(
-    acc => acc.account.trim() === accountName
-  );
+  acc => typeof acc?.account === "string" &&
+         acc.account.trim() === accountName
+);
 
   if (!accountData) {
     console.log("❌ Account tidak ditemukan:", accountName);
