@@ -3166,7 +3166,7 @@ function randomDelay(min, max) {
           const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || null;
           browser = await puppeteer.launch({
             executablePath,
-            headless: true,
+            headless: new,
             protocolTimeout: 30000,
           
             defaultViewport: {
