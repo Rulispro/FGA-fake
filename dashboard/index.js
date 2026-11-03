@@ -1974,27 +1974,40 @@ async function addFriendByUsernameFollowers(page, total,delayMin, delayMax) {
 
 //HELPER GETFILE TELEGRAM
 
-function resolveMediaSource(account, row) {
-  const botToken = row.telegram_bot_token || process.env.TELEGRAM_BOT_TOKEN;
 
-  // Sumber yang sudah berupa URL langsung.
+
+function resolveMediaSource(account, row) {
+  const botToken =
+    String(row.telegram_bot_token || process.env.TELEGRAM_BOT_TOKEN || "").trim();
+
+  // URL langsung: GitHub Release, Telegram file URL, atau URL media lain.
   const directUrl = [
     row.media_url,
     row.github_release,
-    row.telegram_file_url
+    row.telegram_file_url,
+    row.telegram_file_id
   ]
     .map(value => String(value || "").trim())
     .find(value => /^https?:\/\//i.test(value));
 
   if (directUrl) {
-    return { url: directUrl, fileId: "" };
+    return {
+      url: directUrl,
+      fileId: "",
+      botToken
+    };
   }
 
-  // telegram_file_path adalah path hasil Telegram getFile, bukan file_id.
+  // telegram_file_path bisa berisi URL atau path hasil Telegram getFile.
   const telegramFilePath = String(row.telegram_file_path || "").trim();
+
   if (telegramFilePath) {
     if (/^https?:\/\//i.test(telegramFilePath)) {
-      return { url: telegramFilePath, fileId: "" };
+      return {
+        url: telegramFilePath,
+        fileId: "",
+        botToken
+      };
     }
 
     if (!botToken) {
@@ -2002,24 +2015,34 @@ function resolveMediaSource(account, row) {
     }
 
     return {
-      url: `https://api.telegram.org/file/bot${botToken}/${telegramFilePath}`,
-      fileId: ""
+      url: `https://api.telegram.org/file/bot${botToken}/${telegramFilePath.replace(/^\/+/, "")}`,
+      fileId: "",
+      botToken
     };
   }
 
-  // file_id dari row; jika kosong, ambil ID antrean akun/tanggal/slot ini.
-  const todayKey = getTodayKey();
-  const currentSlot = getCurrentSlotName();
-  const fileId =
-    String(row.telegram_file_id || "").trim() ||
-    String(popNextTelegramFileId(account, todayKey, currentSlot) || "").trim();
+  // Kalau tidak ada URL/path, gunakan file_id dari row atau antrean.
+  const rowFileId = String(row.telegram_file_id || "").trim();
+
+  const fileId = rowFileId || String(
+    popNextTelegramFileId(
+      account,
+      getTodayKey(),
+      getCurrentSlotName()
+    ) || ""
+  ).trim();
 
   if (fileId && !botToken) {
     throw new Error("TELEGRAM_BOT_TOKEN diperlukan untuk mengunduh Telegram file_id");
   }
 
-  return { url: "", fileId };
+  return {
+    url: "",
+    fileId,
+    botToken
+  };
 }
+
 
 //FUNGSI POSTING STATUS 
 async function runStatus(page, row) {
@@ -2183,21 +2206,21 @@ const filePath = await downloadMedia(mediaSource.url, fileName, {
   botToken: mediaSource.botToken,
   fileId: mediaSource.fileId || undefined
 });
-  const fileName = `${account}_${Date.now()}_${originalName}`;
+ /// const fileName = `${account}_${Date.now()}_${originalName}`;
 console.log(`✅ Posting selesai untuk ${account}`);
 
 
    
  // download media → simpan return value ke filePath
-const filePath = await downloadMedia(
-  mediaUrl,
-  fileName,
-  {
-    botToken: row.telegram_bot_token,
-    fileId: row.telegram_file_id
-  }
-);
-console.log(`✅ Media ${fileName} berhasil di-download.`);
+////const filePath = await downloadMedia(
+////  mediaUrl,
+ /// fileName,
+ //// {
+////    botToken: row.telegram_bot_token,
+   //// fileId: row.telegram_file_id
+////  }
+////);
+  console.log(`✅ Media ${fileName} berhasil di-download.`);
 
 const stats = fs.statSync(filePath);
 if (stats.size === 0) {
@@ -2570,16 +2593,16 @@ const filePath = await downloadMedia(mediaSource.url, fileName, {
   fileId: mediaSource.fileId || undefined
 });
       
-      const fileName = `${account}_${Date.now()}_${originalName}`;
+     /// const fileName = `${account}_${Date.now()}_${originalName}`;
 
-      const filePath = await downloadMedia(
-        mediaUrl,
-        fileName,
-        {
-          botToken: row.telegram_bot_token,
-          fileId: row.telegram_file_id
-        }
-      );
+      ///const filePath = await downloadMedia(
+      ///  mediaUrl,
+      ///  fileName,
+      ///  {
+        ///  botToken: row.telegram_bot_token,
+        ///  fileId: row.telegram_file_id
+       //// }
+    ////  );
       console.log(`✅ Media ${fileName} berhasil di-download.`);
 
       const stats = fs.statSync(filePath);
