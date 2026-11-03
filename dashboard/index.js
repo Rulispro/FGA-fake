@@ -2528,18 +2528,6 @@ async function runAccount(page, row, accountName, today) {
       const originalName = mediaUrl.split("?")[0].split("/").pop();
       const fileName = `${account}_${Date.now()}_${originalName}`;
 
-      let finalMediaUrl = mediaUrl;
-
-      const todayKey = getTodayKey();
-     const currentSlot = getCurrentSlotName();
-
-      if (!finalMediaUrl) {
-       const scheduleFileId = popNextTelegramFileId(account, todayKey, currentSlot);
-      if (scheduleFileId) {
-       finalMediaUrl = `https://api.telegram.org/file/bot${process.env.TELEGRAM_BOT_TOKEN}/${scheduleFileId}`;
-       }
-      }
-      
       const filePath = await downloadMedia(
         mediaUrl,
         fileName,
