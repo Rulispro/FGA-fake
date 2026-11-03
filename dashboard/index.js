@@ -2275,7 +2275,7 @@ async function runAccount(page, row, accountName, today) {
   const account = row.account;
   const caption = row.caption;
   const jam_post = row.jam_post;
-  const mediaUrl =
+  let mediaUrl =
     row.media_url ||
     row.telegram_file_url ||
     row.telegram_file_id ||
