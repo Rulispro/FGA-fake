@@ -849,61 +849,10 @@ function showPage(page) {
   }
 }
   
+  //HELPER POSTING KE GRUP 
+
   
-
-  //schedule posthasil grup terpilih /hasil scrape 
-  function loadSchedulePost(){
-
-  const list =
-    document.getElementById("schedulePost-list");
-
-  const dropdown =
-    document.getElementById("schedulePostAccountFilter");
-
-  const prevValue = dropdown.value;
-
-  list.innerHTML = "Loading...";
-
-  // ambil dari localStorage
-  const data = JSON.parse(
-    localStorage.getItem("selectedGroups") || "{}"
-  );
-
-  // reset dropdown
-  dropdown.innerHTML =
-    '<option value="all">Semua Akun</option>';
-
-  Object.keys(data).forEach(acc=>{
-
-    const o = document.createElement("option");
-
-    o.value = acc;
-    o.textContent = acc;
-
-    dropdown.appendChild(o);
-
-  });
-
-  dropdown.value = prevValue || "all";
-
-  // FIX BUG
-  let all = [];
-
-  Object.keys(data).forEach(acc=>{
-
-    data[acc].forEach(g=>{
-
-      all.push({
-        ...g,
-        account: acc
-      });
-
-    });
-
-  });
-///HELPER DAFTAR SHARE POSTINGAN KE GRUP 
-
-    function createShareGroupCard(group, account, options = {}) {
+function createShareGroupCard(group, account, options = {}) {
   const {
     checked = false,
     disabled = false,
@@ -966,6 +915,59 @@ function showPage(page) {
 
   return card;
 }
+  
+  //schedule posthasil grup terpilih /hasil scrape 
+  function loadSchedulePost(){
+
+  const list =
+    document.getElementById("schedulePost-list");
+
+  const dropdown =
+    document.getElementById("schedulePostAccountFilter");
+
+  const prevValue = dropdown.value;
+
+  list.innerHTML = "Loading...";
+
+  // ambil dari localStorage
+  const data = JSON.parse(
+    localStorage.getItem("selectedGroups") || "{}"
+  );
+
+  // reset dropdown
+  dropdown.innerHTML =
+    '<option value="all">Semua Akun</option>';
+
+  Object.keys(data).forEach(acc=>{
+
+    const o = document.createElement("option");
+
+    o.value = acc;
+    o.textContent = acc;
+
+    dropdown.appendChild(o);
+
+  });
+
+  dropdown.value = prevValue || "all";
+
+  // FIX BUG
+  let all = [];
+
+  Object.keys(data).forEach(acc=>{
+
+    data[acc].forEach(g=>{
+
+      all.push({
+        ...g,
+        account: acc
+      });
+
+    });
+
+  });
+
+    
 
 function renderSharePicker() {
   const accountSelect = document.getElementById("shareAccountFilter");
