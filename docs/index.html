@@ -702,7 +702,7 @@ function saveShareTargets(){
   );
 
   // SAVE SERVER
-  fetch("https://fga-fake.vercel.app/api/save", {
+  fetch("https://fga-fake-save-share-targets.vercel.app/", {
 
     method: "POST",
 
@@ -788,7 +788,7 @@ function deleteGroup(account, link, tanggal){
   localStorage.setItem("shareTargetsGroups", JSON.stringify(data));
 
   // kirim ke server juga
-  fetch("https://fga-fake.vercel.app/api/save", {
+  fetch("https://fga-fake-save-share-targets.vercel.app/", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
