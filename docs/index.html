@@ -1413,6 +1413,351 @@ showPage("result");
     .forEach(cb => cb.checked = false);
 
 });
+
+  const SHARE_TARGETS_URL = "shareTargets.json";
+const SHARE_SAVE_API = "https://fga-fake.vercel.app/api/save-share-targets";
+
+let shareGroupsData = {};
+let shareTargetsData = {};
+const shareDrafts = {};
+
+async function loadShareData() {
+  const [groupsResponse, targetsResponse] = await Promise.all([
+    fetch(`groups.json?${Date.now()}`),
+    fetch(`${SHARE_TARGETS_URL}?${Date.now()}`).catch(() => null)
+  ]);
+
+  if (!groupsResponse.ok) {
+    throw new Error(`Gagal membaca groups.json (${groupsResponse.status})`);
+  }
+
+  shareGroupsData = await groupsResponse.json();
+
+  // File ini harus dibuat agar dapat ditampilkan di GitHub Pages.
+  if (targetsResponse && targetsResponse.ok) {
+    shareTargetsData = await targetsResponse.json();
+  } else {
+    shareTargetsData = {};
+  }
+
+  if (!shareTargetsData || typeof shareTargetsData !== "object") {
+    shareTargetsData = {};
+  }
+}
+
+function getShareGroupLink(group) {
+  return String(group.link || group.group_link || group.grup_link || "").trim();
+}
+
+function getShareGroupName(group) {
+  return String(group.name || group.group_name || "Grup tanpa nama");
+}
+
+function getShareGroupPhoto(group) {
+  return String(group.photo || group.group_photo || "");
+}
+
+async function loadSharePicker() {
+  const accountSelect = document.getElementById("shareAccountFilter");
+  const list = document.getElementById("share-pick-list");
+
+  if (!accountSelect || !list) return;
+
+  list.textContent = "Memuat daftar grup…";
+
+  try {
+    await loadShareData();
+
+    const previousAccount = accountSelect.value;
+    accountSelect.innerHTML = '<option value="">Pilih akun</option>';
+
+    Object.keys(shareGroupsData).forEach(account => {
+      const option = document.createElement("option");
+      option.value = account;
+      option.textContent = account;
+      accountSelect.appendChild(option);
+    });
+
+    if (previousAccount && shareGroupsData[previousAccount]) {
+      accountSelect.value = previousAccount;
+    }
+
+    accountSelect.onchange = renderSharePicker;
+
+    if (!accountSelect.value && accountSelect.options.length > 1) {
+      accountSelect.selectedIndex = 1;
+    }
+
+    renderSharePicker();
+  } catch (error) {
+    console.error("Gagal memuat pilihan grup share:", error);
+    list.textContent = `Gagal memuat grup: ${error.message}`;
+  }
+}
+
+function renderSharePicker() {
+  const account = document.getElementById("shareAccountFilter").value;
+  const list = document.getElementById("share-pick-list");
+
+  list.replaceChildren();
+
+  if (!account) {
+    list.textContent = "Pilih akun untuk melihat daftar grup.";
+    return;
+  }
+
+  const groups = Array.isArray(shareGroupsData[account])
+    ? shareGroupsData[account]
+    : [];
+
+  if (!shareDrafts[account]) {
+    const saved = Array.isArray(shareTargetsData[account])
+      ? shareTargetsData[account]
+      : [];
+
+    shareDrafts[account] = new Set(
+      saved.map(getShareGroupLink).filter(Boolean)
+    );
+  }
+
+  if (!groups.length) {
+    list.textContent = "Tidak ada grup untuk akun ini.";
+    return;
+  }
+
+  groups.forEach(group => {
+    const link = getShareGroupLink(group);
+    if (!link) return;
+
+    const card = document.createElement("div");
+    card.className = "card";
+
+    const left = document.createElement("div");
+    left.className = "left";
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = shareDrafts[account].has(link);
+    checkbox.setAttribute("aria-label", `Pilih ${getShareGroupName(group)}`);
+
+    checkbox.addEventListener("change", () => {
+      if (checkbox.checked) {
+        shareDrafts[account].add(link);
+      } else {
+        shareDrafts[account].delete(link);
+      }
+    });
+
+    const image = document.createElement("img");
+    image.className = "group-img";
+    image.src = getShareGroupPhoto(group) || "https://via.placeholder.com/70";
+    image.alt = "";
+
+    left.append(checkbox, image);
+
+    const right = document.createElement("div");
+    right.className = "right";
+
+    const name = document.createElement("div");
+    name.className = "group-name";
+    name.textContent = getShareGroupName(group);
+
+    const url = document.createElement("div");
+    url.textContent = link;
+    url.style.cssText = "font-size:12px;opacity:.65;word-break:break-all";
+
+    right.append(name, url);
+    card.append(left, right);
+    list.appendChild(card);
+  });
+}
+
+async function saveShareTargets() {
+  const account = document.getElementById("shareAccountFilter").value;
+
+  if (!account) {
+    alert("Pilih akun dulu.");
+    return;
+  }
+
+  const selectedLinks = shareDrafts[account] || new Set();
+  const availableGroups = Array.isArray(shareGroupsData[account])
+    ? shareGroupsData[account]
+    : [];
+
+  const groups = availableGroups
+    .filter(group => selectedLinks.has(getShareGroupLink(group)))
+    .map(group => ({
+      group_link: getShareGroupLink(group),
+      group_name: getShareGroupName(group),
+      group_photo: getShareGroupPhoto(group)
+    }));
+
+  try {
+    const response = await fetch(SHARE_SAVE_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ account, groups })
+    });
+
+    const result = await response.json().catch(() => ({}));
+
+    if (!response.ok || !result.success) {
+      throw new Error(result.error || `HTTP ${response.status}`);
+    }
+
+    shareTargetsData[account] = groups;
+    localStorage.setItem("shareTargetsCache", JSON.stringify(shareTargetsData));
+
+    alert(`✅ ${groups.length} grup share tersimpan untuk ${account}`);
+  } catch (error) {
+    console.error("Gagal menyimpan target share:", error);
+    alert(`❌ Gagal menyimpan pilihan: ${error.message}`);
+  }
+}
+
+async function loadSavedShareTargets() {
+  const accountSelect = document.getElementById("shareSavedAccountFilter");
+  const list = document.getElementById("share-saved-list");
+
+  if (!accountSelect || !list) return;
+
+  list.textContent = "Memuat grup tersimpan…";
+
+  try {
+    await loadShareData();
+
+    const previousAccount = accountSelect.value || "all";
+    const accounts = Object.keys(shareTargetsData)
+      .filter(account => Array.isArray(shareTargetsData[account]));
+
+    accountSelect.innerHTML = '<option value="all">Semua Akun</option>';
+
+    accounts.forEach(account => {
+      const option = document.createElement("option");
+      option.value = account;
+      option.textContent = account;
+      accountSelect.appendChild(option);
+    });
+
+    accountSelect.value =
+      previousAccount === "all" || accounts.includes(previousAccount)
+        ? previousAccount
+        : "all";
+
+    accountSelect.onchange = renderSavedShareTargets;
+    renderSavedShareTargets();
+  } catch (error) {
+    console.error("Gagal memuat grup share tersimpan:", error);
+    list.textContent = `Gagal memuat data: ${error.message}`;
+  }
+}
+
+function renderSavedShareTargets() {
+  const accountFilter = document.getElementById("shareSavedAccountFilter").value;
+  const list = document.getElementById("share-saved-list");
+
+  list.replaceChildren();
+
+  const accounts = accountFilter === "all"
+    ? Object.keys(shareTargetsData)
+    : [accountFilter];
+
+  let count = 0;
+
+  accounts.forEach(account => {
+    const groups = Array.isArray(shareTargetsData[account])
+      ? shareTargetsData[account]
+      : [];
+
+    groups.forEach((group, index) => {
+      count++;
+
+      const card = document.createElement("div");
+      card.className = "card";
+
+      const left = document.createElement("div");
+      left.className = "left";
+
+      const image = document.createElement("img");
+      image.className = "group-img";
+      image.src = getShareGroupPhoto(group) || "https://via.placeholder.com/70";
+      image.alt = "";
+      left.appendChild(image);
+
+      const right = document.createElement("div");
+      right.className = "right";
+
+      const name = document.createElement("div");
+      name.className = "group-name";
+      name.textContent = getShareGroupName(group);
+
+      const accountLabel = document.createElement("div");
+      accountLabel.textContent = account;
+      accountLabel.style.cssText = "font-size:13px;opacity:.65";
+
+      const link = document.createElement("div");
+      link.textContent = getShareGroupLink(group);
+      link.style.cssText = "font-size:12px;opacity:.65;word-break:break-all";
+
+      right.append(name, accountLabel, link);
+
+      const action = document.createElement("div");
+      action.className = "action";
+
+      const removeButton = document.createElement("button");
+      removeButton.type = "button";
+      removeButton.textContent = "❌";
+      removeButton.title = "Hapus tujuan share";
+      removeButton.addEventListener("click", () => {
+        removeShareTarget(account, index);
+      });
+
+      action.appendChild(removeButton);
+      card.append(left, right, action);
+      list.appendChild(card);
+    });
+  });
+
+  if (!count) {
+    list.textContent = "Belum ada grup share tersimpan.";
+  }
+}
+
+async function removeShareTarget(account, index) {
+  const current = Array.isArray(shareTargetsData[account])
+    ? [...shareTargetsData[account]]
+    : [];
+
+  current.splice(index, 1);
+
+  try {
+    const response = await fetch(SHARE_SAVE_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ account, groups: current })
+    });
+
+    const result = await response.json().catch(() => ({}));
+
+    if (!response.ok || !result.success) {
+      throw new Error(result.error || `HTTP ${response.status}`);
+    }
+
+    if (current.length) {
+      shareTargetsData[account] = current;
+    } else {
+      delete shareTargetsData[account];
+    }
+
+    loadSavedShareTargets();
+  } catch (error) {
+    console.error("Gagal menghapus grup share:", error);
+    alert(`❌ Gagal menghapus grup: ${error.message}`);
+  }
+}
+
+  
 </script>
 </body>
   </html>
