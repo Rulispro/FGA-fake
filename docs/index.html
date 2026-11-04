@@ -385,54 +385,7 @@ body{flex-direction:column;}
 
 </div>
 
-    <!-- ================= SCHEDULE DAFTAR SHARE BARU ================= -->
-<div id="schedulePostPageId" style="display:none">
 
-<div class="section-title">📅 DAFTAR SHARE POSTING (GRUP TERPILIH)</div>
-
-<div class="filters">
-<select id="schedulePostAccountFilterId">
-<option value="all">Semua Akun</option>
-</select>
-
-<input type="date" id="calendarSchedulePostId">
-</div>
-
-<div id="schedulePost-list"></div>
-
-</div>
-  
-<!-- ================= GROUPS ================= -->
-<div id="groupsPage" style="display:none">
-
-  <div class="section-title">👥 PILIH GRUP</div>
-
-  <!-- HEADER FILTER -->
-  <div class="filters groups-header">
-
-    <div class="filters">
-
-      <select id="groupAccountFilter">
-        <option value="all">Semua Akun</option>
-      </select>
-
-      <input type="date" id="scheduleDate">
-
-      <button onclick="saveToScheduleId()" class="btn-save">
-        💾 SIMPAN GRUP
-      </button>
-
-    </div>
-
-  </div>
-
-  <!-- LIST GRUP -->
-  <div id="groups-list"></div>
-
-</div>
-
-
-</div>
 <!---daftar share-->
     <!-- ================= SCHEDULE HASIL SHARE BARU ================= -->
 <div id="schedulePostPageIg" style="display:none">
@@ -452,7 +405,7 @@ body{flex-direction:column;}
 </div>
   
 <!-- ================= GROUPS ================= -->
-<div id="groupsPage" style="display:none">
+<div id="groupsPageIg" style="display:none">
 
   <div class="section-title">👥 PILIH GRUP</div>
 
@@ -615,11 +568,133 @@ function saveToSchedule(){
 
   }
 
+//hasil share👇
+function saveToScheduleig(){
 
+  const date =
+    document.getElementById("scheduleDate").value;
 
+  if(!date){
+    alert("Pilih tanggal dulu!");
+    return;
+  }
+
+  let selected = JSON.parse(
+    localStorage.getItem("selectedGroups") || "{}"
+  );
+
+  // LOOP DARI checkedGroups
+  Object.keys(window.checkedGroups).forEach(groupKey => {
+    // hanya yg dicentang
+    if(!window.checkedGroups[groupKey]) return;
+    // cari data grup asli
+    const g = allGroups.find(x =>
+  (
+    x.link ||
+    x.group_link ||
+    x.grup_link
+  ) === groupKey
+);
+
+    if(!g) return;
+
+    const account = g.account;
+
+    const link = String(
+      g.link ||
+      g.group_link ||
+      g.grup_link ||
+      ""
+    )
+    .trim()
+    .replace(/,+$/, "")
+    .replace(/\s+/g, "");
+
+    if(
+      !link ||
+      !link.includes("/groups/")
+    ){
+      console.log("❌ LINK INVALID:", g);
+      return;
+    }
+
+    const name = g.name || g.group_name || "";
+    const photo = g.photo || g.group_photo || "";
+
+    if(!selected[account]){
+      selected[account] = [];
+    }
+
+    // cek duplicate
+    const sudahAda =
+      selected[account].some(item =>
+
+        item.group_link === link &&
+        item.tanggal === date
+
+      );
+
+    if(!sudahAda){
+
+      selected[account].push({
+
+        tanggal: date,
+        group_link: link,
+        group_name: name,
+        group_photo: photo
+
+      });
+
+    }
+
+  });
+
+  console.log("DATA SAVE:", selected);
+
+  // LOCAL STORAGE
+  localStorage.setItem(
+    "selectedGroups",
+    JSON.stringify(selected)
+  );
+
+  // SAVE SERVER
+  fetch("https://fga-fake.vercel.app/api/save", {
+
+    method: "POST",
+
+    headers:{
+      "Content-Type":"application/json"
+    },
+
+    body: JSON.stringify(selected)
+
+  })
+  .then(r => r.text())
+  .then(res => {
+
+    console.log("SAVE RESPONSE:", res);
+
+    alert("✅ Berhasil disimpan!");
+
+    loadShare();
+
+    showPage("share");
+
+  })
+  .catch(err => {
+
+    console.log("SAVE ERROR:", err);
+
+    alert("❌ Gagal save");
+
+  });
+
+  }
+
+//👆
  
 
-  //fungsi hapus di schedule post hasil scrape 
+  //fungsi hapus di schedule post hasil scrape
   
 function deleteGroup(account, link, tanggal){
 
@@ -649,6 +724,38 @@ function deleteGroup(account, link, tanggal){
   alert("✅ Grup dihapus");
   
   }
+
+    //fungsi hapus di schedule post hasil share 
+  
+function deleteGroup(account, link, tanggal){
+
+  let data = JSON.parse(localStorage.getItem("selectedGroups") || "{}");
+
+  if(!data[account]) return;
+
+  data[account] = data[account].filter(
+    g => !(g.group_link === link && g.tanggal === tanggal)
+  );
+
+  if(data[account].length === 0){
+    delete data[account];
+  }
+
+  localStorage.setItem("selectedGroups", JSON.stringify(data));
+
+  // kirim ke server juga
+  fetch("https://fga-fake.vercel.app/api/save", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+
+  alert("✅ Grup dihapus");
+  
+  }
+  
 /* ================= NAVIGATION ================= */
 
 function showPage(page){
@@ -658,6 +765,9 @@ function showPage(page){
   document.getElementById("schedulePage").style.display = "none";
   document.getElementById("schedulePostPage").style.display = "none";
   document.getElementById("groupsPage").style.display = "none";
+  document.getElementById("schedulePostPageIg").style.display = "none";
+ document.getElementById("groupsPageIg").style.display = "none";
+ 
 
   // reset menu active
   document.querySelectorAll(".menu div").forEach(el=>{
