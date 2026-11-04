@@ -196,6 +196,69 @@ border-radius:8px;
   align-items:center;
 }
 
+  /* Samakan ukuran dan area scroll semua daftar grup */
+#groups-list,
+#share-pick-list,
+#share-saved-list {
+  width: 100%;
+  height: 80vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+/* Kartu daftar share mengikuti tampilan kartu Daftar Grup */
+#share-pick-list .card,
+#share-saved-list .card {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 18px;
+  border-radius: 16px;
+  margin-bottom: 18px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+#share-pick-list .left,
+#share-saved-list .left {
+  display: flex;
+  flex-direction: column;
+  width: 80px;
+  flex-shrink: 0;
+}
+
+#share-pick-list .left input,
+#share-saved-list .left input {
+  margin-bottom: 8px;
+  transform: scale(1.2);
+}
+
+#share-pick-list .group-img,
+#share-saved-list .group-img {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  object-fit: cover;
+  margin-bottom: 10px;
+  background: #ddd;
+  display: block;
+}
+
+#share-pick-list .right,
+#share-saved-list .right {
+  flex: 1;
+  min-width: 0;
+}
+
+#share-pick-list .group-name,
+#share-saved-list .group-name {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1e293b;
+  overflow-wrap: anywhere;
+}
+  
 .btn-save{
   background:#10b981;
   border:none;
