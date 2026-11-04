@@ -2883,8 +2883,8 @@ async function uploadMedia(page, filePath, fileName) {
       const clickedPhotos = await page.evaluate(() => {
         const buttons = [...document.querySelectorAll('div[role="button"]')];
         const btn = buttons.find(b => {
-          const text = (b.innerText || b.textContent || "").toLowerCase();
-          const aria = (b.getAttribute && (b.getAttribute("aria-label") || "")).toLowerCase();
+          const text = (b.innerText || b.textContent || "") || (el.innerText || el.textContent || "").toLowerCase();
+          const aria = (b.getAttribute && (b.getAttribute("aria-label") || "")) || (el.getAttribute("aria-label") || "").toLowerCase();
           return text.includes("photos") || text.includes("Koleksi foto") || text.includes("foto") || aria.includes("photo") || aria.includes("foto");
         });
         if (!btn) return false;
