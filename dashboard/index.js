@@ -2863,62 +2863,46 @@ async function uploadMedia(page, filePath, fileName) {
   console.log(`🧩 Deteksi ekstensi ${ext} -> isVideo=${isVideo}`);
 
   // ---- Klik tombol Photos / Foto / Video sesuai ekstensi ----
-  try {
-  if (isVideo) {
-    const clickedVideo = await page.evaluate(() => {
-      const span = [...document.querySelectorAll("span")].find(s =>
-        (s.textContent || "").trim().toLowerCase() === "video"
-      );
-
-      if (!span) return false;
-
-      const button = span.closest('div[role="button"], button');
-      if (!button) return false;
-
-      button.scrollIntoView({ block: "center", behavior: "instant" });
-      button.focus();
-
-      return true;
-    });
-
-    console.log("🎬 Tombol Video ditemukan:", clickedVideo);
-
-  } else {
-    const clickedPhotos = await page.evaluate(() => {
-      const buttons = [
-        ...document.querySelectorAll(
-          'div[role="button"][aria-label="Photos"], div[role="button"], button'
-        )
-      ];
-
-      const btn = buttons.find(b => {
-        const text = (b.innerText || b.textContent || "").toLowerCase();
-        const aria = (b.getAttribute("aria-label") || "").toLowerCase();
-
-        return (
-          aria === "photos" ||
-          text.includes("photos") ||
-          text.includes("koleksi foto") ||
-          text.includes("foto") ||
-          aria.includes("photo") ||
-          aria.includes("foto")
-        );
+  
+try {
+    if (isVideo) {
+      // klik tombol Video (mencari span dengan teks "Video" lalu klik parent button)
+      const clickedVideo = await page.evaluate(() => {
+        const span = [...document.querySelectorAll("span")].find(s => s.textContent && s.textContent.trim().toLowerCase() === "video");
+        if (!span) return false;
+        const button = span.closest('div[role="button"], button');
+        if (!button) return false;
+        button.scrollIntoView({ block: "center", behavior: "instant" });
+        ["pointerdown","touchstart","mousedown","mouseup","touchend","click"].forEach(type => {
+          button.dispatchEvent(new Event(type, { bubbles: true, cancelable: true }));
+        });
+        return true;
       });
-
-      if (!btn) return false;
-
-      btn.scrollIntoView({ block: "center", behavior: "instant" });
-      btn.focus();
-
-      return true;
-    });
-
-    console.log("🖼 Tombol Photos ditemukan:", clickedPhotos);
+      console.log("🎬 Klik tombol Video:", clickedVideo);
+    } else {
+      // klik tombol Photos/Foto
+      const clickedPhotos = await page.evaluate(() => {
+        const buttons = [...document.querySelectorAll('div[role="button"]')];
+        const btn = buttons.find(b => {
+          const text = (b.innerText || b.textContent || "").toLowerCase();
+          const aria = (b.getAttribute && (b.getAttribute("aria-label") || "")).toLowerCase();
+          return text.includes("photos") || text.includes("Koleksi foto") || text.includes("foto") || aria.includes("photo") || aria.includes("foto");
+        });
+        if (!btn) return false;
+        btn.scrollIntoView({ block: "center", behavior: "instant" });
+        btn.focus && btn.focus();
+        ["pointerdown","pointerup","touchstart","touchend","mousedown","mouseup","click"].forEach(type => {
+          btn.dispatchEvent(new Event(type, { bubbles: true, cancelable: true }));
+        });
+        return true;
+      });
+      console.log("🖼 Klik tombol Photos/Foto:", clickedPhotos);
+    }
+  } catch (e) {
+    console.log("⚠️ Error saat klik tombol media:", e.message);
   }
 
-} catch (e) {
-  console.log("⚠️ Error saat mencari tombol media:", e.message);
-}
+
      
   // beri waktu agar input file muncul
   await page.waitForTimeout(1500 + Math.floor(Math.random() * 2500));
