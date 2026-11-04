@@ -2561,28 +2561,62 @@ async function runAccount(page, row, accountName, today) {
       await uploadMedia(page, filePath, fileName, "Photos");
 
       // Cari tombol POST dengan innerText dan klik
-      const postClicked = await page.evaluate(() => {
-        const keywords = ["post", "posting", "POST", "POSTING", "bagikan"];
-        const buttons = [...document.querySelectorAll('div[role="button"]')];
+    ///  const postClicked = await page.evaluate(() => {
+       /// const keywords = ["post", "posting", "POST", "POSTING", "bagikan"];
+      ///  const buttons = [...document.querySelectorAll('div[role="button"]')];
 
-        const postBtn = buttons.find(btn => {
-          const text = (btn.innerText || "")
-            .replace(/\s+/g, " ")
-            .trim()
-            .toLowerCase();
-          return keywords.some(k => text === k || text.includes(k));
-        });
+      ///  const postBtn = buttons.find(btn => {
+       ////   const text = (btn.innerText || "")
+        ///    .replace(/\s+/g, " ")
+        ///    .trim()
+        ///    .toLowerCase();
+      ///    return keywords.some(k => text === k || text.includes(k));
+     ///   });
 
-        if (!postBtn) return false;
+     ///   if (!postBtn) return false;
 
-        postBtn.scrollIntoView({ block: "center" });
-        postBtn.click();
-        return true;
-      });
+    ///    postBtn.scrollIntoView({ block: "center" });
+     ///   postBtn.click();
+    ///    return true;
+   ////   });
 
-      if (!postClicked) {
-        throw new Error("❌ Tombol POST tidak ditemukan atau gagal diklik");
-      }
+    ////  if (!postClicked) {
+    ///    throw new Error("❌ Tombol POST tidak ditemukan atau gagal diklik");
+   ///   }
+
+      await page.evaluate(() => {
+  const keywords = [
+    "post", 
+    "Posting",
+    "POST",
+    "POSTING",
+    "posting",    // ID
+    "bagikan"     // ID (kadang muncul)
+  ];
+
+  const buttons = [...document.querySelectorAll('div[role="button"]')];
+
+  const postBtn = buttons.find(btn => {
+    const text = (btn.innerText || "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .toLowerCase();
+
+    return keywords.some(k => text === k || text.includes(k));
+  });
+
+  if (!postBtn) return false;
+
+  postBtn.scrollIntoView({ block: "center" });
+  postBtn.click();
+
+  return true;
+});
+
+console.log("✅ Klik POST (EN+ID)");
+await delay(3000);
+console.log(`✅ Posting selesai untuk ${account}`);
+}
 
       console.log("✅ Klik POST (EN+ID)");
       await delay(3000);
