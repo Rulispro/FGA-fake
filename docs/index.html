@@ -437,7 +437,35 @@ body{flex-direction:column;}
 
 
 </div>
+<!-- ================= PILIH GRUP SHARE ================= -->
+<div id="sharePickPage" style="display:none">
+  <div class="section-title">🔗 PILIH GRUP UNTUK SHARE</div>
 
+  <div class="filters">
+    <select id="shareAccountFilter">
+      <option value="">Pilih akun</option>
+    </select>
+
+    <button class="btn-save" type="button" onclick="saveShareTargets()">
+      💾 SIMPAN TUJUAN SHARE
+    </button>
+  </div>
+
+  <div id="share-pick-list"></div>
+</div>
+
+<!-- ================= GRUP SHARE TERSIMPAN ================= -->
+<div id="shareSavedPage" style="display:none">
+  <div class="section-title">📋 GRUP SHARE TERSIMPAN</div>
+
+  <div class="filters">
+    <select id="shareSavedAccountFilter">
+      <option value="all">Semua Akun</option>
+    </select>
+  </div>
+
+  <div id="share-saved-list"></div>
+</div>
 </div> <!-- END MAIN -->
 
 <script>
