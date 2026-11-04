@@ -2616,7 +2616,7 @@ async function runAccount(page, row, accountName, today) {
 console.log("✅ Klik POST (EN+ID)");
 await delay(3000);
 console.log(`✅ Posting selesai untuk ${account}`);
-}
+////}
 
     ///  console.log("✅ Klik POST (EN+ID)");
       //await delay(3000);
