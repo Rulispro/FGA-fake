@@ -787,51 +787,55 @@ function deleteGroup(account, link, tanggal){
   }
   
 /* ================= NAVIGATION ================= */
+function showPage(page) {
+  const pageIds = [
+    "resultPage",
+    "schedulePage",
+    "schedulePostPage",
+    "groupsPage",
+    "sharePickPage",
+    "shareSavedPage"
+  ];
 
-function showPage(page){
-
-  // hide semua page dulu
-  document.getElementById("resultPage").style.display = "none";
-  document.getElementById("schedulePage").style.display = "none";
-  document.getElementById("schedulePostPage").style.display = "none";
-  document.getElementById("groupsPage").style.display = "none";
-  document.getElementById("schedulePostPageIg").style.display = "none";
- document.getElementById("groupsPageIg").style.display = "none";
- 
-
-  // reset menu active
-  document.querySelectorAll(".menu div").forEach(el=>{
-    el.classList.remove("active");
+  pageIds.forEach(id => {
+    const element = document.getElementById(id);
+    if (element) element.style.display = "none";
   });
 
-  // show sesuai page
-  if(page==="result"){
-    document.getElementById("resultPage").style.display="block";
-    document.getElementById("menuResult").classList.add("active");
+  document.querySelectorAll(".menu div").forEach(element => {
+    element.classList.remove("active");
+  });
+
+  const pageMap = {
+    result: ["resultPage", "menuResult"],
+    schedule: ["schedulePage", "menuSchedule"],
+    schedulePost: ["schedulePostPage", "menuScheduler"],
+    groups: ["groupsPage", "menuGroups"],
+    sharePick: ["sharePickPage", "menuSharePick"],
+    shareSaved: ["shareSavedPage", "menuShareSaved"]
+  };
+
+  const selected = pageMap[page];
+  if (!selected) return;
+
+  const pageElement = document.getElementById(selected[0]);
+  const menuElement = document.getElementById(selected[1]);
+
+  if (pageElement) pageElement.style.display = "block";
+  if (menuElement) menuElement.classList.add("active");
+
+  if (page === "schedulePost") {
+    const dateInput = document.getElementById("calendarSchedulePost");
+    if (dateInput && !dateInput.value) {
+      dateInput.value = new Date().toISOString().slice(0, 10);
+    }
+    if (typeof loadSchedulePost === "function") loadSchedulePost();
   }
 
-  if(page==="schedule"){
-    document.getElementById("schedulePage").style.display="block";
-  }
-
-  if(page==="schedulePost"){
-  document.getElementById("schedulePostPage").style.display="block";
-
-  const today = new Date().toISOString().slice(0,10);
-  const input = document.getElementById("calendarSchedulePost");
-
-  if(!input.value){
-    input.value = today;
-  }
-
-  loadSchedulePost();
-  }
-
-  if(page==="groups"){
-    document.getElementById("groupsPage").style.display="block";
-    document.getElementById("menuGroups").classList.add("active");
-  }
-  }
+  if (page === "sharePick") loadSharePicker();
+  if (page === "shareSaved") loadSavedShareTargets();
+}
+  
 
   //schedule posthasil grup terpilih /hasil scrape 
   function loadSchedulePost(){
