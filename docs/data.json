@@ -1,15 +1,16 @@
 [
   {
-    "account": "Fitri Ay",
+    "account": "Vita Alvia",
     "tanggal": "2026-11-04",
     "jam_post": "",
     "mode": "group",
-    "group_link": "https://m.facebook.com/groups/838604890873721",
-    "group_name": "Masak apa ya hari ini?🤔 (Masakan Rumahan🥘🍳)",
+    "group_link": "https://m.facebook.com/groups/574870830947581/",
+    "group_name": "modal usaha kerja sama",
     "group_photo": null,
-    "caption": "Alhamdulillah lancar",
+    "caption": "yuk gais",
     "delay_group": "7000,9000",
     "delay_akun": "12000",
-    "status": "done"
+    "status": "error",
+    "error": "❌ Gagal download media: 404"
   }
 ]
