@@ -458,7 +458,7 @@ body{flex-direction:column;}
       <option value="">Pilih akun</option>
     </select>
        <input type="date" id="shareDateFilter">
-    <button class="btn-save" type="button" onclick="saveShareTargets()">
+    <button class="btn-save" type="button" onclick="saveShareTarget()">
       💾 SIMPAN TUJUAN SHARE
     </button>
   </div>
@@ -613,7 +613,7 @@ function saveToSchedule(){
   }
 
 //hasil share👇
-function saveToScheduleig(){
+function saveShareTargets(){
 
   const date =
     document.getElementById("scheduleDate").value;
@@ -697,7 +697,7 @@ function saveToScheduleig(){
 
   // LOCAL STORAGE
   localStorage.setItem(
-    "selectedGroups",
+    "shareTargetsGroups",
     JSON.stringify(selected)
   );
 
@@ -785,7 +785,7 @@ function deleteGroup(account, link, tanggal){
     delete data[account];
   }
 
-  localStorage.setItem("selectedGroups", JSON.stringify(data));
+  localStorage.setItem("shareTargetsGroups", JSON.stringify(data));
 
   // kirim ke server juga
   fetch("https://fga-fake.vercel.app/api/save", {
