@@ -71,6 +71,156 @@ function saveOffset(account, today, offset) {
 //);
 ///👆///
 
+  //HELPER SHARE POSTINGAN LKE GRUP 
+
+// Gunakan selectedData yang sudah dibaca dari docs/selected.json di bagian atas file.
+
+async function clickTextInPage(page, labels, rootSelector = "body") {
+  return page.evaluate(({ labels, rootSelector }) => {
+    const root = document.querySelector(rootSelector) || document.body;
+    const wanted = labels.map(x => x.toLowerCase());
+
+    const elements = [
+      ...root.querySelectorAll('button, [role="button"], [role="menuitem"]')
+    ];
+
+    const target = elements.find(el => {
+      const text = (el.innerText || el.textContent || "").trim().toLowerCase();
+      const aria = (el.getAttribute("aria-label") || "").trim().toLowerCase();
+      return wanted.some(label => text.includes(label) || aria.includes(label));
+    });
+
+    if (!target) return false;
+    target.click();
+    return true;
+  }, { labels, rootSelector });
+}
+
+async function shareStatusToSelectedGroups(page, account, caption) {
+  const today = new Date(
+    new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" })
+  ).toISOString().slice(0, 10);
+
+  const groups = (selectedData[account] || []).filter(group =>
+    group.tanggal === today &&
+    group.group_link &&
+    group.group_name
+  );
+
+  if (!groups.length) {
+    console.log(`ℹ️ Tidak ada grup terpilih untuk ${account} tanggal ${today}`);
+    return;
+  }
+
+  // Temukan postingan status yang baru dibuat berdasarkan caption.
+  const postFound = await page.waitForFunction(
+    text => [...document.querySelectorAll('[role="article"], article')]
+      .some(article => (article.innerText || "").includes(text)),
+    { timeout: 30000 },
+    caption
+  ).then(() => true).catch(() => false);
+
+  if (!postFound) {
+    throw new Error("Postingan status tidak ditemukan di halaman setelah diterbitkan");
+  }
+
+  for (const group of groups) {
+    console.log(`🔗 Membagikan status ke grup: ${group.group_name}`);
+
+    const openedShare = await page.evaluate(captionText => {
+      const article = [...document.querySelectorAll('[role="article"], article')]
+        .find(el => (el.innerText || "").includes(captionText));
+
+      if (!article) return false;
+
+      const buttons = [
+        ...article.querySelectorAll('button, [role="button"]')
+      ];
+
+      const shareButton = buttons.find(el => {
+        const text = (el.innerText || el.textContent || "").toLowerCase();
+        const aria = (el.getAttribute("aria-label") || "").toLowerCase();
+        return text.includes("share") || text.includes("bagikan") ||
+               aria.includes("share") || aria.includes("bagikan");
+      });
+
+      if (!shareButton) return false;
+      shareButton.click();
+      return true;
+    }, caption);
+
+    if (!openedShare) {
+      console.log(`⚠️ Tombol Bagikan tidak ditemukan untuk postingan: ${group.group_name}`);
+      continue;
+    }
+
+    await page.waitForTimeout(1000);
+
+    const openedGroupOption = await clickTextInPage(
+      page,
+      ["share to a group", "bagikan ke grup"]
+    );
+
+    if (!openedGroupOption) {
+      console.log("⚠️ Opsi 'Bagikan ke grup' tidak ditemukan");
+      continue;
+    }
+
+    await page.waitForTimeout(1000);
+
+    const search = await page.$(
+      '[role="dialog"] input[type="text"], [role="dialog"] input[type="search"]'
+    );
+
+    if (!search) {
+      console.log("⚠️ Kolom pencarian grup tidak ditemukan");
+      continue;
+    }
+
+    await search.click();
+    await search.type(group.group_name, { delay: 50 });
+    await page.waitForTimeout(1500);
+
+    const selectedGroup = await page.evaluate(groupName => {
+      const dialog = document.querySelector('[role="dialog"]') || document.body;
+      const candidates = [
+        ...dialog.querySelectorAll('[role="option"], [role="button"], label, li')
+      ];
+
+      const item = candidates.find(el =>
+        (el.innerText || el.textContent || "").trim()
+          .toLowerCase()
+          .includes(groupName.trim().toLowerCase())
+      );
+
+      if (!item) return false;
+      item.click();
+      return true;
+    }, group.group_name);
+
+    if (!selectedGroup) {
+      console.log(`⚠️ Grup tidak ditemukan di dialog: ${group.group_name}`);
+      continue;
+    }
+
+    await page.waitForTimeout(800);
+
+    const submitted = await clickTextInPage(
+      page,
+      ["post", "posting", "share", "bagikan"]
+    );
+
+    if (!submitted) {
+      console.log(`⚠️ Tombol kirim/bagikan tidak ditemukan: ${group.group_name}`);
+      continue;
+    }
+
+    await page.waitForTimeout(2500);
+    console.log(`✅ Perintah bagikan dikirim ke: ${group.group_name}`);
+  }
+}
+
+
              ////👇 DENGAN JAM///////
 const docsDir = path.join(__dirname, "docs");
 const dataPath = path.join(docsDir, "data.json");
