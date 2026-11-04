@@ -849,24 +849,6 @@ function deleteGroup(account, link, tanggal){
   
 /* ================= NAVIGATION ================= */
 function showPage(page) {
-  const pageIds = [
-    "resultPage",
-    "schedulePage",
-    "schedulePostPage",
-    "groupsPage",
-    "sharePickPage",
-    "shareSavedPage"
-  ];
-
-  pageIds.forEach(id => {
-    const element = document.getElementById(id);
-    if (element) element.style.display = "none";
-  });
-
-  document.querySelectorAll(".menu div").forEach(element => {
-    element.classList.remove("active");
-  });
-
   const pageMap = {
     result: ["resultPage", "menuResult"],
     schedule: ["schedulePage", "menuSchedule"],
@@ -875,6 +857,15 @@ function showPage(page) {
     sharePick: ["sharePickPage", "menuSharePick"],
     shareSaved: ["shareSavedPage", "menuShareSaved"]
   };
+
+  Object.values(pageMap).forEach(([pageId]) => {
+    const element = document.getElementById(pageId);
+    if (element) element.style.display = "none";
+  });
+
+  document.querySelectorAll(".menu div").forEach(element => {
+    element.classList.remove("active");
+  });
 
   const selected = pageMap[page];
   if (!selected) return;
@@ -887,15 +878,25 @@ function showPage(page) {
 
   if (page === "schedulePost") {
     const dateInput = document.getElementById("calendarSchedulePost");
+
     if (dateInput && !dateInput.value) {
       dateInput.value = new Date().toISOString().slice(0, 10);
     }
-    if (typeof loadSchedulePost === "function") loadSchedulePost();
+
+    if (typeof loadSchedulePost === "function") {
+      loadSchedulePost();
+    }
   }
 
-  if (page === "sharePick") loadSharePicker();
-  if (page === "shareSaved") loadSavedShareTargets();
+  if (page === "sharePick" && typeof loadSharePicker === "function") {
+    loadSharePicker();
+  }
+
+  if (page === "shareSaved" && typeof loadSavedShareTargets === "function") {
+    loadSavedShareTargets();
+  }
 }
+  
   
 
   //schedule posthasil grup terpilih /hasil scrape 
@@ -948,7 +949,166 @@ function showPage(page) {
     });
 
   });
+///HELPER DAFTAR SHARE POSTINGAN KE GRUP 
 
+    function createShareGroupCard(group, account, options = {}) {
+  const {
+    checked = false,
+    disabled = false,
+    onChange = null
+  } = options;
+
+  const link = String(
+    group.link || group.group_link || group.grup_link || ""
+  ).trim();
+
+  const name = String(
+    group.name || group.group_name || "Grup tanpa nama"
+  );
+
+  const photo = String(
+    group.photo || group.group_photo || ""
+  );
+
+  const card = document.createElement("div");
+  card.className = "card";
+
+  const left = document.createElement("div");
+  left.className = "left";
+
+  // Checkbox sengaja ditampilkan juga di halaman tersimpan,
+  // agar posisi gambar dan isi card tetap serupa dengan Daftar Grup.
+  const checkbox = document.createElement("input");
+  checkbox.type = "checkbox";
+  checkbox.checked = checked;
+  checkbox.disabled = disabled;
+  checkbox.setAttribute("aria-label", `Pilih ${name}`);
+
+  if (typeof onChange === "function") {
+    checkbox.addEventListener("change", event => {
+      onChange(event.target.checked, link);
+    });
+  }
+
+  const image = document.createElement("img");
+  image.className = "group-img";
+  image.src = photo || "https://via.placeholder.com/70";
+  image.alt = "";
+
+  left.append(checkbox, image);
+
+  const right = document.createElement("div");
+  right.className = "right";
+
+  const groupName = document.createElement("div");
+  groupName.className = "group-name";
+  groupName.textContent = name;
+
+  const accountName = document.createElement("div");
+  accountName.textContent = account;
+  accountName.style.cssText = "font-size:13px;opacity:.65";
+
+  right.append(groupName, accountName);
+
+  card.append(left, right);
+
+  return card;
+}
+
+function renderSharePicker() {
+  const accountSelect = document.getElementById("shareAccountFilter");
+  const list = document.getElementById("share-pick-list");
+
+  if (!accountSelect || !list) return;
+
+  const account = accountSelect.value;
+  list.replaceChildren();
+
+  if (!account) {
+    list.textContent = "Pilih akun untuk melihat daftar grup.";
+    return;
+  }
+
+  const groups = Array.isArray(shareGroupsData[account])
+    ? shareGroupsData[account]
+    : [];
+
+  if (!shareDrafts[account]) {
+    const savedGroups = Array.isArray(shareTargetsData[account])
+      ? shareTargetsData[account]
+      : [];
+
+    shareDrafts[account] = new Set(
+      savedGroups
+        .map(group => String(group.group_link || group.link || "").trim())
+        .filter(Boolean)
+    );
+  }
+
+  if (!groups.length) {
+    list.textContent = "Tidak ada grup untuk akun ini.";
+    return;
+  }
+
+  groups.forEach(group => {
+    const link = String(
+      group.link || group.group_link || group.grup_link || ""
+    ).trim();
+
+    if (!link) return;
+
+    const card = createShareGroupCard(group, account, {
+      checked: shareDrafts[account].has(link),
+      onChange: checked => {
+        if (checked) {
+          shareDrafts[account].add(link);
+        } else {
+          shareDrafts[account].delete(link);
+        }
+      }
+    });
+
+    list.appendChild(card);
+  });
+}
+
+function renderSavedShareTargets() {
+  const accountSelect = document.getElementById("shareSavedAccountFilter");
+  const list = document.getElementById("share-saved-list");
+
+  if (!accountSelect || !list) return;
+
+  const selectedAccount = accountSelect.value || "all";
+  const accounts = selectedAccount === "all"
+    ? Object.keys(shareTargetsData)
+    : [selectedAccount];
+
+  list.replaceChildren();
+
+  let total = 0;
+
+  accounts.forEach(account => {
+    const groups = Array.isArray(shareTargetsData[account])
+      ? shareTargetsData[account]
+      : [];
+
+    groups.forEach(group => {
+      total++;
+
+      const card = createShareGroupCard(group, account, {
+        checked: true,
+        disabled: true
+      });
+
+      list.appendChild(card);
+    });
+  });
+
+  if (total === 0) {
+    list.textContent = "Belum ada grup share tersimpan.";
+  }
+}
+    
   // FILTER TANGGAL
   const selectedDate =
     document.getElementById("calendarSchedulePost").value;
