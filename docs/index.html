@@ -285,6 +285,9 @@ body{flex-direction:column;}
 <div id="menuSchedule" onclick="showPage('schedule')">📅 SCHEDULE XLSX</div>
 <div id="menuScheduler" onclick="showPage('schedulePost')">📅 SCHEDULE POST HASIL SCRAPE</div>
 <div id="menuGroups" onclick="showPage('groups')">👥 DAFTAR GRUP</div></div>
+<div id="menuHasilShare" onclick="showPage('share')">👥 HASIL SHARE</div></div>
+<div id="menuDaftarShare" onclick="showPage('daftar')">👥 DAFTAR SHARE</div></div>
+
 </div>
 
 
@@ -367,6 +370,104 @@ body{flex-direction:column;}
       <input type="date" id="scheduleDate">
 
       <button onclick="saveToSchedule()" class="btn-save">
+        💾 SIMPAN GRUP
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- LIST GRUP -->
+  <div id="groups-list"></div>
+
+</div>
+
+
+</div>
+
+    <!-- ================= SCHEDULE DAFTAR SHARE BARU ================= -->
+<div id="schedulePostPageId" style="display:none">
+
+<div class="section-title">📅 DAFTAR SHARE POSTING (GRUP TERPILIH)</div>
+
+<div class="filters">
+<select id="schedulePostAccountFilterId">
+<option value="all">Semua Akun</option>
+</select>
+
+<input type="date" id="calendarSchedulePostId">
+</div>
+
+<div id="schedulePost-list"></div>
+
+</div>
+  
+<!-- ================= GROUPS ================= -->
+<div id="groupsPage" style="display:none">
+
+  <div class="section-title">👥 PILIH GRUP</div>
+
+  <!-- HEADER FILTER -->
+  <div class="filters groups-header">
+
+    <div class="filters">
+
+      <select id="groupAccountFilter">
+        <option value="all">Semua Akun</option>
+      </select>
+
+      <input type="date" id="scheduleDate">
+
+      <button onclick="saveToScheduleId()" class="btn-save">
+        💾 SIMPAN GRUP
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- LIST GRUP -->
+  <div id="groups-list"></div>
+
+</div>
+
+
+</div>
+<!---daftar share-->
+    <!-- ================= SCHEDULE HASIL SHARE BARU ================= -->
+<div id="schedulePostPageIg" style="display:none">
+
+<div class="section-title">📅 JADWAL POSTING HASIL SHARE (GRUP TERPILIH)</div>
+
+<div class="filters">
+<select id="schedulePostAccountFilterIg">
+<option value="all">Semua Akun</option>
+</select>
+
+<input type="date" id="calendarSchedulePostIg">
+</div>
+
+<div id="schedulePost-list"></div>
+
+</div>
+  
+<!-- ================= GROUPS ================= -->
+<div id="groupsPage" style="display:none">
+
+  <div class="section-title">👥 PILIH GRUP</div>
+
+  <!-- HEADER FILTER -->
+  <div class="filters groups-header">
+
+    <div class="filters">
+
+      <select id="groupAccountFilterIg">
+        <option value="all">Semua Akun</option>
+      </select>
+
+      <input type="date" id="scheduleDate">
+
+      <button onclick="saveToScheduleIg()" class="btn-save">
         💾 SIMPAN GRUP
       </button>
 
