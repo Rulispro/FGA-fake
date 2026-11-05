@@ -1590,7 +1590,7 @@ showPage("result");
 
 });
 
-  const SHARE_TARGETS_URL = "shareTargets.json";
+  const SHARE_TARGETS_URL = "docs/shareTargets.json";
 const SHARE_SAVE_API = "https://fga-fake.vercel.app/api/save-share-targets";
 
 let shareGroupsData = {};
@@ -1599,7 +1599,7 @@ const shareDrafts = {};
 
 async function loadShareData() {
   const [groupsResponse, targetsResponse] = await Promise.all([
-    fetch(`groups.json?${Date.now()}`),
+    fetch(`selectedGroups?${Date.now()}`),
     fetch(`${SHARE_TARGETS_URL}?${Date.now()}`).catch(() => null)
   ]);
 
