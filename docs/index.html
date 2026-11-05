@@ -446,6 +446,7 @@ body{flex-direction:column;}
 </div>
 
 
+</div>
 
 
 <!---daftar share-->
@@ -458,7 +459,7 @@ body{flex-direction:column;}
       <option value="">Pilih akun</option>
     </select>
        <input type="date" id="shareDateFilter">
-    <button class="btn-save" type="button" onclick="saveShareTarget()">
+    <button class="btn-save" type="button" onclick="saveShareTargets()">
       💾 SIMPAN TUJUAN SHARE
     </button>
   </div>
@@ -471,11 +472,10 @@ body{flex-direction:column;}
   <div class="section-title">📋 GRUP SHARE TERSIMPAN</div>
 
   <div class="filters">
-  <select id="shareSavedAccountFilter">
-    <option value="all">Semua Akun</option>
-  </select>
-
-  <input type="date" id="shareSavedDateFilter">
+    <select id="shareSavedAccountFilter">
+      <option value="all">Semua Akun</option>
+    </select>
+    <input type="date" id="shareSavedDateFilter">
   </div>
    
   <div id="share-saved-list"></div>
@@ -613,7 +613,7 @@ function saveToSchedule(){
   }
 
 //hasil share👇
-function saveShareTargets(){
+function saveToScheduleig(){
 
   const date =
     document.getElementById("scheduleDate").value;
@@ -697,12 +697,12 @@ function saveShareTargets(){
 
   // LOCAL STORAGE
   localStorage.setItem(
-    "shareTargetsGroups",
+    "selectedGroups",
     JSON.stringify(selected)
   );
 
   // SAVE SERVER
-  fetch("https://fga-fake-save-share-targets.vercel.app/", {
+  fetch("https://fga-fake.vercel.app/api/save", {
 
     method: "POST",
 
@@ -785,10 +785,10 @@ function deleteGroup(account, link, tanggal){
     delete data[account];
   }
 
-  localStorage.setItem("shareTargetsGroups", JSON.stringify(data));
+  localStorage.setItem("selectedGroups", JSON.stringify(data));
 
   // kirim ke server juga
-  fetch("https://fga-fake-save-share-targets.vercel.app/", {
+  fetch("https://fga-fake.vercel.app/api/save", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
