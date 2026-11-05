@@ -771,7 +771,7 @@ function deleteGroup(account, link, tanggal){
 
     //fungsi hapus di schedule post hasil share 
   
-function deleteGroup(account, link, tanggal){
+function deleteShareGroup(account, link, tanggal){
 
   let data = JSON.parse(localStorage.getItem("shareTargetsGroups") || "{}");
 
@@ -1130,7 +1130,7 @@ function renderSavedShareTargets() {
   <div class="action">
 
     <button onclick="
-      deleteGroup(
+      deleteShareGroup(
         '${item.account}',
         '${item.group_link}',
         '${item.tanggal}'
