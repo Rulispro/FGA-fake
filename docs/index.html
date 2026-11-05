@@ -196,6 +196,69 @@ border-radius:8px;
   align-items:center;
 }
 
+  /* Samakan ukuran dan area scroll semua daftar grup */
+#groups-list,
+#share-pick-list,
+#share-saved-list {
+  width: 100%;
+  height: 80vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+/* Kartu daftar share mengikuti tampilan kartu Daftar Grup */
+#share-pick-list .card,
+#share-saved-list .card {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 18px;
+  border-radius: 16px;
+  margin-bottom: 18px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+#share-pick-list .left,
+#share-saved-list .left {
+  display: flex;
+  flex-direction: column;
+  width: 80px;
+  flex-shrink: 0;
+}
+
+#share-pick-list .left input,
+#share-saved-list .left input {
+  margin-bottom: 8px;
+  transform: scale(1.2);
+}
+
+#share-pick-list .group-img,
+#share-saved-list .group-img {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  object-fit: cover;
+  margin-bottom: 10px;
+  background: #ddd;
+  display: block;
+}
+
+#share-pick-list .right,
+#share-saved-list .right {
+  flex: 1;
+  min-width: 0;
+}
+
+#share-pick-list .group-name,
+#share-saved-list .group-name {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1e293b;
+  overflow-wrap: anywhere;
+}
+  
 .btn-save{
   background:#10b981;
   border:none;
@@ -277,21 +340,19 @@ body{flex-direction:column;}
 <body>
 
 <!-- SIDEBAR -->
+<!-- SIDEBAR -->
 <div class="sidebar">
-<div class="logo">🤖 BOT PRO</div>
+  <div class="logo">🤖 BOT PRO</div>
 
-<div class="menu">
-<div id="menuResult" onclick="showPage('result')">📌 HASIL POSTING</div>
-<div id="menuSchedule" onclick="showPage('schedule')">📅 SCHEDULE XLSX</div>
-<div id="menuScheduler" onclick="showPage('schedulePost')">📅 SCHEDULE POST HASIL SCRAPE</div>
-<div id="menuGroups" onclick="showPage('groups')">👥 DAFTAR GRUP</div></div>
-<div id="menuHasilShare" onclick="showPage('share')">👥 HASIL SHARE</div></div>
-<div id="menuDaftarShare" onclick="showPage('daftar')">👥 DAFTAR SHARE</div></div>
-  
-<div id="menuSharePick" onclick="showPage('sharePick')">🔗 PILIH GRUP UNTUK SHARE</div>
-<div id="menuShareSaved" onclick="showPage('shareSaved')">📋 GRUP SHARE TERSIMPAN</div>
+  <div class="menu">
+    <div id="menuResult" onclick="showPage('result')">📌 HASIL POSTING</div>
+    <div id="menuSchedule" onclick="showPage('schedule')">📅 SCHEDULE XLSX</div>
+    <div id="menuScheduler" onclick="showPage('schedulePost')">📅 SCHEDULE POST HASIL SCRAPE</div>
+    <div id="menuGroups" onclick="showPage('groups')">👥 DAFTAR GRUP</div>
+    <div id="menuSharePick" onclick="showPage('sharePick')">🔗 PILIH GRUP UNTUK SHARE</div>
+    <div id="menuShareSaved" onclick="showPage('shareSaved')">📋 GRUP SHARE TERSIMPAN</div>
+  </div>
 </div>
-
 
 <!-- MAIN -->
 <div class="main">
@@ -385,58 +446,9 @@ body{flex-direction:column;}
 </div>
 
 
-</div>
 
 
 <!---daftar share-->
-    <!-- ================= SCHEDULE HASIL SHARE BARU ================= -->
-<div id="schedulePostPageIg" style="display:none">
-
-<div class="section-title">📅 JADWAL POSTING HASIL SHARE (GRUP TERPILIH)</div>
-
-<div class="filters">
-<select id="schedulePostAccountFilterIg">
-<option value="all">Semua Akun</option>
-</select>
-
-<input type="date" id="calendarSchedulePostIg">
-</div>
-
-<div id="schedulePost-list"></div>
-
-</div>
-  
-<!-- ================= GROUPS ================= -->
-<div id="groupsPageIg" style="display:none">
-
-  <div class="section-title">👥 PILIH GRUP</div>
-
-  <!-- HEADER FILTER -->
-  <div class="filters groups-header">
-
-    <div class="filters">
-
-      <select id="groupAccountFilterIg">
-        <option value="all">Semua Akun</option>
-      </select>
-
-      <input type="date" id="scheduleDate">
-
-      <button onclick="saveToScheduleIg()" class="btn-save">
-        💾 SIMPAN GRUP
-      </button>
-
-    </div>
-
-  </div>
-
-  <!-- LIST GRUP -->
-  <div id="groups-list"></div>
-
-</div>
-
-
-</div>
 <!-- ================= PILIH GRUP SHARE ================= -->
 <div id="sharePickPage" style="display:none">
   <div class="section-title">🔗 PILIH GRUP UNTUK SHARE</div>
@@ -445,7 +457,7 @@ body{flex-direction:column;}
     <select id="shareAccountFilter">
       <option value="">Pilih akun</option>
     </select>
-
+       <input type="date" id="shareDateFilter">
     <button class="btn-save" type="button" onclick="saveShareTargets()">
       💾 SIMPAN TUJUAN SHARE
     </button>
@@ -459,11 +471,13 @@ body{flex-direction:column;}
   <div class="section-title">📋 GRUP SHARE TERSIMPAN</div>
 
   <div class="filters">
-    <select id="shareSavedAccountFilter">
-      <option value="all">Semua Akun</option>
-    </select>
-  </div>
+  <select id="shareSavedAccountFilter">
+    <option value="all">Semua Akun</option>
+  </select>
 
+  <input type="date" id="shareSavedDateFilter">
+  </div>
+   
   <div id="share-saved-list"></div>
 </div>
 </div> <!-- END MAIN -->
@@ -788,24 +802,6 @@ function deleteGroup(account, link, tanggal){
   
 /* ================= NAVIGATION ================= */
 function showPage(page) {
-  const pageIds = [
-    "resultPage",
-    "schedulePage",
-    "schedulePostPage",
-    "groupsPage",
-    "sharePickPage",
-    "shareSavedPage"
-  ];
-
-  pageIds.forEach(id => {
-    const element = document.getElementById(id);
-    if (element) element.style.display = "none";
-  });
-
-  document.querySelectorAll(".menu div").forEach(element => {
-    element.classList.remove("active");
-  });
-
   const pageMap = {
     result: ["resultPage", "menuResult"],
     schedule: ["schedulePage", "menuSchedule"],
@@ -814,6 +810,15 @@ function showPage(page) {
     sharePick: ["sharePickPage", "menuSharePick"],
     shareSaved: ["shareSavedPage", "menuShareSaved"]
   };
+
+  Object.values(pageMap).forEach(([pageId]) => {
+    const element = document.getElementById(pageId);
+    if (element) element.style.display = "none";
+  });
+
+  document.querySelectorAll(".menu div").forEach(element => {
+    element.classList.remove("active");
+  });
 
   const selected = pageMap[page];
   if (!selected) return;
@@ -826,17 +831,92 @@ function showPage(page) {
 
   if (page === "schedulePost") {
     const dateInput = document.getElementById("calendarSchedulePost");
+
     if (dateInput && !dateInput.value) {
       dateInput.value = new Date().toISOString().slice(0, 10);
     }
-    if (typeof loadSchedulePost === "function") loadSchedulePost();
+
+    if (typeof loadSchedulePost === "function") {
+      loadSchedulePost();
+    }
   }
 
-  if (page === "sharePick") loadSharePicker();
-  if (page === "shareSaved") loadSavedShareTargets();
+  if (page === "sharePick" && typeof loadSharePicker === "function") {
+    loadSharePicker();
+  }
+
+  if (page === "shareSaved" && typeof loadSavedShareTargets === "function") {
+    loadSavedShareTargets();
+  }
 }
   
+  //HELPER POSTING KE GRUP 
 
+  
+function createShareGroupCard(group, account, options = {}) {
+  const {
+    checked = false,
+    disabled = false,
+    onChange = null
+  } = options;
+
+  const link = String(
+    group.link || group.group_link || group.grup_link || ""
+  ).trim();
+
+  const name = String(
+    group.name || group.group_name || "Grup tanpa nama"
+  );
+
+  const photo = String(
+    group.photo || group.group_photo || ""
+  );
+
+  const card = document.createElement("div");
+  card.className = "card";
+
+  const left = document.createElement("div");
+  left.className = "left";
+
+  // Checkbox sengaja ditampilkan juga di halaman tersimpan,
+  // agar posisi gambar dan isi card tetap serupa dengan Daftar Grup.
+  const checkbox = document.createElement("input");
+  checkbox.type = "checkbox";
+  checkbox.checked = checked;
+  checkbox.disabled = disabled;
+  checkbox.setAttribute("aria-label", `Pilih ${name}`);
+
+  if (typeof onChange === "function") {
+    checkbox.addEventListener("change", event => {
+      onChange(event.target.checked, link);
+    });
+  }
+
+  const image = document.createElement("img");
+  image.className = "group-img";
+  image.src = photo || "https://via.placeholder.com/70";
+  image.alt = "";
+
+  left.append(checkbox, image);
+
+  const right = document.createElement("div");
+  right.className = "right";
+
+  const groupName = document.createElement("div");
+  groupName.className = "group-name";
+  groupName.textContent = name;
+
+  const accountName = document.createElement("div");
+  accountName.textContent = account;
+  accountName.style.cssText = "font-size:13px;opacity:.65";
+
+  right.append(groupName, accountName);
+
+  card.append(left, right);
+
+  return card;
+}
+  
   //schedule posthasil grup terpilih /hasil scrape 
   function loadSchedulePost(){
 
@@ -888,6 +968,102 @@ function showPage(page) {
 
   });
 
+    
+
+function renderSharePicker() {
+  const accountSelect = document.getElementById("shareAccountFilter");
+  const list = document.getElementById("share-pick-list");
+
+  if (!accountSelect || !list) return;
+
+  const account = accountSelect.value;
+  list.replaceChildren();
+
+  if (!account) {
+    list.textContent = "Pilih akun untuk melihat daftar grup.";
+    return;
+  }
+
+  const groups = Array.isArray(shareGroupsData[account])
+    ? shareGroupsData[account]
+    : [];
+
+  if (!shareDrafts[account]) {
+    const savedGroups = Array.isArray(shareTargetsData[account])
+      ? shareTargetsData[account]
+      : [];
+
+    shareDrafts[account] = new Set(
+      savedGroups
+        .map(group => String(group.group_link || group.link || "").trim())
+        .filter(Boolean)
+    );
+  }
+
+  if (!groups.length) {
+    list.textContent = "Tidak ada grup untuk akun ini.";
+    return;
+  }
+
+  groups.forEach(group => {
+    const link = String(
+      group.link || group.group_link || group.grup_link || ""
+    ).trim();
+
+    if (!link) return;
+
+    const card = createShareGroupCard(group, account, {
+      checked: shareDrafts[account].has(link),
+      onChange: checked => {
+        if (checked) {
+          shareDrafts[account].add(link);
+        } else {
+          shareDrafts[account].delete(link);
+        }
+      }
+    });
+
+    list.appendChild(card);
+  });
+}
+
+function renderSavedShareTargets() {
+  const accountSelect = document.getElementById("shareSavedAccountFilter");
+  const list = document.getElementById("share-saved-list");
+
+  if (!accountSelect || !list) return;
+
+  const selectedAccount = accountSelect.value || "all";
+  const accounts = selectedAccount === "all"
+    ? Object.keys(shareTargetsData)
+    : [selectedAccount];
+
+  list.replaceChildren();
+
+  let total = 0;
+
+  accounts.forEach(account => {
+    const groups = Array.isArray(shareTargetsData[account])
+      ? shareTargetsData[account]
+      : [];
+
+    groups.forEach(group => {
+      total++;
+
+      const card = createShareGroupCard(group, account, {
+        checked: true,
+        disabled: true
+      });
+
+      list.appendChild(card);
+    });
+  });
+
+  if (total === 0) {
+    list.textContent = "Belum ada grup share tersimpan.";
+  }
+}
+    
   // FILTER TANGGAL
   const selectedDate =
     document.getElementById("calendarSchedulePost").value;
@@ -1413,6 +1589,351 @@ showPage("result");
     .forEach(cb => cb.checked = false);
 
 });
+
+  const SHARE_TARGETS_URL = "shareTargets.json";
+const SHARE_SAVE_API = "https://fga-fake.vercel.app/api/save-share-targets";
+
+let shareGroupsData = {};
+let shareTargetsData = {};
+const shareDrafts = {};
+
+async function loadShareData() {
+  const [groupsResponse, targetsResponse] = await Promise.all([
+    fetch(`groups.json?${Date.now()}`),
+    fetch(`${SHARE_TARGETS_URL}?${Date.now()}`).catch(() => null)
+  ]);
+
+  if (!groupsResponse.ok) {
+    throw new Error(`Gagal membaca groups.json (${groupsResponse.status})`);
+  }
+
+  shareGroupsData = await groupsResponse.json();
+
+  // File ini harus dibuat agar dapat ditampilkan di GitHub Pages.
+  if (targetsResponse && targetsResponse.ok) {
+    shareTargetsData = await targetsResponse.json();
+  } else {
+    shareTargetsData = {};
+  }
+
+  if (!shareTargetsData || typeof shareTargetsData !== "object") {
+    shareTargetsData = {};
+  }
+}
+
+function getShareGroupLink(group) {
+  return String(group.link || group.group_link || group.grup_link || "").trim();
+}
+
+function getShareGroupName(group) {
+  return String(group.name || group.group_name || "Grup tanpa nama");
+}
+
+function getShareGroupPhoto(group) {
+  return String(group.photo || group.group_photo || "");
+}
+
+async function loadSharePicker() {
+  const accountSelect = document.getElementById("shareAccountFilter");
+  const list = document.getElementById("share-pick-list");
+
+  if (!accountSelect || !list) return;
+
+  list.textContent = "Memuat daftar grup…";
+
+  try {
+    await loadShareData();
+
+    const previousAccount = accountSelect.value;
+    accountSelect.innerHTML = '<option value="">Pilih akun</option>';
+
+    Object.keys(shareGroupsData).forEach(account => {
+      const option = document.createElement("option");
+      option.value = account;
+      option.textContent = account;
+      accountSelect.appendChild(option);
+    });
+
+    if (previousAccount && shareGroupsData[previousAccount]) {
+      accountSelect.value = previousAccount;
+    }
+
+    accountSelect.onchange = renderSharePicker;
+
+    if (!accountSelect.value && accountSelect.options.length > 1) {
+      accountSelect.selectedIndex = 1;
+    }
+
+    renderSharePicker();
+  } catch (error) {
+    console.error("Gagal memuat pilihan grup share:", error);
+    list.textContent = `Gagal memuat grup: ${error.message}`;
+  }
+}
+
+function renderSharePicker() {
+  const account = document.getElementById("shareAccountFilter").value;
+  const list = document.getElementById("share-pick-list");
+
+  list.replaceChildren();
+
+  if (!account) {
+    list.textContent = "Pilih akun untuk melihat daftar grup.";
+    return;
+  }
+
+  const groups = Array.isArray(shareGroupsData[account])
+    ? shareGroupsData[account]
+    : [];
+
+  if (!shareDrafts[account]) {
+    const saved = Array.isArray(shareTargetsData[account])
+      ? shareTargetsData[account]
+      : [];
+
+    shareDrafts[account] = new Set(
+      saved.map(getShareGroupLink).filter(Boolean)
+    );
+  }
+
+  if (!groups.length) {
+    list.textContent = "Tidak ada grup untuk akun ini.";
+    return;
+  }
+
+  groups.forEach(group => {
+    const link = getShareGroupLink(group);
+    if (!link) return;
+
+    const card = document.createElement("div");
+    card.className = "card";
+
+    const left = document.createElement("div");
+    left.className = "left";
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = shareDrafts[account].has(link);
+    checkbox.setAttribute("aria-label", `Pilih ${getShareGroupName(group)}`);
+
+    checkbox.addEventListener("change", () => {
+      if (checkbox.checked) {
+        shareDrafts[account].add(link);
+      } else {
+        shareDrafts[account].delete(link);
+      }
+    });
+
+    const image = document.createElement("img");
+    image.className = "group-img";
+    image.src = getShareGroupPhoto(group) || "https://via.placeholder.com/70";
+    image.alt = "";
+
+    left.append(checkbox, image);
+
+    const right = document.createElement("div");
+    right.className = "right";
+
+    const name = document.createElement("div");
+    name.className = "group-name";
+    name.textContent = getShareGroupName(group);
+
+    const url = document.createElement("div");
+    url.textContent = link;
+    url.style.cssText = "font-size:12px;opacity:.65;word-break:break-all";
+
+    right.append(name, url);
+    card.append(left, right);
+    list.appendChild(card);
+  });
+}
+
+async function saveShareTargets() {
+  const account = document.getElementById("shareAccountFilter").value;
+
+  if (!account) {
+    alert("Pilih akun dulu.");
+    return;
+  }
+
+  const selectedLinks = shareDrafts[account] || new Set();
+  const availableGroups = Array.isArray(shareGroupsData[account])
+    ? shareGroupsData[account]
+    : [];
+
+  const groups = availableGroups
+    .filter(group => selectedLinks.has(getShareGroupLink(group)))
+    .map(group => ({
+      group_link: getShareGroupLink(group),
+      group_name: getShareGroupName(group),
+      group_photo: getShareGroupPhoto(group)
+    }));
+
+  try {
+    const response = await fetch(SHARE_SAVE_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ account, groups })
+    });
+
+    const result = await response.json().catch(() => ({}));
+
+    if (!response.ok || !result.success) {
+      throw new Error(result.error || `HTTP ${response.status}`);
+    }
+
+    shareTargetsData[account] = groups;
+    localStorage.setItem("shareTargetsCache", JSON.stringify(shareTargetsData));
+
+    alert(`✅ ${groups.length} grup share tersimpan untuk ${account}`);
+  } catch (error) {
+    console.error("Gagal menyimpan target share:", error);
+    alert(`❌ Gagal menyimpan pilihan: ${error.message}`);
+  }
+}
+
+async function loadSavedShareTargets() {
+  const accountSelect = document.getElementById("shareSavedAccountFilter");
+  const list = document.getElementById("share-saved-list");
+
+  if (!accountSelect || !list) return;
+
+  list.textContent = "Memuat grup tersimpan…";
+
+  try {
+    await loadShareData();
+
+    const previousAccount = accountSelect.value || "all";
+    const accounts = Object.keys(shareTargetsData)
+      .filter(account => Array.isArray(shareTargetsData[account]));
+
+    accountSelect.innerHTML = '<option value="all">Semua Akun</option>';
+
+    accounts.forEach(account => {
+      const option = document.createElement("option");
+      option.value = account;
+      option.textContent = account;
+      accountSelect.appendChild(option);
+    });
+
+    accountSelect.value =
+      previousAccount === "all" || accounts.includes(previousAccount)
+        ? previousAccount
+        : "all";
+
+    accountSelect.onchange = renderSavedShareTargets;
+    renderSavedShareTargets();
+  } catch (error) {
+    console.error("Gagal memuat grup share tersimpan:", error);
+    list.textContent = `Gagal memuat data: ${error.message}`;
+  }
+}
+
+function renderSavedShareTargets() {
+  const accountFilter = document.getElementById("shareSavedAccountFilter").value;
+  const list = document.getElementById("share-saved-list");
+
+  list.replaceChildren();
+
+  const accounts = accountFilter === "all"
+    ? Object.keys(shareTargetsData)
+    : [accountFilter];
+
+  let count = 0;
+
+  accounts.forEach(account => {
+    const groups = Array.isArray(shareTargetsData[account])
+      ? shareTargetsData[account]
+      : [];
+
+    groups.forEach((group, index) => {
+      count++;
+
+      const card = document.createElement("div");
+      card.className = "card";
+
+      const left = document.createElement("div");
+      left.className = "left";
+
+      const image = document.createElement("img");
+      image.className = "group-img";
+      image.src = getShareGroupPhoto(group) || "https://via.placeholder.com/70";
+      image.alt = "";
+      left.appendChild(image);
+
+      const right = document.createElement("div");
+      right.className = "right";
+
+      const name = document.createElement("div");
+      name.className = "group-name";
+      name.textContent = getShareGroupName(group);
+
+      const accountLabel = document.createElement("div");
+      accountLabel.textContent = account;
+      accountLabel.style.cssText = "font-size:13px;opacity:.65";
+
+      const link = document.createElement("div");
+      link.textContent = getShareGroupLink(group);
+      link.style.cssText = "font-size:12px;opacity:.65;word-break:break-all";
+
+      right.append(name, accountLabel, link);
+
+      const action = document.createElement("div");
+      action.className = "action";
+
+      const removeButton = document.createElement("button");
+      removeButton.type = "button";
+      removeButton.textContent = "❌";
+      removeButton.title = "Hapus tujuan share";
+      removeButton.addEventListener("click", () => {
+        removeShareTarget(account, index);
+      });
+
+      action.appendChild(removeButton);
+      card.append(left, right, action);
+      list.appendChild(card);
+    });
+  });
+
+  if (!count) {
+    list.textContent = "Belum ada grup share tersimpan.";
+  }
+}
+
+async function removeShareTarget(account, index) {
+  const current = Array.isArray(shareTargetsData[account])
+    ? [...shareTargetsData[account]]
+    : [];
+
+  current.splice(index, 1);
+
+  try {
+    const response = await fetch(SHARE_SAVE_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ account, groups: current })
+    });
+
+    const result = await response.json().catch(() => ({}));
+
+    if (!response.ok || !result.success) {
+      throw new Error(result.error || `HTTP ${response.status}`);
+    }
+
+    if (current.length) {
+      shareTargetsData[account] = current;
+    } else {
+      delete shareTargetsData[account];
+    }
+
+    loadSavedShareTargets();
+  } catch (error) {
+    console.error("Gagal menghapus grup share:", error);
+    alert(`❌ Gagal menghapus grup: ${error.message}`);
+  }
+}
+
+  
 </script>
 </body>
   </html>
