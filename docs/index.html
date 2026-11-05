@@ -1482,10 +1482,11 @@ let shareTargetsData = {};
 const shareDrafts = {};
 
 async function loadShareData() {
-  const [groupsResponse, targetsResponse] = await Promise.all([
-    fetch(`groups.json?${Date.now()}`),
-    fetch(`${SHARE_TARGETS_URL}?${Date.now()}`)
-  ]);
+
+  // Ambil data grup dari groups.json
+  const groupsResponse = await fetch(
+    `groups.json?${Date.now()}`
+  );
 
   if (!groupsResponse.ok) {
     throw new Error(
@@ -1493,32 +1494,56 @@ async function loadShareData() {
     );
   }
 
-  const groupsText = await groupsResponse.text();
+  shareGroupsData = await groupsResponse.json();
+
+  // Ambil data share dari browser
+  let localTargets = {};
 
   try {
-    shareGroupsData = JSON.parse(groupsText);
+    localTargets = JSON.parse(
+      localStorage.getItem(SHARE_STORAGE_KEY) || "{}"
+    );
   } catch (error) {
-    throw new Error(
-      "Isi groups.json bukan JSON valid: " + groupsText.slice(0, 150)
+    localTargets = {};
+  }
+
+  // Ambil data share dari GitHub Pages
+  let githubTargets = {};
+
+  try {
+    const targetsResponse = await fetch(
+      `${SHARE_TARGETS_URL}?t=${Date.now()}`
+    );
+
+    if (targetsResponse.ok) {
+      githubTargets = await targetsResponse.json();
+    }
+  } catch (error) {
+    console.warn("Gagal membaca data GitHub Pages:", error);
+  }
+
+  // Jika browser sudah punya data, gunakan data browser.
+  // Ini mencegah data terbaru hilang karena GitHub Pages belum diperbarui.
+  const hasLocalData =
+    localTargets &&
+    typeof localTargets === "object" &&
+    Object.keys(localTargets).length > 0;
+
+  if (hasLocalData) {
+    shareTargetsData = localTargets;
+  } else {
+    shareTargetsData = githubTargets || {};
+
+    localStorage.setItem(
+      SHARE_STORAGE_KEY,
+      JSON.stringify(shareTargetsData)
     );
   }
 
-  if (targetsResponse.ok) {
-    const targetsText = await targetsResponse.text();
-
-    try {
-      shareTargetsData = JSON.parse(targetsText);
-    } catch (error) {
-      throw new Error(
-        "Isi docs/shareTargets.json bukan JSON valid: " +
-        targetsText.slice(0, 150)
-      );
-    }
-  } else {
-    shareTargetsData = {};
-  }
-
-  if (!shareTargetsData || typeof shareTargetsData !== "object") {
+  if (
+    !shareTargetsData ||
+    typeof shareTargetsData !== "object"
+  ) {
     shareTargetsData = {};
   }
 }
@@ -1914,7 +1939,8 @@ async function loadSavedShareTargets() {
 }
 
 
-function renderSavedShareTargets() {
+ function renderSavedShareTargets() {
+
   const accountSelect =
     document.getElementById("shareSavedAccountFilter");
 
@@ -1935,16 +1961,16 @@ function renderSavedShareTargets() {
     ? Object.keys(shareTargetsData)
     : [accountFilter];
 
-  let count = 0;
+  let total = 0;
 
   accounts.forEach(account => {
+
     const groups = Array.isArray(shareTargetsData[account])
       ? shareTargetsData[account]
       : [];
 
     groups.forEach(group => {
 
-      // Filter tanggal jika dipilih
       if (
         selectedDate &&
         group.tanggal !== selectedDate
@@ -1952,11 +1978,12 @@ function renderSavedShareTargets() {
         return;
       }
 
-      count++;
+      total++;
 
       const card = document.createElement("div");
       card.className = "card";
 
+      // BAGIAN KIRI
       const left = document.createElement("div");
       left.className = "left";
 
@@ -1967,8 +1994,10 @@ function renderSavedShareTargets() {
         "https://via.placeholder.com/70";
 
       image.alt = "";
+
       left.appendChild(image);
 
+      // BAGIAN KANAN
       const right = document.createElement("div");
       right.className = "right";
 
@@ -1981,59 +2010,92 @@ function renderSavedShareTargets() {
         account + " • " + (group.tanggal || "");
 
       accountLabel.style.cssText =
-        "font-size:13px;opacity:.65";
+        "font-size:13px;opacity:.65;margin-top:5px";
 
       const link = document.createElement("div");
       link.textContent = getShareGroupLink(group);
 
       link.style.cssText =
-        "font-size:12px;opacity:.65;word-break:break-all";
+        "font-size:12px;opacity:.65;word-break:break-all;margin-top:5px";
 
       right.append(name, accountLabel, link);
 
-      card.append(left, right);
+      // TOMBOL HAPUS
+      const action = document.createElement("div");
+      action.className = "action";
+
+      const deleteButton = document.createElement("button");
+      deleteButton.type = "button";
+      deleteButton.textContent = "❌";
+      deleteButton.title = "Hapus grup share";
+
+      deleteButton.addEventListener("click", () => {
+        removeShareTarget(
+          account,
+          getShareGroupLink(group),
+          group.tanggal
+        );
+      });
+
+      action.appendChild(deleteButton);
+
+      card.append(left, right, action);
       list.appendChild(card);
+
     });
+
   });
 
-  if (count === 0) {
+  if (total === 0) {
     list.textContent = "Belum ada grup share tersimpan.";
   }
 }
 
 
-async function removeShareTarget(account, index) {
-  const current = Array.isArray(shareTargetsData[account])
-    ? [...shareTargetsData[account]]
-    : [];
+async function removeShareTarget(account, groupLink, tanggal) {
 
-  const removed = current[index];
+  if (!confirm("Yakin ingin menghapus grup share ini?")) {
+    return;
+  }
 
-  if (!removed) return;
+  const currentData = JSON.parse(
+    JSON.stringify(shareTargetsData || {})
+  );
 
-  const tanggal = removed.tanggal;
+  if (!Array.isArray(currentData[account])) {
+    alert("Data grup tidak ditemukan!");
+    return;
+  }
 
-  if (!confirm("Hapus grup share ini?")) return;
+  // Hapus grup berdasarkan akun, link, dan tanggal
+  const updatedGroups = currentData[account].filter(group => {
 
-  const remaining = current.filter((item, i) => i !== index);
+    return !(
+      getShareGroupLink(group) === groupLink &&
+      group.tanggal === tanggal
+    );
 
-  const groupsForDate = remaining
-    .filter(item => item.tanggal === tanggal)
-    .map(item => ({
-      group_link: item.group_link,
-      group_name: item.group_name,
-      group_photo: item.group_photo
+  });
+
+  // Siapkan data untuk dikirim ke API
+  const groupsForDate = updatedGroups
+    .filter(group => group.tanggal === tanggal)
+    .map(group => ({
+      group_link: getShareGroupLink(group),
+      group_name: getShareGroupName(group),
+      group_photo: getShareGroupPhoto(group)
     }));
 
   try {
+
     const response = await fetch(SHARE_SAVE_API, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        account,
-        tanggal,
+        account: account,
+        tanggal: tanggal,
         groups: groupsForDate
       })
     });
@@ -2041,26 +2103,41 @@ async function removeShareTarget(account, index) {
     const result = await response.json();
 
     if (!response.ok || !result.success) {
-      throw new Error(result.error || "Gagal menghapus grup");
+      throw new Error(
+        result.message ||
+        result.error ||
+        "Gagal menghapus data dari GitHub."
+      );
     }
 
-    if (remaining.length) {
-      shareTargetsData[account] = remaining;
+    // Perbarui data browser
+    if (updatedGroups.length > 0) {
+      currentData[account] = updatedGroups;
     } else {
-      delete shareTargetsData[account];
+      delete currentData[account];
     }
+
+    shareTargetsData = currentData;
 
     localStorage.setItem(
       SHARE_STORAGE_KEY,
       JSON.stringify(shareTargetsData)
     );
 
-    loadSavedShareTargets();
+    // Perbarui daftar
+    renderSavedShareTargets();
 
-    alert("Grup share berhasil dihapus!");
+    alert("✅ Grup berhasil dihapus dari browser dan GitHub!");
 
   } catch (error) {
-    alert("Gagal menghapus: " + error.message);
+
+    console.error("ERROR HAPUS SHARE:", error);
+
+    alert(
+      "❌ Gagal menghapus grup dari GitHub.\n\n" +
+      error.message
+    );
+
   }
 }
   
