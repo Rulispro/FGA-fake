@@ -1695,20 +1695,20 @@ function renderSharePicker() {
     return;
   }
 
-  const groups = Array.from(shareDrafts[account] || [])
-    .map(link => {
-      const group = (shareGroupsData[account] || [])
-        .find(g => getShareGroupLink(g) === link);
+  const selectedLinks = Array.from(shareDrafts[account] || []);
 
-      if (!group) return null;
+  const groups = selectedLinks.map(link => {
+    const group = (shareGroupsData[account] || [])
+      .find(g => getShareGroupLink(g) === link);
 
-      return {
-        group_link: getShareGroupLink(group),
-        group_name: getShareGroupName(group),
-        group_photo: getShareGroupPhoto(group)
-      };
-    })
-    .filter(Boolean);
+    if (!group) return null;
+
+    return {
+      group_link: getShareGroupLink(group),
+      group_name: getShareGroupName(group),
+      group_photo: getShareGroupPhoto(group)
+    };
+  }).filter(Boolean);
 
   if (!groups.length) {
     alert("Centang minimal satu grup!");
@@ -1717,70 +1717,73 @@ function renderSharePicker() {
 
   const payload = { account, tanggal, groups };
 
-  // 1. Simpan langsung ke LocalStorage
+  // SIMPAN LOCAL STORAGE DENGAN FORMAT YANG SAMA DENGAN API
   const localData = JSON.parse(
     localStorage.getItem(SHARE_STORAGE_KEY) || "{}"
   );
 
-  if (!localData[account]) localData[account] = [];
+  if (!Array.isArray(localData[account])) {
+    localData[account] = [];
+  }
 
-  localData[account] = localData[account].filter(
-    item => item.tanggal !== tanggal
-  );
-
-  localData[account].push({
-    tanggal,
-    groups
-  });
+  localData[account] = localData[account]
+    .filter(item => item.tanggal !== tanggal)
+    .concat(groups.map(group => ({
+      ...group,
+      tanggal
+    })));
 
   localStorage.setItem(
     SHARE_STORAGE_KEY,
     JSON.stringify(localData)
   );
 
-  // Perbarui tampilan data lokal
   shareTargetsData = localData;
 
-  alert("Grup berhasil disimpan di browser. Mengirim ke server...");
-
-  // 2. Kirim salinan ke API Vercel
+  // KIRIM KE VERCEL
   try {
     const response = await fetch(SHARE_SAVE_API, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(payload)
-});
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
 
-const responseText = await response.text();
+    const responseText = await response.text();
+    let result = {};
 
-let result = {};
+    try {
+      result = JSON.parse(responseText);
+    } catch {
+      throw new Error(
+        `Respons server tidak valid: HTTP ${response.status}`
+      );
+    }
 
-try {
-  result = JSON.parse(responseText);
-} catch {
-  throw new Error(
-    `Server mengirim respons bukan JSON. HTTP ${response.status}: ${responseText.slice(0, 200)}`
-  );
-}
+    if (!response.ok || !result.success) {
+      throw new Error(
+        result.error || result.message || `HTTP ${response.status}`
+      );
+    }
 
-if (!response.ok || !result.success) {
-  throw new Error(
-    result.error || result.message || `HTTP ${response.status}`
-  );
-}
-
-alert("Berhasil! Grup tersimpan di LocalStorage dan GitHub.");
-
-    
-  } catch (error) {
-    console.error("Gagal menyimpan ke API:", error);
     alert(
-      "Data sudah tersimpan di browser, tetapi gagal dikirim ke server: " +
+      `Berhasil! ${result.count} grup tersimpan di browser dan GitHub.`
+    );
+
+    loadSavedShareTargets();
+
+  } catch (error) {
+    console.error("SHARE API ERROR:", error);
+
+    alert(
+      "Data tersimpan di browser, tetapi gagal ke server: " +
       error.message
     );
   }
 }
-
+    
+    
 
 async function loadSavedShareTargets() {
   const accountSelect = document.getElementById("shareSavedAccountFilter");
@@ -1895,33 +1898,63 @@ async function removeShareTarget(account, index) {
     ? [...shareTargetsData[account]]
     : [];
 
-  current.splice(index, 1);
+  const removed = current[index];
+
+  if (!removed) return;
+
+  const tanggal = removed.tanggal;
+
+  if (!confirm("Hapus grup share ini?")) return;
+
+  const remaining = current.filter((item, i) => i !== index);
+
+  const groupsForDate = remaining
+    .filter(item => item.tanggal === tanggal)
+    .map(item => ({
+      group_link: item.group_link,
+      group_name: item.group_name,
+      group_photo: item.group_photo
+    }));
 
   try {
     const response = await fetch(SHARE_SAVE_API, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ account, groups: current })
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        account,
+        tanggal,
+        groups: groupsForDate
+      })
     });
 
-    const result = await response.json().catch(() => ({}));
+    const result = await response.json();
 
     if (!response.ok || !result.success) {
-      throw new Error(result.error || `HTTP ${response.status}`);
+      throw new Error(result.error || "Gagal menghapus grup");
     }
 
-    if (current.length) {
-      shareTargetsData[account] = current;
+    if (remaining.length) {
+      shareTargetsData[account] = remaining;
     } else {
       delete shareTargetsData[account];
     }
 
+    localStorage.setItem(
+      SHARE_STORAGE_KEY,
+      JSON.stringify(shareTargetsData)
+    );
+
     loadSavedShareTargets();
+
+    alert("Grup share berhasil dihapus!");
+
   } catch (error) {
-    console.error("Gagal menghapus grup share:", error);
-    alert(`❌ Gagal menghapus grup: ${error.message}`);
+    alert("Gagal menghapus: " + error.message);
   }
 }
+  
 
   
 </script>
