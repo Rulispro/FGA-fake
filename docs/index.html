@@ -593,102 +593,24 @@ function saveToSchedule(){
   .then(r => r.text())
   .then(res => {
 
-async function saveToSchedule() {
-  const date = document.getElementById("scheduleDate").value;
+    console.log("SAVE RESPONSE:", res);
 
-  if (!date) {
-    alert("Pilih tanggal dulu!");
-    return;
-  }
+    alert("✅ Berhasil disimpan!");
 
-  try {
-    let selected = {};
-
-    // Pakai cache browser jika ada; jika kosong, ambil data jadwal yang sudah tersimpan.
-    try {
-      selected = JSON.parse(localStorage.getItem("selectedGroups") || "{}");
-    } catch {
-      selected = {};
-    }
-
-    if (!selected || Object.keys(selected).length === 0) {
-      const savedResponse = await fetch(`selected.json?${Date.now()}`, {
-        cache: "no-store"
-      });
-
-      if (savedResponse.ok) {
-        selected = await savedResponse.json();
-      }
-    }
-
-    const checkedGroups = window.checkedGroups || {};
-    let added = 0;
-
-    Object.keys(checkedGroups).forEach(groupKey => {
-      if (!checkedGroups[groupKey]) return;
-
-      const group = (window.allGroups || []).find(item =>
-        String(item.link || item.group_link || item.grup_link || "").trim() === groupKey
-      );
-
-      if (!group) return;
-
-      const account = String(group.account || "").trim();
-      const link = String(
-        group.link || group.group_link || group.grup_link || ""
-      ).trim().replace(/,+$/, "").replace(/\s+/g, "");
-
-      if (!account || !link || !link.includes("/groups/")) return;
-
-      if (!Array.isArray(selected[account])) {
-        selected[account] = [];
-      }
-
-      const alreadyExists = selected[account].some(item =>
-        item.group_link === link && item.tanggal === date
-      );
-
-      if (!alreadyExists) {
-        selected[account].push({
-          tanggal: date,
-          group_link: link,
-          group_name: group.name || group.group_name || "",
-          group_photo: group.photo || group.group_photo || ""
-        });
-        added++;
-      }
-    });
-
-    if (added === 0) {
-      alert("Tidak ada grup baru yang dicentang untuk disimpan.");
-      return;
-    }
-
-    const response = await fetch("https://fga-fake.vercel.app/api/save", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(selected)
-    });
-
-    const result = await response.json().catch(() => ({}));
-
-    if (!response.ok || result.success !== true) {
-      throw new Error(result.error || `Server gagal menyimpan (HTTP ${response.status})`);
-    }
-
-    localStorage.setItem("selectedGroups", JSON.stringify(selected));
-
-    // Samakan tanggal jadwal dengan tanggal yang baru disimpan supaya hasilnya terlihat.
-    document.getElementById("calendarSchedulePost").value = date;
-    showPage("schedulePost");
     loadSchedulePost();
 
-    alert(`✅ ${added} grup tersimpan untuk ${date}`);
-  } catch (error) {
-    console.error("Gagal menyimpan jadwal:", error);
-    alert(`❌ Gagal menyimpan: ${error.message}`);
+    showPage("schedulePost");
+
+  })
+  .catch(err => {
+
+    console.log("SAVE ERROR:", err);
+
+    alert("❌ Gagal save");
+
+  });
+
   }
-}
 
 //hasil share👇
 function saveShareTargets(){
