@@ -1,108 +1,70 @@
 export default async function handler(req, res) {
+
+  // CORS
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-  if (req.method === "OPTIONS") return res.status(204).end();
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
   if (req.method !== "POST") {
-    return res.status(405).json({ success: false, error: "Method not allowed" });
+    return res.status(405).json({ message: "Method not allowed" });
   }
-
-  const body = req.body || {};
-  const account = typeof body.account === "string" ? body.account.trim() : "";
-  const tanggal = typeof body.tanggal === "string" ? body.tanggal.trim() : "";
-  const groups = body.groups;
-
-  if (!account) {
-    return res.status(400).json({ success: false, error: "account wajib diisi" });
-  }
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(tanggal) ||
-      new Date(`${tanggal}T00:00:00Z`).toISOString().slice(0, 10) !== tanggal) {
-    return res.status(400).json({ success: false, error: "tanggal wajib berformat YYYY-MM-DD dan valid" });
-  }
-  if (!Array.isArray(groups)) {
-    return res.status(400).json({ success: false, error: "groups harus berupa array" });
-  }
-
-  const cleanGroups = [];
-  const seenLinks = new Set();
-  for (const group of groups) {
-    const groupLink = typeof group?.group_link === "string" ? group.group_link.trim() : "";
-    if (!groupLink) continue;
-
-    let parsed;
-    try {
-      parsed = new URL(groupLink);
-    } catch {
-      return res.status(400).json({ success: false, error: "Ada group_link yang bukan URL valid" });
-    }
-
-    if (!/(^|\.)facebook\.com$/i.test(parsed.hostname) || !parsed.pathname.includes("/groups/")) {
-      return res.status(400).json({ success: false, error: "group_link harus berupa tautan grup Facebook" });
-    }
-    if (seenLinks.has(groupLink)) continue;
-    seenLinks.add(groupLink);
-
-    cleanGroups.push({
-      tanggal,
-      group_link: groupLink,
-      group_name: typeof group.group_name === "string" ? group.group_name.trim() : "",
-      group_photo: typeof group.group_photo === "string" ? group.group_photo : ""
-    });
-  }
-
-  const token = process.env.GITHUB_TOKEN;
-  if (!token) {
-    return res.status(500).json({ success: false, error: "GITHUB_TOKEN belum disetel di Vercel" });
-  }
-
-  const owner = "Rulispro";
-  const repo = "FGA-fake";
-  const path = "docs/shareTargets.json";
-  const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
-  const headers = {
-    Authorization: `Bearer ${token}`,
-    Accept: "application/vnd.github+json",
-    "X-GitHub-Api-Version": "2022-11-28"
-  };
 
   try {
-    const getResponse = await fetch(apiUrl, { headers });
-    let oldData = {};
-    let sha;
+    const newData = req.body;
 
-    if (getResponse.ok) {
-      const file = await getResponse.json();
-      sha = file.sha;
-      oldData = JSON.parse(Buffer.from(file.content, "base64").toString("utf8"));
-      if (!oldData || typeof oldData !== "object" || Array.isArray(oldData)) oldData = {};
-    } else if (getResponse.status !== 404) {
-      const detail = await getResponse.text();
-      return res.status(502).json({ success: false, error: `Gagal membaca file GitHub: ${detail}` });
-    }
+    const owner = "Rulispro";
+    const repo = "FGA-fake";
+    const path = "docs/shareTargets.json";
 
-    const accountGroups = Array.isArray(oldData[account]) ? oldData[account] : [];
-    // Replace only this account's selection for this date; retain other dates/accounts.
-    oldData[account] = accountGroups.filter(item => item?.tanggal !== tanggal).concat(cleanGroups);
-    if (oldData[account].length === 0) delete oldData[account];
+    const token = process.env.GITHUB_TOKEN;
 
-    const putResponse = await fetch(apiUrl, {
-      method: "PUT",
-      headers: { ...headers, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        message: `Update share targets for ${account} (${tanggal})`,
-        content: Buffer.from(JSON.stringify(oldData, null, 2)).toString("base64"),
-        ...(sha ? { sha } : {})
-      })
+    const getFile = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
 
-    const result = await putResponse.json();
-    if (!putResponse.ok) {
-      return res.status(502).json({ success: false, error: result.message || "GitHub gagal menyimpan shareTargets.json" });
+    const file = await getFile.json();
+
+    let oldData = {};
+
+    if (file.content) {
+      oldData = JSON.parse(Buffer.from(file.content, "base64").toString());
     }
 
-    return res.status(200).json({ success: true, account, tanggal, count: cleanGroups.length });
-  } catch (error) {
-    return res.status(500).json({ success: false, error: error.message || "Terjadi kesalahan" });
+    // 🔥 CLEAN DATA LAMA
+    Object.keys(oldData).forEach(acc => {
+      oldData[acc] = (oldData[acc] || []).filter(g => g.tanggal);
+    });
+
+    // 🔥 MERGE DATA BARU
+// 🔥 LANGSUNG REPLACE TOTAL
+const finalData = newData;
+
+    const updated = Buffer.from(
+  JSON.stringify(finalData, null, 2)
+).toString("base64");
+    
+    await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        message: "update selected groups",
+        content: updated,
+        sha: file.sha || undefined,
+      }),
+    });
+
+    return res.status(200).json({ success: true });
+
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
   }
 }
