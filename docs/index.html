@@ -1599,7 +1599,7 @@ const shareDrafts = {};
 
 async function loadShareData() {
   const [groupsResponse, targetsResponse] = await Promise.all([
-    fetch(`groups.json?${Date.now()}`),
+    fetch(`docs/groups.json?${Date.now()}`),
     fetch(`${SHARE_TARGETS_URL}?${Date.now()}`)
   ]);
 
