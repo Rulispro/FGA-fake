@@ -624,7 +624,7 @@ function saveShareTargets(){
   }
 
   let selected = JSON.parse(
-    localStorage.getItem("selectedGroups") || "{}"
+    localStorage.getItem("groups.json") || "{}"
   );
 
   // LOOP DARI checkedGroups
@@ -697,7 +697,7 @@ function saveShareTargets(){
 
   // LOCAL STORAGE
   localStorage.setItem(
-    "shareTargetsGroups",
+    "groups.json",
     JSON.stringify(selected)
   );
 
