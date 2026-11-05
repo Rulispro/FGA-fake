@@ -773,7 +773,7 @@ function deleteGroup(account, link, tanggal){
   
 function deleteGroup(account, link, tanggal){
 
-  let data = JSON.parse(localStorage.getItem("selectedGroups") || "{}");
+  let data = JSON.parse(localStorage.getItem("shareTargetsGroups") || "{}");
 
   if(!data[account]) return;
 
