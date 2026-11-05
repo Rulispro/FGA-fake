@@ -771,34 +771,34 @@ function deleteGroup(account, link, tanggal){
 
     //fungsi hapus di schedule post hasil share 
   
-function deleteShareGroup(account, link, tanggal){
+///function deleteShareGroup(account, link, tanggal){
 
-  let data = JSON.parse(localStorage.getItem("shareTargetsGroups") || "{}");
+ /// let data = JSON.parse(localStorage.getItem("shareTargetsGroups") || "{}");
 
-  if(!data[account]) return;
+ /// if(!data[account]) return;
 
-  data[account] = data[account].filter(
-    g => !(g.group_link === link && g.tanggal === tanggal)
-  );
+ //// data[account] = data[account].filter(
+   //// g => !(g.group_link === link && g.tanggal === tanggal)
+///  );
 
-  if(data[account].length === 0){
-    delete data[account];
-  }
+ //// if(data[account].length === 0){
+   /// delete data[account];
+ /// }
 
-  localStorage.setItem("shareTargetsGroups", JSON.stringify(data));
+  ////localStorage.setItem("shareTargetsGroups", JSON.stringify(data));
 
   // kirim ke server juga
-  fetch("https://fga-fake-save-share-targets.vercel.app/", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(data)
-  });
+ // fetch("https://fga-fake-save-share-targets.vercel.app/", {
+  ///  method: "POST",
+    ////headers: {
+      ////"Content-Type": "application/json"
+  ///  },
+   //// body: JSON.stringify(data)
+ /// });
 
-  alert("✅ Grup dihapus");
+ /// alert("✅ Grup dihapus");
   
-  }
+///  }
   
 /* ================= NAVIGATION ================= */
 function showPage(page) {
@@ -1130,7 +1130,7 @@ function renderSavedShareTargets() {
   <div class="action">
 
     <button onclick="
-      deleteShareGroup(
+      deleteGroup(
         '${item.account}',
         '${item.group_link}',
         '${item.tanggal}'
