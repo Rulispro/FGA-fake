@@ -680,7 +680,7 @@ function deleteGroup(account, link, tanggal){
 ///  }
   
 /* ================= NAVIGATION ================= */
-function showPage(page) {
+function showPage(page, loadData = true) {
   const pageMap = {
     result: ["resultPage", "menuResult"],
     schedule: ["schedulePage", "menuSchedule"],
@@ -724,8 +724,12 @@ function showPage(page) {
     loadSharePicker();
   }
 
-  if (page === "shareSaved" && typeof loadSavedShareTargets === "function") {
-    loadSavedShareTargets();
+  if (
+  page === "shareSaved" &&
+  loadData &&
+  typeof loadSavedShareTargets === "function"
+) {
+  loadSavedShareTargets();
   }
 }
   
@@ -1683,52 +1687,67 @@ function renderSharePicker() {
 
   
   async function saveShareTargets() {
-  const account = document.getElementById("shareAccount")?.value;
-  const tanggal = document.getElementById("shareDate")?.value;
 
+  // AMBIL AKUN DAN TANGGAL DARI ID HTML YANG BENAR
+  const accountSelect =
+    document.getElementById("shareAccountFilter");
+
+  const dateInput =
+    document.getElementById("shareDateFilter");
+
+  const account = accountSelect?.value;
+  const tanggal = dateInput?.value;
+
+  // VALIDASI AKUN
   if (!account) {
     alert("Pilih akun terlebih dahulu!");
     return;
   }
 
+  // VALIDASI TANGGAL
   if (!tanggal) {
     alert("Pilih tanggal terlebih dahulu!");
     return;
   }
 
-  const selectedLinks = shareDrafts[account] || [];
+  // AMBIL LINK GRUP YANG DICENTANG
+  const selectedSet = shareDrafts[account] || new Set();
+
+  const selectedLinks = Array.from(selectedSet);
 
   if (selectedLinks.length === 0) {
     alert("Pilih minimal satu grup untuk disimpan!");
     return;
   }
 
-  const accountGroups = shareGroupsData[account] || [];
+  // AMBIL DATA GRUP ASLI
+  const accountGroups = Array.isArray(shareGroupsData[account])
+    ? shareGroupsData[account]
+    : [];
 
-  // Ambil data grup yang dipilih
-  const selectedGroups = selectedLinks
-    .map(link => {
-      const group = accountGroups.find(
-        item => item.link === link || item.group_link === link
-      );
+  const selectedGroups = selectedLinks.map(link => {
 
-      if (!group) return null;
+    const group = accountGroups.find(item =>
+      getShareGroupLink(item) === link
+    );
 
-      return {
-        tanggal: tanggal,
-        group_link: group.link || group.group_link || "",
-        group_name: group.name || group.group_name || "Grup tanpa nama",
-        group_photo: group.photo || group.group_photo || ""
-      };
-    })
-    .filter(Boolean);
+    if (!group) return null;
+
+    return {
+      tanggal: tanggal,
+      group_link: getShareGroupLink(group),
+      group_name: getShareGroupName(group),
+      group_photo: getShareGroupPhoto(group)
+    };
+
+  }).filter(Boolean);
 
   if (selectedGroups.length === 0) {
     alert("Data grup tidak ditemukan!");
     return;
   }
 
-  // Ambil data lama
+  // AMBIL DATA LAMA DARI LOCAL STORAGE
   let localData = {};
 
   try {
@@ -1739,30 +1758,29 @@ function renderSharePicker() {
     localData = {};
   }
 
-  // Pastikan data akun berbentuk array
   if (!Array.isArray(localData[account])) {
     localData[account] = [];
   }
 
-  // Hapus data lama untuk akun dan tanggal yang sama
+  // HAPUS DATA LAMA PADA AKUN DAN TANGGAL YANG SAMA
   localData[account] = localData[account].filter(
     group => group.tanggal !== tanggal
   );
 
-  // Masukkan grup terbaru
+  // TAMBAHKAN GRUP BARU
   localData[account].push(...selectedGroups);
 
-  // Simpan langsung ke browser
+  // SIMPAN KE LOCAL STORAGE
   localStorage.setItem(
     SHARE_STORAGE_KEY,
     JSON.stringify(localData)
   );
 
-  // Perbarui data global
   shareTargetsData = localData;
 
-  // Kirim ke GitHub melalui API
+  // KIRIM KE API GITHUB
   try {
+
     const response = await fetch(SHARE_SAVE_API, {
       method: "POST",
       headers: {
@@ -1779,30 +1797,34 @@ function renderSharePicker() {
 
     if (!response.ok || !result.success) {
       throw new Error(
-        result.message || "Gagal menyimpan ke GitHub."
+        result.message || result.error || "Gagal menyimpan ke GitHub"
       );
     }
 
-    // Siapkan dropdown akun
+    // ISI DROPDOWN AKUN TERSIMPAN
     const savedAccountSelect =
       document.getElementById("shareSavedAccountFilter");
 
     if (savedAccountSelect) {
+
       savedAccountSelect.innerHTML =
         '<option value="all">Semua Akun</option>';
 
-      Object.keys(shareTargetsData).forEach(acc => {
+      Object.keys(localData).forEach(acc => {
+
         const option = document.createElement("option");
+
         option.value = acc;
         option.textContent = acc;
+
         savedAccountSelect.appendChild(option);
+
       });
 
-      // Pilih akun yang baru disimpan
       savedAccountSelect.value = account;
     }
 
-    // Tampilkan tanggal yang baru disimpan
+    // ISI FILTER TANGGAL
     const savedDateFilter =
       document.getElementById("shareSavedDateFilter");
 
@@ -1810,28 +1832,23 @@ function renderSharePicker() {
       savedDateFilter.value = tanggal;
     }
 
-    // Buka halaman grup tersimpan
-    showPage("shareSaved");
-
-    // Pastikan data terbaru tetap digunakan
+    // TAMPILKAN DATA TERBARU
     shareTargetsData = localData;
 
-    // Render langsung tanpa menunggu GitHub Pages
+    // PINDAH HALAMAN TANPA MEMUAT ULANG DATA LAMA
+    showPage("shareSaved", false);
+
     renderSavedShareTargets();
 
     alert(
-      `Berhasil! ${result.count} grup tersimpan di browser dan GitHub.`
+      `Berhasil! ${selectedGroups.length} grup tersimpan di browser dan GitHub.`
     );
 
   } catch (error) {
-    console.error("Gagal menyimpan grup:", error);
 
-    alert(
-      "Data tersimpan di browser, tetapi gagal dikirim ke GitHub.\n\n" +
-      error.message
-    );
+    console.error("ERROR SAVE SHARE:", error);
 
-    // Tetap tampilkan data lokal
+    // DATA TETAP TERSIMPAN DI BROWSER
     shareTargetsData = localData;
 
     const savedAccountSelect =
@@ -1841,11 +1858,23 @@ function renderSharePicker() {
       savedAccountSelect.value = account;
     }
 
-    showPage("shareSaved");
+    const savedDateFilter =
+      document.getElementById("shareSavedDateFilter");
+
+    if (savedDateFilter) {
+      savedDateFilter.value = tanggal;
+    }
+
+    showPage("shareSaved", false);
+
     renderSavedShareTargets();
+
+    alert(
+      "Data tersimpan di browser, tetapi gagal dikirim ke GitHub.\n\n" +
+      error.message
+    );
   }
 }
-    
 
 async function loadSavedShareTargets() {
   const accountSelect = document.getElementById("shareSavedAccountFilter");
