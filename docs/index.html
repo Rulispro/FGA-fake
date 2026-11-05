@@ -1681,9 +1681,10 @@ function renderSharePicker() {
   });
 }
 
+  
   async function saveShareTargets() {
-  const account = document.getElementById("shareAccountFilter").value;
-  const tanggal = document.getElementById("shareDateFilter").value;
+  const account = document.getElementById("shareAccount")?.value;
+  const tanggal = document.getElementById("shareDate")?.value;
 
   if (!account) {
     alert("Pilih akun terlebih dahulu!");
@@ -1695,94 +1696,155 @@ function renderSharePicker() {
     return;
   }
 
-  const selectedLinks = Array.from(shareDrafts[account] || []);
+  const selectedLinks = shareDrafts[account] || [];
 
-  const groups = selectedLinks.map(link => {
-    const group = (shareGroupsData[account] || [])
-      .find(g => getShareGroupLink(g) === link);
-
-    if (!group) return null;
-
-    return {
-      group_link: getShareGroupLink(group),
-      group_name: getShareGroupName(group),
-      group_photo: getShareGroupPhoto(group)
-    };
-  }).filter(Boolean);
-
-  if (!groups.length) {
-    alert("Centang minimal satu grup!");
+  if (selectedLinks.length === 0) {
+    alert("Pilih minimal satu grup untuk disimpan!");
     return;
   }
 
-  const payload = { account, tanggal, groups };
+  const accountGroups = shareGroupsData[account] || [];
 
-  // SIMPAN LOCAL STORAGE DENGAN FORMAT YANG SAMA DENGAN API
-  const localData = JSON.parse(
-    localStorage.getItem(SHARE_STORAGE_KEY) || "{}"
-  );
+  // Ambil data grup yang dipilih
+  const selectedGroups = selectedLinks
+    .map(link => {
+      const group = accountGroups.find(
+        item => item.link === link || item.group_link === link
+      );
 
+      if (!group) return null;
+
+      return {
+        tanggal: tanggal,
+        group_link: group.link || group.group_link || "",
+        group_name: group.name || group.group_name || "Grup tanpa nama",
+        group_photo: group.photo || group.group_photo || ""
+      };
+    })
+    .filter(Boolean);
+
+  if (selectedGroups.length === 0) {
+    alert("Data grup tidak ditemukan!");
+    return;
+  }
+
+  // Ambil data lama
+  let localData = {};
+
+  try {
+    localData = JSON.parse(
+      localStorage.getItem(SHARE_STORAGE_KEY) || "{}"
+    );
+  } catch (error) {
+    localData = {};
+  }
+
+  // Pastikan data akun berbentuk array
   if (!Array.isArray(localData[account])) {
     localData[account] = [];
   }
 
-  localData[account] = localData[account]
-    .filter(item => item.tanggal !== tanggal)
-    .concat(groups.map(group => ({
-      ...group,
-      tanggal
-    })));
+  // Hapus data lama untuk akun dan tanggal yang sama
+  localData[account] = localData[account].filter(
+    group => group.tanggal !== tanggal
+  );
 
+  // Masukkan grup terbaru
+  localData[account].push(...selectedGroups);
+
+  // Simpan langsung ke browser
   localStorage.setItem(
     SHARE_STORAGE_KEY,
     JSON.stringify(localData)
   );
 
+  // Perbarui data global
   shareTargetsData = localData;
 
-  // KIRIM KE VERCEL
+  // Kirim ke GitHub melalui API
   try {
     const response = await fetch(SHARE_SAVE_API, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({
+        account: account,
+        tanggal: tanggal,
+        groups: selectedGroups
+      })
     });
 
-    const responseText = await response.text();
-    let result = {};
-
-    try {
-      result = JSON.parse(responseText);
-    } catch {
-      throw new Error(
-        `Respons server tidak valid: HTTP ${response.status}`
-      );
-    }
+    const result = await response.json();
 
     if (!response.ok || !result.success) {
       throw new Error(
-        result.error || result.message || `HTTP ${response.status}`
+        result.message || "Gagal menyimpan ke GitHub."
       );
     }
+
+    // Siapkan dropdown akun
+    const savedAccountSelect =
+      document.getElementById("shareSavedAccountFilter");
+
+    if (savedAccountSelect) {
+      savedAccountSelect.innerHTML =
+        '<option value="all">Semua Akun</option>';
+
+      Object.keys(shareTargetsData).forEach(acc => {
+        const option = document.createElement("option");
+        option.value = acc;
+        option.textContent = acc;
+        savedAccountSelect.appendChild(option);
+      });
+
+      // Pilih akun yang baru disimpan
+      savedAccountSelect.value = account;
+    }
+
+    // Tampilkan tanggal yang baru disimpan
+    const savedDateFilter =
+      document.getElementById("shareSavedDateFilter");
+
+    if (savedDateFilter) {
+      savedDateFilter.value = tanggal;
+    }
+
+    // Buka halaman grup tersimpan
+    showPage("shareSaved");
+
+    // Pastikan data terbaru tetap digunakan
+    shareTargetsData = localData;
+
+    // Render langsung tanpa menunggu GitHub Pages
+    renderSavedShareTargets();
 
     alert(
       `Berhasil! ${result.count} grup tersimpan di browser dan GitHub.`
     );
 
-    loadSavedShareTargets();
-
   } catch (error) {
-    console.error("SHARE API ERROR:", error);
+    console.error("Gagal menyimpan grup:", error);
 
     alert(
-      "Data tersimpan di browser, tetapi gagal ke server: " +
+      "Data tersimpan di browser, tetapi gagal dikirim ke GitHub.\n\n" +
       error.message
     );
+
+    // Tetap tampilkan data lokal
+    shareTargetsData = localData;
+
+    const savedAccountSelect =
+      document.getElementById("shareSavedAccountFilter");
+
+    if (savedAccountSelect) {
+      savedAccountSelect.value = account;
+    }
+
+    showPage("shareSaved");
+    renderSavedShareTargets();
   }
 }
-    
     
 
 async function loadSavedShareTargets() {
@@ -1822,9 +1884,21 @@ async function loadSavedShareTargets() {
   }
 }
 
+
 function renderSavedShareTargets() {
-  const accountFilter = document.getElementById("shareSavedAccountFilter").value;
-  const list = document.getElementById("share-saved-list");
+  const accountSelect =
+    document.getElementById("shareSavedAccountFilter");
+
+  const dateFilter =
+    document.getElementById("shareSavedDateFilter");
+
+  const list =
+    document.getElementById("share-saved-list");
+
+  if (!accountSelect || !list) return;
+
+  const accountFilter = accountSelect.value || "all";
+  const selectedDate = dateFilter ? dateFilter.value : "";
 
   list.replaceChildren();
 
@@ -1839,7 +1913,16 @@ function renderSavedShareTargets() {
       ? shareTargetsData[account]
       : [];
 
-    groups.forEach((group, index) => {
+    groups.forEach(group => {
+
+      // Filter tanggal jika dipilih
+      if (
+        selectedDate &&
+        group.tanggal !== selectedDate
+      ) {
+        return;
+      }
+
       count++;
 
       const card = document.createElement("div");
@@ -1850,7 +1933,10 @@ function renderSavedShareTargets() {
 
       const image = document.createElement("img");
       image.className = "group-img";
-      image.src = getShareGroupPhoto(group) || "https://via.placeholder.com/70";
+      image.src =
+        getShareGroupPhoto(group) ||
+        "https://via.placeholder.com/70";
+
       image.alt = "";
       left.appendChild(image);
 
@@ -1862,36 +1948,30 @@ function renderSavedShareTargets() {
       name.textContent = getShareGroupName(group);
 
       const accountLabel = document.createElement("div");
-      accountLabel.textContent = account;
-      accountLabel.style.cssText = "font-size:13px;opacity:.65";
+      accountLabel.textContent =
+        account + " • " + (group.tanggal || "");
+
+      accountLabel.style.cssText =
+        "font-size:13px;opacity:.65";
 
       const link = document.createElement("div");
       link.textContent = getShareGroupLink(group);
-      link.style.cssText = "font-size:12px;opacity:.65;word-break:break-all";
+
+      link.style.cssText =
+        "font-size:12px;opacity:.65;word-break:break-all";
 
       right.append(name, accountLabel, link);
 
-      const action = document.createElement("div");
-      action.className = "action";
-
-      const removeButton = document.createElement("button");
-      removeButton.type = "button";
-      removeButton.textContent = "❌";
-      removeButton.title = "Hapus tujuan share";
-      removeButton.addEventListener("click", () => {
-        removeShareTarget(account, index);
-      });
-
-      action.appendChild(removeButton);
-      card.append(left, right, action);
+      card.append(left, right);
       list.appendChild(card);
     });
   });
 
-  if (!count) {
+  if (count === 0) {
     list.textContent = "Belum ada grup share tersimpan.";
   }
 }
+
 
 async function removeShareTarget(account, index) {
   const current = Array.isArray(shareTargetsData[account])
@@ -1955,7 +2035,8 @@ async function removeShareTarget(account, index) {
   }
 }
   
-
+document.getElementById("shareSavedDateFilter")
+  .addEventListener("change", renderSavedShareTargets);
   
 </script>
 </body>
