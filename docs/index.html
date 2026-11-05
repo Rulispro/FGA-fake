@@ -458,7 +458,7 @@ body{flex-direction:column;}
       <option value="">Pilih akun</option>
     </select>
        <input type="date" id="shareDateFilter">
-    <button class="btn-save" type="button" onclick="saveShareTargets()">
+    <button class="btn-save" type="button" onclick="saveShareTarget()">
       💾 SIMPAN TUJUAN SHARE
     </button>
   </div>
@@ -613,7 +613,7 @@ function saveToSchedule(){
   }
 
 //hasil share👇
-function saveToScheduleig(){
+function saveShareTargets(){
 
   const date =
     document.getElementById("scheduleDate").value;
@@ -697,12 +697,12 @@ function saveToScheduleig(){
 
   // LOCAL STORAGE
   localStorage.setItem(
-    "selectedGroups",
+    "shareTargetsGroups",
     JSON.stringify(selected)
   );
 
   // SAVE SERVER
-  fetch("https://fga-fake.vercel.app/api/save", {
+  fetch("https://fga-fake-save-share-targets.vercel.app/", {
 
     method: "POST",
 
@@ -785,10 +785,10 @@ function deleteGroup(account, link, tanggal){
     delete data[account];
   }
 
-  localStorage.setItem("selectedGroups", JSON.stringify(data));
+  localStorage.setItem("shareTargetsGroups", JSON.stringify(data));
 
   // kirim ke server juga
-  fetch("https://fga-fake.vercel.app/api/save", {
+  fetch("https://fga-fake-save-share-targets.vercel.app/", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -1747,12 +1747,17 @@ function renderSharePicker() {
     list.appendChild(card);
   });
 }
-
 async function saveShareTargets() {
   const account = document.getElementById("shareAccountFilter").value;
+  const tanggal = document.getElementById("shareDateFilter").value;
 
   if (!account) {
     alert("Pilih akun dulu.");
+    return;
+  }
+
+  if (!tanggal) {
+    alert("Pilih tanggal dulu.");
     return;
   }
 
@@ -1773,7 +1778,7 @@ async function saveShareTargets() {
     const response = await fetch(SHARE_SAVE_API, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ account, groups })
+      body: JSON.stringify({ account, tanggal, groups })
     });
 
     const result = await response.json().catch(() => ({}));
@@ -1782,15 +1787,23 @@ async function saveShareTargets() {
       throw new Error(result.error || `HTTP ${response.status}`);
     }
 
-    shareTargetsData[account] = groups;
-    localStorage.setItem("shareTargetsCache", JSON.stringify(shareTargetsData));
+    // Perbarui data cache hanya untuk tanggal yang baru disimpan.
+    const oldGroups = Array.isArray(shareTargetsData[account])
+      ? shareTargetsData[account]
+      : [];
 
-    alert(`✅ ${groups.length} grup share tersimpan untuk ${account}`);
+    shareTargetsData[account] = [
+      ...oldGroups.filter(group => group.tanggal !== tanggal),
+      ...groups.map(group => ({ ...group, tanggal }))
+    ];
+
+    alert(`✅ ${groups.length} grup share tersimpan untuk ${account} — ${tanggal}`);
   } catch (error) {
     console.error("Gagal menyimpan target share:", error);
-    alert(`❌ Gagal menyimpan pilihan: ${error.message}`);
+    alert(`❌ Gagal menyimpan: ${error.message}`);
   }
 }
+  
 
 async function loadSavedShareTargets() {
   const accountSelect = document.getElementById("shareSavedAccountFilter");
