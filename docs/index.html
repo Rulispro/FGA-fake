@@ -612,130 +612,9 @@ function saveToSchedule(){
 
   }
 
-//hasil share👇
-function saveShareTargets(){
-
-  const date =
-    document.getElementById("scheduleDate").value;
-
-  if(!date){
-    alert("Pilih tanggal dulu!");
-    return;
-  }
-
-  let selected = JSON.parse(
-    localStorage.getItem("selectedGroups") || "{}"
-  );
-
-  // LOOP DARI checkedGroups
-  Object.keys(window.checkedGroups).forEach(groupKey => {
-    // hanya yg dicentang
-    if(!window.checkedGroups[groupKey]) return;
-    // cari data grup asli
-    const g = allGroups.find(x =>
-  (
-    x.link ||
-    x.group_link ||
-    x.grup_link
-  ) === groupKey
-);
-
-    if(!g) return;
-
-    const account = g.account;
-
-    const link = String(
-      g.link ||
-      g.group_link ||
-      g.grup_link ||
-      ""
-    )
-    .trim()
-    .replace(/,+$/, "")
-    .replace(/\s+/g, "");
-
-    if(
-      !link ||
-      !link.includes("/groups/")
-    ){
-      console.log("❌ LINK INVALID:", g);
-      return;
-    }
-
-    const name = g.name || g.group_name || "";
-    const photo = g.photo || g.group_photo || "";
-
-    if(!selected[account]){
-      selected[account] = [];
-    }
-
-    // cek duplicate
-    const sudahAda =
-      selected[account].some(item =>
-
-        item.group_link === link &&
-        item.tanggal === date
-
-      );
-
-    if(!sudahAda){
-
-      selected[account].push({
-
-        tanggal: date,
-        group_link: link,
-        group_name: name,
-        group_photo: photo
-
-      });
 
     }
 
-  });
-
-  console.log("DATA SAVE:", selected);
-
-  // LOCAL STORAGE
-  localStorage.setItem(
-    "selectedGroups",
-    JSON.stringify(selected)
-  );
-
-  // SAVE SERVER
-  fetch("https://fga-fake-save-share-targets.vercel.app/", {
-
-    method: "POST",
-
-    headers:{
-      "Content-Type":"application/json"
-    },
-
-    body: JSON.stringify(selected)
-
-  })
-  .then(r => r.text())
-  .then(res => {
-
-    console.log("SAVE RESPONSE:", res);
-
-    alert("✅ Berhasil disimpan!");
-
-    loadShare();
-
-    showPage("share");
-
-  })
-  .catch(err => {
-
-    console.log("SAVE ERROR:", err);
-
-    alert("❌ Gagal save");
-
-  });
-
-  }
-
-//👆
  
 
   //fungsi hapus di schedule post hasil scrape
@@ -1867,18 +1746,32 @@ function renderSharePicker() {
   // 2. Kirim salinan ke API Vercel
   try {
     const response = await fetch(SHARE_SAVE_API, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(payload)
+});
 
-    const result = await response.json();
+const responseText = await response.text();
 
-    if (!response.ok) {
-      throw new Error(result.message || "Gagal menyimpan ke server");
-    }
+let result = {};
 
-    alert("Berhasil! Grup tersimpan di LocalStorage dan server.");
+try {
+  result = JSON.parse(responseText);
+} catch {
+  throw new Error(
+    `Server mengirim respons bukan JSON. HTTP ${response.status}: ${responseText.slice(0, 200)}`
+  );
+}
+
+if (!response.ok || !result.success) {
+  throw new Error(
+    result.error || result.message || `HTTP ${response.status}`
+  );
+}
+
+alert("Berhasil! Grup tersimpan di LocalStorage dan GitHub.");
+
+    
   } catch (error) {
     console.error("Gagal menyimpan ke API:", error);
     alert(
