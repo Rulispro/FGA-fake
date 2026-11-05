@@ -1640,6 +1640,73 @@ async function loadShareData() {
 }
 
 
+  
+// ================= HELPER DATA GRUP =================
+
+function getShareGroupLink(group) {
+  return String(
+    group.link || group.group_link || group.grup_link || ""
+  ).trim();
+}
+
+function getShareGroupName(group) {
+  return String(
+    group.name || group.group_name || "Grup tanpa nama"
+  );
+}
+
+function getShareGroupPhoto(group) {
+  return String(
+    group.photo || group.group_photo || ""
+  );
+}
+
+
+// ================= LOAD MENU PILIH GRUP SHARE =================
+
+async function loadSharePicker() {
+  const accountSelect = document.getElementById("shareAccountFilter");
+  const list = document.getElementById("share-pick-list");
+
+  if (!accountSelect || !list) return;
+
+  list.textContent = "Memuat daftar grup...";
+
+  try {
+    await loadShareData();
+
+    const previousAccount = accountSelect.value;
+
+    accountSelect.innerHTML =
+      '<option value="">Pilih akun</option>';
+
+    Object.keys(shareGroupsData).forEach(account => {
+      const option = document.createElement("option");
+      option.value = account;
+      option.textContent = account;
+      accountSelect.appendChild(option);
+    });
+
+    if (
+      previousAccount &&
+      shareGroupsData[previousAccount]
+    ) {
+      accountSelect.value = previousAccount;
+    } else if (accountSelect.options.length > 1) {
+      accountSelect.selectedIndex = 1;
+    }
+
+    accountSelect.onchange = renderSharePicker;
+
+    renderSharePicker();
+
+  } catch (error) {
+    console.error("ERROR LOAD SHARE:", error);
+    list.textContent = "Gagal memuat grup: " + error.message;
+  }
+}
+
+
 function renderSharePicker() {
   const accountSelect = document.getElementById("shareAccountFilter");
   const list = document.getElementById("share-pick-list");
