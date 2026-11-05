@@ -1747,17 +1747,12 @@ function renderSharePicker() {
     list.appendChild(card);
   });
 }
+
 async function saveShareTargets() {
   const account = document.getElementById("shareAccountFilter").value;
-  const tanggal = document.getElementById("shareDateFilter").value;
 
   if (!account) {
     alert("Pilih akun dulu.");
-    return;
-  }
-
-  if (!tanggal) {
-    alert("Pilih tanggal dulu.");
     return;
   }
 
@@ -1778,7 +1773,7 @@ async function saveShareTargets() {
     const response = await fetch(SHARE_SAVE_API, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ account, tanggal, groups })
+      body: JSON.stringify({ account, groups })
     });
 
     const result = await response.json().catch(() => ({}));
@@ -1787,23 +1782,15 @@ async function saveShareTargets() {
       throw new Error(result.error || `HTTP ${response.status}`);
     }
 
-    // Perbarui data cache hanya untuk tanggal yang baru disimpan.
-    const oldGroups = Array.isArray(shareTargetsData[account])
-      ? shareTargetsData[account]
-      : [];
+    shareTargetsData[account] = groups;
+    localStorage.setItem("shareTargetsCache", JSON.stringify(shareTargetsData));
 
-    shareTargetsData[account] = [
-      ...oldGroups.filter(group => group.tanggal !== tanggal),
-      ...groups.map(group => ({ ...group, tanggal }))
-    ];
-
-    alert(`✅ ${groups.length} grup share tersimpan untuk ${account} — ${tanggal}`);
+    alert(`✅ ${groups.length} grup share tersimpan untuk ${account}`);
   } catch (error) {
     console.error("Gagal menyimpan target share:", error);
-    alert(`❌ Gagal menyimpan: ${error.message}`);
+    alert(`❌ Gagal menyimpan pilihan: ${error.message}`);
   }
 }
-  
 
 async function loadSavedShareTargets() {
   const accountSelect = document.getElementById("shareSavedAccountFilter");
