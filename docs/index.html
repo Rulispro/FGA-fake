@@ -1599,7 +1599,7 @@ const shareDrafts = {};
 
 async function loadShareData() {
   const [groupsResponse, targetsResponse] = await Promise.all([
-    fetch(`docs/groups.json?${Date.now()}`),
+    fetch(`groups.json?${Date.now()}`),
     fetch(`${SHARE_TARGETS_URL}?${Date.now()}`)
   ]);
 
@@ -1639,10 +1639,14 @@ async function loadShareData() {
   }
 }
 
+
 function renderSharePicker() {
-  const account = document.getElementById("shareAccountFilter").value;
+  const accountSelect = document.getElementById("shareAccountFilter");
   const list = document.getElementById("share-pick-list");
 
+  if (!accountSelect || !list) return;
+
+  const account = accountSelect.value;
   list.replaceChildren();
 
   if (!account) {
@@ -1671,7 +1675,8 @@ function renderSharePicker() {
 
   groups.forEach(group => {
     const link = getShareGroupLink(group);
-    if (!link) return;
+    const name = getShareGroupName(group);
+    const photo = getShareGroupPhoto(group);
 
     const card = document.createElement("div");
     card.className = "card";
@@ -1681,10 +1686,13 @@ function renderSharePicker() {
 
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
-    checkbox.checked = shareDrafts[account].has(link);
-    checkbox.setAttribute("aria-label", `Pilih ${getShareGroupName(group)}`);
+    checkbox.checked = link ? shareDrafts[account].has(link) : false;
+    checkbox.disabled = !link;
+    checkbox.setAttribute("aria-label", `Pilih ${name}`);
 
     checkbox.addEventListener("change", () => {
+      if (!link) return;
+
       if (checkbox.checked) {
         shareDrafts[account].add(link);
       } else {
@@ -1694,7 +1702,7 @@ function renderSharePicker() {
 
     const image = document.createElement("img");
     image.className = "group-img";
-    image.src = getShareGroupPhoto(group) || "https://via.placeholder.com/70";
+    image.src = photo || "https://via.placeholder.com/70";
     image.alt = "";
 
     left.append(checkbox, image);
@@ -1702,19 +1710,31 @@ function renderSharePicker() {
     const right = document.createElement("div");
     right.className = "right";
 
-    const name = document.createElement("div");
-    name.className = "group-name";
-    name.textContent = getShareGroupName(group);
+    const groupName = document.createElement("div");
+    groupName.className = "group-name";
+    groupName.textContent = name;
 
-    const url = document.createElement("div");
-    url.textContent = link;
-    url.style.cssText = "font-size:12px;opacity:.65;word-break:break-all";
+    const groupLink = document.createElement("a");
+    groupLink.textContent = link || "Link grup belum tersedia";
+    groupLink.href = link || "#";
+    groupLink.target = "_blank";
+    groupLink.rel = "noopener noreferrer";
+    groupLink.style.cssText = `
+      display:block;
+      margin-top:8px;
+      font-size:13px;
+      color:#2563eb;
+      word-break:break-all;
+      overflow-wrap:anywhere;
+    `;
 
-    right.append(name, url);
+    right.append(groupName, groupLink);
     card.append(left, right);
     list.appendChild(card);
   });
 }
+
+  
 async function saveShareTargets() {
   const account = document.getElementById("shareAccountFilter").value;
   const tanggal = document.getElementById("shareDateFilter").value;
