@@ -16,10 +16,10 @@
     "file": "senang_Bru",
     "cookies": [
       { "name": "c_user", "value": "61575555022850" },
-      { "name": "xs", "value": "41%3ADRFQ5lltTATpJg%3A2%3A1793745998%3A-1%3A-1" },
-      { "name": "datr", "value": "8xLqamBh-L4ddlWUSOWlG8nh" },
-      { "name": "sb", "value": "8xLqakFvCbPQrIgDtu9YUWEu" },
-      { "name": "fr", "value": "0UQLMbek2LZV7rGBk.AWdCui-EhYyrNVmKeAVb7XJTuY3MDj8kYssQFUA-6Ms9AcpRNBU.Bq6hLz..AAA.0.0.Bq6mRU.AWfXT_-BO-4LBinG2mEFzAGqPJQ" },
+      { "name": "xs", "value": "1%3APK61nzKi7S6zFw%3A2%3A1794463647%3A-1%3A-1" },
+      { "name": "datr", "value": "dlf1aulxGDESyq4F9vvWnuFW" },
+      { "name": "sb", "value": "dlf1auLfGfRwYewV7lZVsMuR" },
+      { "name": "fr", "value": "0UwKYbBz2mSkuAOoX.AWfWYqx8XyTHxw_Wp87jplh70wI4d2I3V1GlsFX48qsRUBiNEUM.Bq9Vd2..AAA.0.0.Bq9Ve9.AWfu1BwskCmavo0J4iFs4UYUD4w" },
       { "name": "locale", "value": "id_ID" }
     ]
     },
@@ -72,7 +72,7 @@
     ]
     },
     {
-    "account": "Fitri Ay",
+    "disabled account": "Fitri Ay",
     "file": "Fitri_Ay",
     "cookies": [
       { "name": "c_user", "value": "61575648700170" },
