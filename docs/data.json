@@ -10,7 +10,6 @@
     "caption": "malam semuanya",
     "delay_group": "7000,9000",
     "delay_akun": "10000",
-    "status": "error",
-    "error": "Waiting for selector `div[role=\"button\"][data-mcomponent=\"ServerTextArea\"]` failed: Waiting failed: 10000ms exceeded"
+    "status": "done"
   }
 ]
