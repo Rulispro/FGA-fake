@@ -1,18 +1,18 @@
 [
   {
-    "disabled account": "ayu Wulandari",
+    "account": "ayu Wulandari",
     "file": "ayu_Wulandari",
     "cookies": [
       { "name": "c_user", "value": "61576156023619" },
-      { "name": "xs", "value": "40%3A40Tfb7znhHlGRA%3A2%3A1779105801%3A-1%3A-1" },
-      { "name": "datr", "value": "BA0LalJ1XUGgSUiJOi9MM_r6" },
-      { "name": "sb", "value": "BA0LajvqdaPwnZIk9eTQQsZx" },
-      { "name": "fr", "value": "0zyihRMW64BCQbeQG.AWfgXmW5sBPuVpuk62vmmCWqBUA6Mf4V6m0niDznL7wWizfF4Eo.BqCw0E..AAA.0.0.BqCw1P.AWeXOblh57YkGnLdSOI2b14HNEM" },
+      { "name": "xs", "value": "37%3AiIyzYBr9QnwhZw%3A2%3A1793783145%3A-1%3A-1" },
+      { "name": "datr", "value": "8xLqamBh-L4ddlWUSOWlG8nh" },
+      { "name": "sb", "value": "8xLqakFvCbPQrIgDtu9YUWEu" },
+      { "name": "fr", "value": "0UQLMbek2LZV7rGBk.AWdhdDVnuqAdTzH8qX5uNGUIf79_tHo8VZjFAoI1_wHqTit3l1U.Bq6hLz..AAA.0.0.Bq9Qqq.AWeK7DSgrbS7XtXCBAaps-w20UE" },
       { "name": "locale", "value": "id_ID" }
     ]
     },
   {
-    "account": "senang bru",
+    "disabled account": "senang bru",
     "file": "senang_Bru",
     "cookies": [
       { "name": "c_user", "value": "61575555022850" },
@@ -72,7 +72,7 @@
     ]
     },
     {
-    "account": "Fitri Ay",
+    "disabled account": "Fitri Ay",
     "file": "Fitri_Ay",
     "cookies": [
       { "name": "c_user", "value": "61575648700170" },
@@ -96,7 +96,7 @@
     ]
     },
     {
-    "account": "Vita Alvia",
+    "disabled account": "Vita Alvia",
     "file": "Vita_Alvia",
     "cookies": [
       { "name": "c_user", "value": "61576316620704" },
