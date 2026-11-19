@@ -31,20 +31,6 @@ const selectedData = JSON.parse(
   )
 );
 
-//$BARU tanpa jam 👇
-//const docsDir = path.join(__dirname, "docs");
-//let docsData = [];
-//if (!fs.existsSync(docsDir)) {
- // fs.mkdirSync(docsDir);
-//}
-
-///fs.writeFileSync(
-//  path.join(docsDir, "data.json"),
-//  JSON.stringify(docsData, null, 2)
-//);
-///👆///
-
-             ////👇 DENGAN JAM///////
 const docsDir = path.join(__dirname, "docs");
 const dataPath = path.join(docsDir, "data.json");
 
@@ -59,56 +45,41 @@ let docsData = [];
 if (fs.existsSync(dataPath)) {
   try {
     docsData = JSON.parse(fs.readFileSync(dataPath, "utf8"));
-
-    // 🛡️ jaga kalau file rusak
     if (!Array.isArray(docsData)) {
       docsData = [];
     }
-
   } catch (err) {
     console.log("⚠️ data.json rusak, reset ulang");
     docsData = [];
   }
-
 } else {
-  // 3. Kalau belum ada → buat file kosong SEKALI
   fs.writeFileSync(dataPath, JSON.stringify([], null, 2));
 }
 
-             ///DENGAN JAM 👆 ////
-
-//Parser jam 👇//
+// Parser jam
 function cocokJam(rowJam) {
   const now = new Date(
     new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" })
   );
 
   const [h, m] = rowJam.split(":").map(Number);
-
   const target = new Date(now);
   target.setHours(h, m, 0, 0);
 
   const selisih = Math.abs(now - target) / 1000 / 60; // menit
-
   return selisih <= 180; // toleransi 180 menit (3 jam)
 }
-//sampai sini 👆///
-//$SAMPAI SINI
-//ACAK AKUN
+
+// ACAK AKUN
 function shuffleArray(arr) {
   const shuffled = [...arr];
-
   for (let i = shuffled.length - 1; i > 0; i--) {
     const rand = crypto.randomBytes(4).readUInt32BE(0);
     const j = rand % (i + 1);
-
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
-
   return shuffled;
 }
-
-//NORMALISASI TANGGAL DOCS/SELECTED.JSON
 
 function normalizeName(name) {
   return String(name || "").trim().toLowerCase();
@@ -116,16 +87,14 @@ function normalizeName(name) {
 
 function normalizeTanggal(tgl) {
   if (!tgl) return "";
-
   if (tgl.includes("/")) {
     const [d, m, y] = tgl.split("/");
     return `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
   }
-
   return tgl;
 }
 
-//HELPER ISI CAPTION 
+// HELPER ISI CAPTION 
 async function clearComposer(page) {
   await page.keyboard.down("Control");
   await page.keyboard.press("A");
@@ -134,15 +103,7 @@ async function clearComposer(page) {
   await page.waitForTimeout(300);
 }
 
-
-async function typeCaptionFB(page,
-  caption,
-  delayMikir,
-  delayKetikMin,
-  delayKetikMax,
-  pauseChance,
-  pauseMin,
-  pauseMax) {
+async function typeCaptionFB(page, caption, delayMikir, delayKetikMin, delayKetikMax, pauseChance, pauseMin, pauseMax) {
   delayMikir = Number(delayMikir);
   delayKetikMin = Number(delayKetikMin);
   delayKetikMax = Number(delayKetikMax);
@@ -152,7 +113,6 @@ async function typeCaptionFB(page,
 
   console.log("✍️ Ketik caption (FB stable)");
 
-  // 1️⃣ Tunggu overlay loading hilang
   await page.waitForFunction(() => {
     return !(
       document.querySelector('[aria-label="Loading"]') ||
@@ -161,82 +121,28 @@ async function typeCaptionFB(page,
     );
   }, { timeout: 30000 });
 
-  // 2️⃣ Bangunin editor (WAJIB di FB)
   await page.keyboard.type(" ");
   await page.waitForTimeout(150);
   await page.keyboard.press("Backspace");
-
   await page.waitForTimeout(delayMikir);
   
-  // 3️⃣ Ketik caption ala manusia
   for (const ch of caption) {
-
-    const delayHuruf =
-      Math.floor(Math.random() * (delayKetikMax - delayKetikMin + 1)) + delayKetikMin;
-
+    const delayHuruf = Math.floor(Math.random() * (delayKetikMax - delayKetikMin + 1)) + delayKetikMin;
     await page.keyboard.type(ch, { delay: delayHuruf });
 
-    // pause random dari XLSX
     if (Math.random() < pauseChance) {
-      const pause =
-        Math.floor(Math.random() * (pauseMax - pauseMin + 1)) + pauseMin;
-
+      const pause = Math.floor(Math.random() * (pauseMax - pauseMin + 1)) + pauseMin;
       await page.waitForTimeout(pause);
     }
- }
+  }
 
-  // 4️⃣ Commit React
   await page.keyboard.press("Space");
   await page.keyboard.press("Backspace");
 
   console.log("✅ Caption berhasil diketik captiontypeFB");
+  return { ok: true, method: "typeCaptionFB" };
+}
 
-return { ok: true, method: "typeCaptionFB" };
-
-  }
-
-
-/// async function debugComposerAll(page) {
-  ///console.log("\n🔎 DEBUG COMPOSER ALL ELEMENT");
-
- /// const data = await page.evaluate(() => {
-   /// const results = [];
-
-   /// document.querySelectorAll("div, textarea, span").forEach(el => {
-      ///const r = el.getBoundingClientRect();
-     /// if (r.width < 80 || r.height < 40) return;
-
-     /// const attrs = el.getAttributeNames();
-
-      ///const isCandidate =
-       /// el.isContentEditable ||
-       /// el.getAttribute("contenteditable") === "true" ||
-       /// el.tagName === "TEXTAREA" ||
-       //// el.getAttribute("role") === "textbox" ||
-       //// el.getAttribute("role") === "combobox" ||
-       /// el.getAttribute("data-mcomponent") === "ServerTextArea" ||
-       /// attrs.some(a => a.includes("aria"));
-
-      ///if (!isCandidate) return;
-
-      ///results.push({
-       /// tag: el.tagName,
-        ///role: el.getAttribute("role"),
-       /// aria: el.getAttribute("aria-label"),
-       /// data: el.getAttribute("data-mcomponent"),
-        /// contenteditable: el.getAttribute("contenteditable"),
-        ///class: (el.className || "").toString().slice(0, 60),
-       /// textPreview: (el.innerText || el.value || "").slice(0, 30)
-      ///});
-    ///});
-
-   //) return results;
- /// });
-
-//) console.log("🧪 COMPOSER ALL:", JSON.stringify(data, null, 2));
-///}
-
-//Validasinya 
 async function validateCaption(page, caption) {
   return await page.evaluate(text => {
     const el =
@@ -246,13 +152,7 @@ async function validateCaption(page, caption) {
 
     if (!el) return false;
 
-    const domVal =
-      el.textContent ||
-      el.innerText ||
-      el.value ||
-      "";
-
-    // fallback React internal (FB pakai data-text)
+    const domVal = el.textContent || el.innerText || el.value || "";
     const dataText = el.getAttribute("data-text") || "";
 
     return (
@@ -262,15 +162,9 @@ async function validateCaption(page, caption) {
   }, caption);
 }
 
-
-//ISI CAPTION type manusia tahan update 
-
-
- async function typeCaptionStable(page, caption) {
+async function typeCaptionStable(page, caption) {
   let typed = false;
-
   try {
-    // 1️⃣ AKTIFKAN COMPOSER
     await page.evaluate(() => {
       const candidates = [
         '[role="textbox"]',
@@ -293,11 +187,8 @@ async function validateCaption(page, caption) {
 
     await page.waitForTimeout(1500);
 
-    // 2️⃣ PASTIKAN FOCUS
     const focused = await page.evaluate(() => {
-      const els = document.querySelectorAll(
-        'div[contenteditable="true"], textarea'
-      );
+      const els = document.querySelectorAll('div[contenteditable="true"], textarea');
       for (const el of els) {
         el.click();
         el.focus();
@@ -310,45 +201,29 @@ async function validateCaption(page, caption) {
       return { ok: false, typed: false, step: "focus_failed" };
     }
 
-    // 3️⃣ TYPE CAPTION
     typed = true;
     for (const char of caption) {
-      await page.keyboard.type(char, {
-        delay: 80 + Math.random() * 120
-      });
-
+      await page.keyboard.type(char, { delay: 80 + Math.random() * 120 });
       if (Math.random() < 0.05) {
         await page.waitForTimeout(300 + Math.random() * 600);
       }
     }
 
     await page.waitForTimeout(800);
-
-    // 4️⃣ COMMIT REACT
     await page.keyboard.press("Space");
     await page.keyboard.press("Backspace");
 
-    // 5️⃣ VALIDASI
     const ok = await validateCaption(page, caption);
-
     if (ok) {
       return { ok: true, typed: true, step: "stable_ok" };
     }
 
-    console.log("⚠️ Stable ngetik tapi tidak tervalidasi");
     return { ok: false, typed: true, step: "validation_failed" };
-
   } catch (err) {
-    console.log("❌ typeCaptionStable exception:", err.message);
     return { ok: false, typed, step: "exception", error: err.message };
   }
 }
-   
-  
 
-
-
-//isi caption klik placeholder 
 async function activateComposerAndFillCaption(page, caption) {
   return await page.evaluate((text) => {
     const placeholderKeywords = [
@@ -360,9 +235,6 @@ async function activateComposerAndFillCaption(page, caption) {
       "submit a post for admin"
     ];
 
-    // ===============================
-    // 1️⃣ CLICK PLACEHOLDER (DOM BUTTON)
-    // ===============================
     const btn = [...document.querySelectorAll("div[role='button']")]
       .find(el => {
         const t = (el.innerText || "").toLowerCase();
@@ -371,31 +243,20 @@ async function activateComposerAndFillCaption(page, caption) {
 
     if (btn) {
       ["mousedown", "mouseup", "click"].forEach(type =>
-        btn.dispatchEvent(
-          new MouseEvent(type, {
-            bubbles: true,
-            cancelable: true,
-            view: window
-          })
-        )
+        btn.dispatchEvent(new MouseEvent(type, { bubbles: true, cancelable: true, view: window }))
       );
     }
 
-    // ===============================
-    // 2️⃣ FIND & FILL TEXTBOX
-    // ===============================
     const selectors = [
-  "div[contenteditable='true'][role='textbox']",
-  "div[contenteditable='true']",
-  "textarea"
-];
+      "div[contenteditable='true'][role='textbox']",
+      "div[contenteditable='true']",
+      "textarea"
+    ];
     for (const s of selectors) {
       const tb = document.querySelector(s);
       if (!tb) continue;
 
       tb.focus();
-
-      // clear dulu (penting buat React)
       if ("value" in tb) {
         tb.value = "";
       } else {
@@ -403,7 +264,6 @@ async function activateComposerAndFillCaption(page, caption) {
         tb.textContent = "";
       }
 
-      // isi caption
       if ("value" in tb) {
         tb.value = text;
         tb.dispatchEvent(new Event("input", { bubbles: true }));
@@ -414,44 +274,30 @@ async function activateComposerAndFillCaption(page, caption) {
         tb.dispatchEvent(new Event("change", { bubbles: true }));
       }
 
-      return {
-        ok: true,
-        step: "activate+fill",
-        selector: s
-      };
+      return { ok: true, step: "activate+fill", selector: s };
     }
 
-    return {
-      ok: false,
-      step: "textbox_not_found"
-    };
+    return { ok: false, step: "textbox_not_found" };
   }, caption);
 }
 
-
-//caption human like 
 async function typeByExecCommand(page, caption) {
   await page.evaluate(text => {
-    const el = document.querySelector(
-  'div[contenteditable="true"][role="textbox"], div[contenteditable="true"], textarea'
-);
-  if (!el) return;
-
+    const el = document.querySelector('div[contenteditable="true"][role="textbox"], div[contenteditable="true"], textarea');
+    if (!el) return;
     el.focus();
     document.execCommand("insertText", false, text);
   }, caption);
 }
 
 async function typeByInputEvents(page, caption) {
-  const selector = 'div[contenteditable="true"][role="textbox"], div[contenteditable="true"], textarea'
+  const selector = 'div[contenteditable="true"][role="textbox"], div[contenteditable="true"], textarea';
   
-
-  // 3️⃣ Fokus editor & set caret di akhir
   const focused = await page.evaluate(sel => {
     const el = document.querySelector(sel);
     if (!el) return false;
     el.focus();
-    el.click(); // pastikan aktif
+    el.click();
     const selObj = window.getSelection();
     const range = document.createRange();
     range.selectNodeContents(el);
@@ -461,21 +307,14 @@ async function typeByInputEvents(page, caption) {
     return document.activeElement === el;
   }, selector);
 
-  if (!focused) {
-    console.log("❌ Editor tidak bisa fokus");
-    return false;
-  }
+  if (!focused) return false;
 
-  // 4️⃣ Masukkan teks per karakter (human-like)
   for (const char of caption) {
     await page.evaluate((ch, sel) => {
       const el = document.querySelector(sel);
       if (!el) return;
 
-      // INSERT TEXT via execCommand
       document.execCommand("insertText", false, ch);
-
-      // FIRE beforeinput & input event
       const beforeEvt = new InputEvent("beforeinput", { inputType: "insertText", data: ch, bubbles: true, cancelable: true });
       const inputEvt = new InputEvent("input", { inputType: "insertText", data: ch, bubbles: true });
 
@@ -483,489 +322,157 @@ async function typeByInputEvents(page, caption) {
       el.dispatchEvent(inputEvt);
     }, char, selector);
 
-    // delay human-like
     await page.waitForTimeout(50 + Math.random() * 80);
   }
 
-  // 5️⃣ Commit terakhir (Space + Backspace) supaya React detect perubahan
   await page.keyboard.press("Space");
   await page.keyboard.press("Backspace");
 
-  // 6️⃣ Validasi isi caption
-  const ok = await page.evaluate(sel => {
+  return await page.evaluate(sel => {
     const el = document.querySelector(sel);
     if (!el) return false;
     return (el.innerText && el.innerText.trim().length > 0);
   }, selector);
-
-  if (ok) {
-    console.log("✅ Caption berhasil diisi (Ultimate BeforeInput)");
-  } else {
-    console.log("❌ Caption gagal masuk");
-  }
-
-  return ok;
-}
-async function typeCaptionFinal(page, caption) {
-  console.log("✍️ Isi caption via InputEvent FINAL (SINGLE FUNC)");
-
-  const editor = await page.waitForSelector(
-    'div[contenteditable="true"][role="textbox"], div[contenteditable="true"], textarea',
-    { timeout: 10000, visible: true }
-  );
-
-  if (!editor) throw new Error("❌ Editor FB tidak ditemukan");
-
-  await editor.click({ delay: 50 });
-  await page.waitForTimeout(300);
-
-  await page.evaluate((el, text) => {
-    el.focus();
-
-    // Clear editor
-    if (el.innerHTML !== undefined) el.innerHTML = "";
-    if (el.value !== undefined) el.value = "";
-
-    // Set caret di akhir
-    const sel = window.getSelection();
-    const range = document.createRange();
-    range.selectNodeContents(el);
-    range.collapse(false);
-    sel.removeAllRanges();
-    sel.addRange(range);
-
-    // Masukkan teks per karakter
-    for (const ch of text) {
-      el.dispatchEvent(new InputEvent("beforeinput", {
-        bubbles: true,
-        cancelable: true,
-        inputType: "insertText",
-        data: ch
-      }));
-      document.execCommand("insertText", false, ch); // optional tambahan biar React deteksi
-      el.dispatchEvent(new InputEvent("input", {
-        bubbles: true,
-        cancelable: true,
-        inputType: "insertText",
-        data: ch
-      }));
-    }
-  }, editor, caption);
-
-  // Delay sebentar biar React update
-  await page.waitForTimeout(300);
-
-  // Validasi
-  const ok = await page.evaluate(el => {
-    return (el.innerText && el.innerText.trim().length > 0) ||
-           (el.value && el.value.trim().length > 0);
-  }, editor);
-
-  if (ok) console.log("✅ Caption BERHASIL diisi (FINAL)");
-  else console.log("❌ Caption gagal masuk");
-
-  return ok;
-}
-
-
-async function typeByForceReact(page, caption) {
-  const selector =
-    'div[contenteditable="true"][role="textbox"], div[contenteditable="true"], textarea';
-
-  // 1️⃣ FOKUS COMPOSER
-  const focused = await page.evaluate(sel => {
-    const el = document.querySelector(sel);
-    if (!el) return false;
-    el.click();
-    el.focus();
-    return document.activeElement === el;
-  }, selector);
-
-  if (!focused) {
-    console.log("❌ Composer tidak fokus");
-    return { ok: false, step: "focus_failed" };
-  }
-
-  await page.waitForTimeout(300);
-
-  // 2️⃣ TYPE HUMAN-LIKE (ACAK)
-  for (const char of caption) {
-    const delay = 80 + Math.random() * 120; // 80–200 ms
-    await page.keyboard.type(char, { delay });
-
-    if (Math.random() < 0.05) {
-      await page.waitForTimeout(300 + Math.random() * 700);
-    }
-  }
-
-  // 3️⃣ COMMIT REACT
-  await page.keyboard.press("Space");
-  await page.keyboard.press("Backspace");
-
-  // 4️⃣ VALIDASI
-  await page.waitForTimeout(800);
-  const ok = await validateCaption(page, caption);
-  if (ok) {
-    return { ok: true, step: "typed_human" };
-  }
-
-  // 5️⃣ FALLBACK: FORCE REACT (KALAU GAGAL)
-  console.log("⚠️ Human typing gagal, pakai force React");
-
-  const forced = await page.evaluate((text, sel) => {
-    const el = document.querySelector(sel);
-    if (!el) return false;
-
-    el.focus();
-    el.innerText = text;
-
-    ["input", "change"].forEach(evt =>
-      el.dispatchEvent(new Event(evt, { bubbles: true }))
-    );
-
-    return true;
-  }, caption, selector);
-
-  return forced
-    ? { ok: true, step: "forced_react" }
-    : { ok: false, step: "all_failed" };
-}
-
-async function typeByExecCommand(page, caption) {
-  await page.evaluate(text => {
-    document.execCommand("insertText", false, text);
-  }, caption);
 }
 
 async function typeByKeyboard(page, caption) {
-
-  // THINK BEFORE TYPE
   await page.waitForTimeout(800 + Math.random() * 1200);
-
-  // WAKE EDITOR
   await page.keyboard.press("Space");
   await page.waitForTimeout(200);
   await page.keyboard.press("Backspace");
-
   await page.waitForTimeout(300 + Math.random() * 400);
 
-  // TYPE PER CHAR (biar bisa pause random)
   for (const char of caption) {
-
-    await page.keyboard.type(char, {
-      delay: 80 + Math.random() * 70
-    });
-
-    // 10% chance pause mikir
+    await page.keyboard.type(char, { delay: 80 + Math.random() * 70 });
     if (Math.random() < 0.1) {
       await page.waitForTimeout(400 + Math.random() * 900);
     }
   }
-
 }
 
+async function typeCaptionUltimate(page, caption, delayMikir, delayKetikMin, delayKetikMax, pauseChance, pauseMin, pauseMax) {
+  let fbResult;
+  try {
+    fbResult = await typeCaptionFB(page, caption, delayMikir, delayKetikMin, delayKetikMax, pauseChance, pauseMin, pauseMax);
+  } catch (e) {}
 
-//async function typeByInputEvent(page, caption) {
- // await page.evaluate(text => {
-     //const el = document.querySelector(
-   //'div[contenteditable="true"][role="textbox"], div[contenteditable="true"], textarea'
-  //);
-  //if (!el) return false;
+  if (fbResult?.ok) return fbResult;
 
-  //  el.focus();
+  const stable = await typeCaptionStable(page, caption);
+  if (stable?.ok) return stable;
+  if (stable?.typed) return { ok: true, method: "StableTyped" };
 
-   // el.dispatchEvent(new InputEvent("beforeinput", {
-      //inputType: "insertText",
-    //data: text,
-     // bubbles: true,
-      //cancelable: true
-    //}));
-
-   // el.textContent = text;
-
-   //el.dispatchEvent(new InputEvent("input", {
-      //inputType: "insertText",
-      //data: text,
-     // bubbles: true
-  //  }));
-
-   // return true;
-  //}, caption);
-//}
-
-
-//isi caption tambahan cara 
-async function typeCaptionUltimate(page,
-  caption,
-  delayMikir,
-  delayKetikMin,
-  delayKetikMax,
-  pauseChance,
-  pauseMin,
-  pauseMax) {
-  console.log("🧠 typeCaptionUltimate start");
-  
-let fbResult;
-
-try {
- fbResult = await typeCaptionFB(
-  page,
-  caption,
-  delayMikir,
-  delayKetikMin,
-  delayKetikMax,
-  pauseChance,
-  pauseMin,
-  pauseMax
-);
-} catch (e) {
-  console.log("⚠️ typeCaptionFB error → lanjut fallback");
-}
-
-if (fbResult?.ok) {
-  console.log("✅ Caption OK via typeCaptionFB");
-  return fbResult; // ⛔ STOP HANYA JIKA SUKSES
-}
-
-// ❗ JANGAN return di sini
-console.log("❌ typeCaptionFB gagal → lanjut metode berikutnya");
-      
-   
- const stable = await typeCaptionStable(page, caption);
-
-if (stable?.ok) {
- console.log("✅ Caption OK via Stable");
-  return stable;
-}
-
-if (stable?.typed) {
- console.log("⚠️ Stable sudah mengetik → STOP (hindari dobel)");
-  return { ok: true, method: "StableTyped" };
- }
-
-// ⬇️ HANYA MASUK SINI JIKA STABLE GAGAL TANPA NGETIK
-console.log("🧠 Stable gagal tanpa ngetik → lanjut metode lain");
-  
-console.log("🧠 Stable gagal → Combo helper");
- 
-console.log("🧠 Activate composer + fill caption (combo)");
- const comboResult = await activateComposerAndFillCaption(page, caption);
- console.log("COMBO:", comboResult);
-
+  const comboResult = await activateComposerAndFillCaption(page, caption);
   await page.waitForTimeout(2000);
+  if (comboResult?.ok) return;
 
-  if (comboResult?.ok) {
-   console.log("✅ Caption OK via combo helper (trust React)");
-    return;
- }
- console.log("🧠 Try typeCaptionSafe (legacy)");
   await clearComposer(page);
-  
-    try {
-      await typeCaptionSafe(page, caption);
-      await page.waitForTimeout(400);
-
-    if (await validateCaption(page, caption)) {
-       console.log("✅ typeCaptionSafe OK");
-      return;
-      }
-    } catch (e) {
-     console.log("⚠️ typeCaptionSafe gagal, lanjut fallback");
-  } 
+  try {
+    await typeCaptionSafe(page, caption);
+    await page.waitForTimeout(400);
+    if (await validateCaption(page, caption)) return;
+  } catch (e) {} 
 
   const methods = [
-      { name: "Keyboard", fn: typeByKeyboard },
-      { name: "ExecCommand", fn: typeByExecCommand },
-      { name: "InputEvent", fn: typeByInputEvents },
-      {name: "typeCaptionFinal", fn: typeCaptionFinal },
-      { name: "ForceReact", fn: typeByForceReact }
+    { name: "Keyboard", fn: typeByKeyboard },
+    { name: "ExecCommand", fn: typeByExecCommand },
+    { name: "InputEvent", fn: typeByInputEvents }
   ];
 
-for (const m of methods) {
-    console.log(`✍️ Try ${m.name}...`);
-  await clearComposer(page); // ⬅️ INI KUNCI ANTI DOBEL
-   try {
+  for (const m of methods) {
+    await clearComposer(page);
+    try {
       await m.fn(page, caption);
     } catch (err) {
-     console.log(`⚠️ ${m.name} ERROR → lanjut fallback`);
-    console.log("↪", err.message);
-     continue; // ⬅️ INI KUNCI NYA
-   }
+      continue;
+    }
 
-  await page.waitForTimeout(500);
+    await page.waitForTimeout(500);
+    await page.keyboard.press("Space");
+    await page.keyboard.press("Backspace");
 
-    //commit React
-   await page.keyboard.press("Space");
-   await page.keyboard.press("Backspace");
+    if (await validateCaption(page, caption)) return;
+  }
 
-  if (await validateCaption(page, caption)) {
-      console.log(`✅ ${m.name} OK`);
-      return;
-   }
-
-  console.log(`❌ ${m.name} tidak valid → lanjut`);
+  return { ok: false, reason: "caption_blocked" };
 }
 
-  console.log("⚠️ Semua metode caption gagal → lanjut TANPA caption");
-return { ok: false, reason: "caption_blocked" };
-
-}
-
-//Helper isi caption status 
 async function typeCaptionSafe(page, caption) {
-  const selector =
-    'div[contenteditable="true"][role="textbox"], div[contenteditable="true"], textarea';
-
-  // ===============================
-  // 1️⃣ WAKE UP REACT COMPOSER
-  // ===============================
+  const selector = 'div[contenteditable="true"][role="textbox"], div[contenteditable="true"], textarea';
   await page.keyboard.press("Space");
   await page.waitForTimeout(200);
   await page.keyboard.press("Backspace");
   await page.waitForTimeout(300);
 
-  // ===============================
-  // 2️⃣ PASTIKAN FOCUS KE TEXTBOX
-  // ===============================
   await page.evaluate(sel => {
     const el = document.querySelector(sel);
     if (el) el.focus();
   }, selector);
 
   await page.waitForTimeout(200);
-
-  // ===============================
-  // 3️⃣ INPUT PALING AMAN: KEYBOARD
-  // ===============================
   await page.keyboard.type(caption, { delay: 90 });
   await page.waitForTimeout(600);
-
-  // ===============================
-  // 4️⃣ VALIDASI REACT (BUKAN DOM PALSU)
-  // ===============================
-  const ok = await page.evaluate((sel, text) => {
-    const el = document.querySelector(sel);
-    if (!el) return false;
-
-    const value = el.textContent || el.innerText || "";
-    return value.includes(text.slice(0, 5));
-  }, selector, caption);
-
-if (!ok) {
-  console.log("⚠️ React validation skipped (STATUS mode)");
-  return;
 }
 
-  console.log("✅ Caption TERISI (React acknowledged)");
-}
-
-//FUNGSI DELAY DARI XLSX 
 function randomDelay(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-//PARSE TANGGAL LAMA TAPI JALAN ///
-//$function parseTanggalXLSX(tgl) {
- // if (!tgl) return null;
-
-  // format: M/D/YY atau MM/DD/YY
-  //const [m, d, y] = tgl.split("/");
-//
- // const year = Number(y) < 100 ? 2000 + Number(y) : Number(y);
-
- // return `${year}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
-// $ //SAMPAI SINI }
-
-//PARSER TANGGAL BARU BUAT TEST //
-
 function parseTanggalXLSX(tgl) {
   if (!tgl) return null;
-
-  // kalau sudah ISO (paling aman)
   if (typeof tgl === "string" && tgl.includes("-")) {
     return tgl.slice(0, 10);
   }
-
   if (typeof tgl === "string" && tgl.includes("/")) {
     const parts = tgl.split("/");
-
-    // YYYY/MM/DD
     if (parts[0].length === 4) {
       return `${parts[0]}-${parts[1].padStart(2, "0")}-${parts[2].padStart(2, "0")}`;
     }
-
-    // DD/MM/YYYY (format Indonesia)
     if (parts[2].length === 4) {
       return `${parts[2]}-${parts[1].padStart(2, "0")}-${parts[0].padStart(2, "0")}`;
     }
-
-    // fallback MM/DD/YY
     const [m, d, y] = parts;
     const year = Number(y) < 100 ? 2000 + Number(y) : Number(y);
-
     return `${year}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
   }
-
   return null;
 }
 
-// ====== RUN LIKELINKPOST (AMBIL DARI XLSX) ======
+// LIKELINKPOST
 async function runLikeLinkPosts(page, row) {
-  console.log("\n🧪 runLikeLinkPosts row:", row);
-
   const account = row.account;
   const total = Number(row.total) || 1;
   const delayMin = Number(row.delay_min) || 4000;
   const delayMax = Number(row.delay_max) || 8000;
 
-  // ===== PARSE LINK GROUP =====
   const groups = String(row.link_group || "")
     .split(",")
     .map(g => g.replace(/[\s\r\n]+/g, "").trim())
     .filter(Boolean);
 
-  if (!account || groups.length === 0) {
-    console.log("⚠️ Row XLSX tidak lengkap, skip");
-    return;
-  }
-
-  console.log(`👤 Account: ${account}`);
-  console.log(`🔢 Total Like per Group: ${total}`);
-  console.log(`⏱ Delay Range: ${delayMin}-${delayMax} ms`);
-  console.log(`🔗 Total Group: ${groups.length}`);
+  if (!account || groups.length === 0) return;
 
   for (let i = 0; i < groups.length; i++) {
     let groupUrl = groups[i];
-
     if (!groupUrl.startsWith("http")) {
       groupUrl = "https://m.facebook.com/" + groupUrl.replace(/^\/+/, "");
     }
-
-    console.log(`\n📌 Buka Group ${i + 1}/${groups.length}`);
-    console.log("➡️", groupUrl);
-
     await linkPost(page, groupUrl, total, delayMin, delayMax);
   }
-    }
-   // ===== FUNGSI LIKE LINK POSTINGAN =====
+}
+
 async function linkPost(page, groupUrl, total, delayMin, delayMax) {
   try {
-    console.log("🚀 Buka halaman target");
     await page.goto(groupUrl, { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(4000);
-
     let clicked = 0;
 
     while (clicked < total) {
-
       const liked = await page.evaluate(() => {
-
         function humanClick(el) {
           el.scrollIntoView({ block: "center" });
           ["pointerdown","touchstart","mousedown","mouseup","touchend","click"]
-            .forEach(ev =>
-              el.dispatchEvent(new Event(ev, { bubbles: true, cancelable: true }))
-            );
+            .forEach(ev => el.dispatchEvent(new Event(ev, { bubbles: true, cancelable: true })));
         }
 
         const btn = [...document.querySelectorAll('div[role="button"]')]
@@ -975,809 +482,299 @@ async function linkPost(page, groupUrl, total, delayMin, delayMax) {
           });
 
         if (!btn) return false;
-
         humanClick(btn);
         return true;
       });
 
       if (!liked) {
-        console.log("⚠️ Tombol Like tidak ditemukan, scroll...");
         await page.evaluate(() => window.scrollBy(0, 600));
         await page.waitForTimeout(3000);
         continue;
       }
 
       clicked++;
-      console.log(`👍 Like ke-${clicked} dari ${total}`);
-
-      const delay =
-        Math.floor(Math.random() * (delayMax - delayMin + 1)) + delayMin;
-
-      console.log(`⏱ Delay ${delay} ms`);
-      await page.waitForTimeout(delay);
-
-      await page.evaluate(() =>
-        window.scrollBy(0, window.innerHeight * 0.5)
-      );
+      const delayTime = Math.floor(Math.random() * (delayMax - delayMin + 1)) + delayMin;
+      await page.waitForTimeout(delayTime);
+      await page.evaluate(() => window.scrollBy(0, window.innerHeight * 0.5));
     }
-
-    console.log(`🎉 Selesai Like ${clicked} postingan`);
-    return clicked;
-
-  } catch (err) {
-    console.error("❌ Error linkPost:", err.message);
-    return 0;
-  }
+  } catch (err) {}
 }
 
-
-
-//FUNGSI LIKELINKGROUP
+// LIKELINKGROUPS
 async function runLikeLinkGroups(page, row) {
-  console.log("\n🧪 runLikeLinkGroups row:", row);
-
   const account = row.account;
   const total = Number(row.total || 0);
   const delayMin = Number(row.delay_min || 4000);
   const delayMax = Number(row.delay_max || 8000);
 
-  // ===== VALIDASI DATA =====
-  if (!account || total <= 0) {
-    console.log("⚠️ Data XLSX tidak lengkap (account/total), skip");
-    return;
-  }
+  if (!account || total <= 0) return;
 
-// ===== PARSE LIST GRUP =====
-const groups = String(row.link_group || "")
-  .split(",")
-  .map(g => g.replace(/[\s\r\n]+/g, "").trim())
-  .filter(Boolean);
+  const groups = String(row.link_group || "")
+    .split(",")
+    .map(g => g.replace(/[\s\r\n]+/g, "").trim())
+    .filter(Boolean);
 
-if (groups.length === 0) {
-  console.log("⚠️ Tidak ada link_group, skip");
-  return;
-}
+  if (groups.length === 0) return;
 
-
-  console.log(`🧠 Account: ${account}`);
-  console.log(`🔢 Total Like per Grup: ${total}`);
-  console.log(`⏱️ Delay: ${delayMin} - ${delayMax}`);
-  console.log(`🔗 Jumlah Grup: ${groups.length}`);
-
-  // ===== LOOP SEMUA GRUP =====
   for (let i = 0; i < groups.length; i++) {
-
     let groupUrl = groups[i];
-
-    // ✅ Perbaiki URL kalau belum lengkap
     if (!groupUrl.startsWith("http")) {
       groupUrl = "https://m.facebook.com/" + groupUrl.replace(/^\/+/, "");
     }
+    if (!groupUrl.includes("/groups/")) continue;
 
-    if (!groupUrl.includes("/groups/")) {
-      console.log("❌ URL bukan grup, skip:", groupUrl);
-      continue;
-    }
-
-    console.log(`\n📌 [${account}] Grup ${i + 1}/${groups.length}`);
-    console.log("➡️", groupUrl);
-
-    // ===== BUKA GRUP =====
     await page.goto(groupUrl, { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(4000);
-
     let clicked = 0;
 
-    // ===== LOOP LIKE =====
     while (clicked < total) {
-
       const liked = await page.evaluate(() => {
         const btn = [...document.querySelectorAll('div[role="button"]')]
           .find(el => {
             const label = (el.getAttribute("aria-label") || "").toLowerCase();
-            return (
-              label.includes("like") ||
-              label.includes("suka")
-            );
+            return label.includes("like") || label.includes("suka");
           });
 
         if (!btn) return false;
-
         btn.scrollIntoView({ block: "center" });
         btn.click();
         return true;
       });
 
       if (!liked) {
-        console.log("🔄 Tidak ada tombol Like, scroll...");
-        await page.evaluate(() =>
-          window.scrollBy(0, window.innerHeight * 0.8)
-        );
+        await page.evaluate(() => window.scrollBy(0, window.innerHeight * 0.8));
         await page.waitForTimeout(2000);
         continue;
       }
 
       clicked++;
-      console.log(`👍 Like ke-${clicked} dari ${total}`);
-
-      const delay =
-        Math.floor(Math.random() * (delayMax - delayMin + 1)) + delayMin;
-
-      console.log(`⏱️ Delay ${delay} ms`);
-      await page.waitForTimeout(delay);
-
-      // Scroll sedikit biar muncul post baru
-      await page.evaluate(() =>
-        window.scrollBy(0, window.innerHeight * 0.6)
-      );
-
+      const delayTime = Math.floor(Math.random() * (delayMax - delayMin + 1)) + delayMin;
+      await page.waitForTimeout(delayTime);
+      await page.evaluate(() => window.scrollBy(0, window.innerHeight * 0.6));
       await page.waitForTimeout(2000);
     }
-
-    console.log(`✅ Selesai grup ini (${clicked} like)`);
   }
-
-  console.log("🎉 Semua grup selesai diproses");
 }
 
-
-//FUNGSI UNDFRIEND 
+// UNDFRIEND
 async function runUndfriends(page, row) {
-  console.log("🧪 ROW RAW:", row);
-  console.log("🧪 Object keys:", Object.keys(row));
- 
-  for (const k in row) {
-  console.log("FIELD:", `[${k}]`);
-  }
-  
-  console.log(`\n📝 Mulai addUndftiend → ${row.account}`);
-  const account = row.account;
-  console.log(`\n📝 Mulai addUndftiend→ ${account}`);
   const total = String(row.total || "").trim();
   const delayMin = Number(row.delay_min || 4000);
   const delayMax = Number(row.delay_max || 8000);
-  console.log("Delay XLSX:", delayMin, delayMax);
-  console.log("TOTAL:", row.total);
   
-  
-  
-  
-  if (!total) {
-  console.log("⚠️ total kosong, skip");
-  return;
-  }
+  if (!total) return;
 
-
-  // 1️⃣ BUKA HOME FB (WAJIB)
   await page.goto("https://m.facebook.com", { waitUntil: "domcontentloaded" });
-  console.log("BUKA FACEBOOK");
   await delay(3000);
 
-// contoh daftar target
-  const clicked = await page.evaluate(() => {
-  // 🔍 cari tombol profile (ID + EN)
-  const btn = [...document.querySelectorAll('div[role="button"]')]
-    .find(el => {
-      const label = (el.getAttribute("aria-label") || "").toLowerCase();
-      return label.includes("profil") || label.includes("profile");
-    });
-
-  if (!btn) return false;
-
-  // 👁️ pastikan terlihat
-  btn.scrollIntoView({ block: "center", behavior: "smooth" });
-
-  // 🖱️ trigger React / FB event chain
-  const events = [
-    new TouchEvent("touchstart", { bubbles: true, cancelable: true }),
-    new TouchEvent("touchend", { bubbles: true, cancelable: true }),
-    new PointerEvent("pointerdown", { bubbles: true }),
-    new PointerEvent("pointerup", { bubbles: true }),
-    new MouseEvent("mousedown", { bubbles: true }),
-    new MouseEvent("mouseup", { bubbles: true }),
-    new MouseEvent("click", { bubbles: true })
-  ];
-
-  events.forEach(e => btn.dispatchEvent(e));
-  return true;
-});
-
-console.log("👤 Klik profile:", clicked);
-
-  await page.waitForTimeout(1000);
-
-  // 2️⃣ tap span FOLLOWING (INLINE, span only)
-const ok = await page.evaluate(() => {
-  const spans = [...document.querySelectorAll("span")];
-
-  const target = spans.find(s => {
-    const t = (s.innerText || "").trim().toLowerCase();
-
-    // ⛔ skip span angka
-    if (!t || /^\d+$/.test(t)) return false;
-
-    // ✅ hanya teks following
-    return t === "following" || t === "mengikuti";
+  await page.evaluate(() => {
+    const btn = [...document.querySelectorAll('div[role="button"]')]
+      .find(el => {
+        const label = (el.getAttribute("aria-label") || "").toLowerCase();
+        return label.includes("profil") || label.includes("profile");
+      });
+    if (btn) btn.click();
   });
 
-  if (!target) return false;
+  await page.waitForTimeout(1000);
+  await page.evaluate(() => {
+    const spans = [...document.querySelectorAll("span")];
+    const target = spans.find(s => {
+      const t = (s.innerText || "").trim().toLowerCase();
+      if (!t || /^\d+$/.test(t)) return false;
+      return t === "following" || t === "mengikuti";
+    });
+    if (target) target.click();
+  });
 
-  target.scrollIntoView({ block: "center", behavior: "smooth" });
-
-  const events = [
-    new TouchEvent("touchstart", { bubbles: true, cancelable: true }),
-    new TouchEvent("touchend", { bubbles: true, cancelable: true }),
-    new PointerEvent("pointerdown", { bubbles: true }),
-    new PointerEvent("pointerup", { bubbles: true }),
-    new MouseEvent("mousedown", { bubbles: true }),
-    new MouseEvent("mouseup", { bubbles: true }),
-    new MouseEvent("click", { bubbles: true })
-  ];
-
-  events.forEach(e => target.dispatchEvent(e));
-
-  return true;
-});
-
-if (!ok) {
-  console.log("❌ span following / mengikuti tidak ditemukan");
-} else {
-  console.log("📂 Halaman following dibuka (via tap span)");
   await page.waitForTimeout(2000);
-}
-await unfriend(page, total, delayMin, delayMax);
+  await unfriend(page, total, delayMin, delayMax);
 }
 
 async function unfriend(page, total, delayMin, delayMax) {
   try {
     const LIMIT = Number(total) || 1;
     let done = 0;
-
     await page.waitForTimeout(3000);
 
     while (done < LIMIT) {
-
-      // 1️⃣ Klik tab Friends
       const step1 = await page.evaluate(() => {
         const tab = [...document.querySelectorAll('[role="tab"]')]
           .find(el => {
             const label = (el.getAttribute("aria-label") || "").toLowerCase();
             return label.includes("friends") || label.includes("teman");
           });
-
         if (!tab) return false;
         tab.click();
         return true;
       });
 
-      if (!step1) {
-        console.log("⚠️ Friends tab tidak ditemukan");
-        break;
-      }
-
+      if (!step1) break;
       await page.waitForTimeout(2000);
 
-      // 2️⃣ Klik tombol Friend settings (titik tiga)
       const step2 = await page.evaluate(() => {
         const menu = [...document.querySelectorAll('[role="button"]')]
           .find(el => {
             const label = (el.getAttribute("aria-label") || "").toLowerCase();
-            return label.includes("friend settings") || 
-                   label.includes("pengaturan teman");
+            return label.includes("friend settings") || label.includes("pengaturan teman");
           });
-
         if (!menu) return false;
         menu.click();
         return true;
       });
 
-      if (!step2) {
-        console.log("⚠️ Friend settings tidak muncul");
-        break;
-      }
-
+      if (!step2) break;
       await page.waitForTimeout(2000);
 
-      // 3️⃣ Klik Unfriend
       const step3 = await page.evaluate(() => {
         const btn = [...document.querySelectorAll("span")]
           .find(el => {
             const t = (el.innerText || "").toLowerCase();
-            return t.includes("unfriend") ||
-                   t.includes("hapus pertemanan") ||
-                   t.includes("batalkan pertemanan");
+            return t.includes("unfriend") || t.includes("hapus pertemanan");
           });
-
         if (!btn) return false;
         btn.click();
         return true;
       });
 
-      if (!step3) {
-        console.log("❌ Tombol Unfriend tidak ditemukan");
-        break;
-      }
-
+      if (!step3) break;
       await page.waitForTimeout(2000);
 
-      // 4️⃣ Klik konfirmasi Unfriend (popup)
       await page.evaluate(() => {
         const confirmBtn = [...document.querySelectorAll('[role="button"] span')]
           .find(el => {
             const t = (el.innerText || "").toLowerCase();
-            return t === "unfriend" ||
-                   t === "hapus pertemanan";
+            return t === "unfriend" || t === "hapus pertemanan";
           });
-
         if (confirmBtn) confirmBtn.click();
       });
 
       done++;
-      console.log(`🤗 Unfriend ke-${done}`);
-
-      const delay = randomDelay(delayMin, delayMax);
-      console.log(`⏱️ Delay ${delay} ms`);
-      await page.waitForTimeout(delay);
-
-      await page.evaluate(() =>
-        window.scrollBy(0, window.innerHeight * 0.7)
-      );
-
+      const delayTime = randomDelay(delayMin, delayMax);
+      await page.waitForTimeout(delayTime);
+      await page.evaluate(() => window.scrollBy(0, window.innerHeight * 0.7));
       await page.waitForTimeout(2000);
     }
-
-    console.log(`🎯 Total Unfriend selesai: ${done}`);
-    return done;
-
-  } catch (err) {
-    console.error("❌ Error unfriend:", err.message);
-    return 0;
-  }
+  } catch (err) {}
 }
 
-//FUNGSI addFriendFollowing
+// ADDFRIEND FOLLOWING
 async function runAddFriendFollowings(page, row) {
-  console.log("🧪 ROW RAW:", row);
-  console.log("🧪 Object keys:", Object.keys(row));
- console.log("🧪 LINK DIRECT:", row.link_targetUsername);
-  
-  for (const k in row) {
-  console.log("FIELD:", `[${k}]`);
-  }
-  
-  console.log(`\n📝 Mulai addFriendFollowing → ${row.account}`);
-  const account = row.account;
-  console.log(`\n📝 Mulai addFriendFollowing → ${account}`);
   const total = String(row.total || "").trim();
   const delayMin = Number(row.delay_min || 4000);
   const delayMax = Number(row.delay_max || 8000);
-  console.log("Delay XLSX:", delayMin, delayMax);
-  console.log("TOTAL:", row.total);
   const linkTargetUsernameUrl = String(row.link_targetUsername || "").trim();
-  console.log("LINK:", row.link_targetUsername);
   
-  console.log("🧪 LINK DIRECT:", row.link_targetUsername);
-console.log("🧪 LINK LOWER:", row.link_targetUsername);
+  if (!total || !linkTargetUsernameUrl) return;
 
-  
-  
-  if (!total || !linkTargetUsernameUrl) {
-  console.log("⚠️ linkTargetUsername kosong, skip");
-  return;
-  }
-
-
-  // 1️⃣ BUKA HOME FB (WAJIB)
   await page.goto("https://m.facebook.com", { waitUntil: "domcontentloaded" });
-  
   await delay(3000);
-// bikin array target (kalau cuma 1 link tetap aman)
-const targets = [linkTargetUsernameUrl];
 
-for (const profile of targets) {
-  // 1️⃣ buka profil target
-  await page.goto(profile, { waitUntil: "networkidle2" });
-  console.log("👤 Profil dibuka:", profile);
-
+  await page.goto(linkTargetUsernameUrl, { waitUntil: "networkidle2" });
   await page.waitForTimeout(3000);
 
-  // 2️⃣ tap span FOLLOWING (INLINE, span only)
-const ok = await page.evaluate(() => {
-  const spans = [...document.querySelectorAll("span")];
-
-  const target = spans.find(s => {
-    const t = (s.innerText || "").trim().toLowerCase();
-
-    // ⛔ skip span angka
-    if (!t || /^\d+$/.test(t)) return false;
-
-    // ✅ hanya teks following
-    return t === "following" || t === "mengikuti";
-  });
-
-  if (!target) return false;
-
-  target.scrollIntoView({ block: "center", behavior: "smooth" });
-
-  const events = [
-    new TouchEvent("touchstart", { bubbles: true, cancelable: true }),
-    new TouchEvent("touchend", { bubbles: true, cancelable: true }),
-    new PointerEvent("pointerdown", { bubbles: true }),
-    new PointerEvent("pointerup", { bubbles: true }),
-    new MouseEvent("mousedown", { bubbles: true }),
-    new MouseEvent("mouseup", { bubbles: true }),
-    new MouseEvent("click", { bubbles: true })
-  ];
-
-  events.forEach(e => target.dispatchEvent(e));
-
-  return true;
-});
-
-if (!ok) {
-  console.log("❌ span following / mengikuti tidak ditemukan");
-  continue;
-}
-
-console.log("📂 Halaman following dibuka (via tap span)");
-
-// tunggu halaman followers load
-  await page.waitForTimeout(2000);
-}
-// setelah buka following → baru add friend
-await addFriendByUsernameFollowing(page,total,delayMin, delayMax);
-
-  // FUNGSI ADDFRIEND by target username following
-async function addFriendByUsernameFollowing(page, total,delayMin, delayMax) {
-  try {
-    const LIMIT = Number(total) || 0;
-
-    if (LIMIT <= 0) {
-      console.log("⚠️ LIMIT tidak valid:", total);
-      return 0;
-    }
-
-    console.log(`🚀 Mulai add friend (followers list), target: ${LIMIT}`);
-
-    await page.evaluate(() => window.scrollTo(0, 0));
-    await page.waitForTimeout(2000);
-
-    let clicked = 0;
-
-    while (clicked < LIMIT) {
-      const found = await page.evaluate(() => {
-        function humanClick(el) {
-          el.scrollIntoView({ block: "center", behavior: "instant" });
-          ["pointerdown","touchstart","mousedown","mouseup","touchend","click"]
-            .forEach(type =>
-              el.dispatchEvent(new Event(type, { bubbles: true, cancelable: true }))
-            );
-        }
-
-        const buttons = [...document.querySelectorAll('div[role="button"]')]
-          .filter(btn => {
-            const text = (btn.innerText || "").toLowerCase();
-            const aria = (btn.getAttribute("aria-label") || "").toLowerCase();
-
-            return (
-              text.includes("add friend") ||
-              text.includes("tambah teman") ||
-              text.includes("tambahkan teman") ||
-              aria.startsWith("send a friend request") ||
-              aria.startsWith("kirim permintaan pertemanan")
-            );
-          });
-
-        // skip tombol Add Friend di profil
-        const listButtons = buttons.slice(1);
-
-        for (const btn of listButtons) {
-          if (btn.dataset.clicked) continue;
-
-          btn.dataset.clicked = "true";
-          humanClick(btn);
-          return true;
-        }
-
-        return false;
-      });
-
-      if (!found) {
-        console.log("⚠️ Tidak ada Add Friend lagi di followers");
-        break;
-      }
-
-      clicked++;
-      console.log(`✅ Klik Add Friend ke-${clicked}`);
-
-    const delay = randomDelay(delayMin, delayMax);
-    console.log(`⏱️ Delay ${delay} ms sebelum klik berikutnya`);
-    await page.waitForTimeout(delay);
-      
-      await page.evaluate(() =>
-        window.scrollBy(0, window.innerHeight * 0.8)
-      );
-      await page.waitForTimeout(3000);
-    }
-
-    console.log(`🎯 Selesai. Total Add Friend: ${clicked}`);
-    return clicked;
-
-  } catch (err) {
-    console.error("❌ Error addFriendByUsernameFollowers:", err.message);
-    return 0;
-  }
-}
-
-}
-
-//FUNGSI addFriendFriendlist 
-async function runAddFriendFriends(page, row) {
-  console.log("🧪 ROW RAW:", row);
-  console.log("🧪 Object keys:", Object.keys(row));
- console.log("🧪 LINK DIRECT:", row.link_targetUsername);
-  
-  for (const k in row) {
-  console.log("FIELD:", `[${k}]`);
-  }
-  
-  console.log(`\n📝 Mulai addFriendFriends→ ${row.account}`);
-  const account = row.account;
-  console.log(`\n📝 Mulai addFriendFriends → ${account}`);
-  const total = String(row.total || "").trim();
-  const delayMin = Number(row.delay_min || 4000);
-  const delayMax = Number(row.delay_max || 8000);
-  console.log("Delay XLSX:", delayMin, delayMax);
-  console.log("TOTAL:", row.total);
-  const linkTargetUsernameUrl = String(row.link_targetUsername || "").trim();
-  console.log("LINK:", row.link_targetUsername);
-  
-  console.log("🧪 LINK DIRECT:", row.link_targetUsername);
-console.log("🧪 LINK LOWER:", row.link_targetUsername);
-
-  
-  
-  if (!total || !linkTargetUsernameUrl) {
-  console.log("⚠️ linkTargetUsername kosong, skip");
-  return;
-  }
-
-
-  // 1️⃣ BUKA HOME FB (WAJIB)
-  await page.goto("https://m.facebook.com", { waitUntil: "domcontentloaded" });
-  
-  await delay(3000);
-// bikin array target (kalau cuma 1 link tetap aman)
-const targets = [linkTargetUsernameUrl];
-for (const profile of targets) {
-  // 1️⃣ buka profil target
-  await page.goto(profile, { waitUntil: "networkidle2" });
-  console.log("👤 Profil dibuka:", profile);
-
-  await page.waitForTimeout(3000);
-
-  // 2️⃣ tap span FOLLOWING (INLINE, span only)
-const ok = await page.evaluate(() => {
-  const spans = [...document.querySelectorAll("span")];
-
-  const target = spans.find(s => {
-    const t = (s.innerText || "").trim().toLowerCase();
-
-    // ⛔ skip span angka
-    if (!t || /^\d+$/.test(t)) return false;
-
-    // ✅ hanya teks following
-    return t === "following" || t === "mengikuti";
-  });
-
-  if (!target) return false;
-
-  target.scrollIntoView({ block: "center", behavior: "smooth" });
-
-  const events = [
-    new TouchEvent("touchstart", { bubbles: true, cancelable: true }),
-    new TouchEvent("touchend", { bubbles: true, cancelable: true }),
-    new PointerEvent("pointerdown", { bubbles: true }),
-    new PointerEvent("pointerup", { bubbles: true }),
-    new MouseEvent("mousedown", { bubbles: true }),
-    new MouseEvent("mouseup", { bubbles: true }),
-    new MouseEvent("click", { bubbles: true })
-  ];
-
-  events.forEach(e => target.dispatchEvent(e));
-
-  return true;
-});
-
-if (!ok) {
-  console.log("❌ span following / mengikuti tidak ditemukan");
-  continue;
-}
-
-console.log("📂 Halaman following dibuka (via tap span)");
-
-await page.waitForTimeout(2000);
-  // buka friends list
-const okFriends = await openFriendsList(page);
-if(okFriends){
-  // mulai add friend
-  await addFriendFromList(page, total, delayMin, delayMax);
-}
-  //buka friendslist 
-  async function openFriendsList(page) {
-  try {
-    const ok = await page.evaluate(() => {
-      const spans = [...document.querySelectorAll("span")];
-
-      const target = spans.find(s => {
-        const t = (s.innerText || "").trim().toLowerCase();
-
-        // ⛔ skip kosong & angka
-        if (!t || /^\d+$/.test(t)) return false;
-
-        // ✅ khusus FRIENDS
-        return t === "friends" || t === "teman";
-      });
-
-      if (!target) return false;
-
-      target.scrollIntoView({ block: "center", behavior: "smooth" });
-
-      const events = [
-        new TouchEvent("touchstart", { bubbles: true, cancelable: true }),
-        new TouchEvent("touchend", { bubbles: true, cancelable: true }),
-        new PointerEvent("pointerdown", { bubbles: true }),
-        new PointerEvent("pointerup", { bubbles: true }),
-        new MouseEvent("mousedown", { bubbles: true }),
-        new MouseEvent("mouseup", { bubbles: true }),
-        new MouseEvent("click", { bubbles: true })
-      ];
-
-      events.forEach(e => target.dispatchEvent(e));
-
-      return true;
+  await page.evaluate(() => {
+    const spans = [...document.querySelectorAll("span")];
+    const target = spans.find(s => {
+      const t = (s.innerText || "").trim().toLowerCase();
+      if (!t || /^\d+$/.test(t)) return false;
+      return t === "following" || t === "mengikuti";
     });
+    if (target) target.click();
+  });
 
-    if (!ok) {
-      console.log("❌ span Friends / Teman tidak ditemukan");
-      return false;
-    }
-
-    console.log("📂 Halaman Friends dibuka (via tap span)");
-    await page.waitForTimeout(2000);
-    return true;
-
-  } catch (err) {
-    console.log("⚠️ Terjadi error saat membuka halaman Friends:", err);
-    return false;
-  }
+  await page.waitForTimeout(2000);
+  await addFriendByUsernameFollowing(page, total, delayMin, delayMax);
 }
 
-await page.waitForTimeout(2000);
-// setelah buka friends→ baru add friend
- // FUNGSI ADDFRIEND by target username followers
-async function addFriendFromList(page, total,delayMin, delayMax) {
+async function addFriendByUsernameFollowing(page, total, delayMin, delayMax) {
   try {
     const LIMIT = Number(total) || 0;
-
-    if (LIMIT <= 0) {
-      console.log("⚠️ LIMIT tidak valid:", total);
-      return 0;
-    }
-
-    console.log(`🚀 Mulai add friend (followers list), target: ${LIMIT}`);
+    if (LIMIT <= 0) return;
 
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.waitForTimeout(2000);
 
     let clicked = 0;
-
     while (clicked < LIMIT) {
       const found = await page.evaluate(() => {
-        function humanClick(el) {
-          el.scrollIntoView({ block: "center", behavior: "instant" });
-          ["pointerdown","touchstart","mousedown","mouseup","touchend","click"]
-            .forEach(type =>
-              el.dispatchEvent(new Event(type, { bubbles: true, cancelable: true }))
-            );
-        }
-
         const buttons = [...document.querySelectorAll('div[role="button"]')]
           .filter(btn => {
             const text = (btn.innerText || "").toLowerCase();
             const aria = (btn.getAttribute("aria-label") || "").toLowerCase();
-
-            return (
-              text.includes("add friend") ||
-              text.includes("tambah teman") ||
-              text.includes("tambahkan teman") ||
-              aria.startsWith("send a friend request") ||
-              aria.startsWith("kirim permintaan pertemanan")
-            );
+            return text.includes("add friend") || text.includes("tambah teman") || aria.startsWith("send a friend request");
           });
 
-        // skip tombol Add Friend di profil
         const listButtons = buttons.slice(1);
-
         for (const btn of listButtons) {
           if (btn.dataset.clicked) continue;
-
           btn.dataset.clicked = "true";
-          humanClick(btn);
+          btn.click();
           return true;
         }
-
         return false;
       });
 
-      if (!found) {
-        console.log("⚠️ Tidak ada Add Friend lagi di followers");
-        break;
-      }
-
+      if (!found) break;
       clicked++;
-      console.log(`✅ Klik Add Friend ke-${clicked}`);
-
-    const delay = randomDelay(delayMin, delayMax);
-    console.log(`⏱️ Delay ${delay} ms sebelum klik berikutnya`);
-    await page.waitForTimeout(delay);
-      
-      await page.evaluate(() =>
-        window.scrollBy(0, window.innerHeight * 0.8)
-      );
+      const delayTime = randomDelay(delayMin, delayMax);
+      await page.waitForTimeout(delayTime);
+      await page.evaluate(() => window.scrollBy(0, window.innerHeight * 0.8));
       await page.waitForTimeout(3000);
     }
-
-    console.log(`🎯 Selesai. Total Add Friend: ${clicked}`);
-    return clicked;
-
-  } catch (err) {
-    console.error("❌ Error addFriendByUsernameFollowers:", err.message);
-    return 0;
-  }
-}
-}
+  } catch (err) {}
 }
 
-//FUNGSI confirm 
-async function runConfirm(page, row) {
-  console.log("🧪 ROW RAW:", row);
-  console.log("🧪 Object keys:", Object.keys(row));
- console.log("🧪 LINK DIRECT:", row.link_targetUsername);
-  
-  for (const k in row) {
-  console.log("FIELD:", `[${k}]`);
-  }
-  
-  console.log(`\n📝 Mulai addFriendFollowers → ${row.account}`);
-  const account = row.account;
-  console.log(`\n📝 Mulai addFriendFollowers → ${account}`);
+// ADDFRIEND FRIENDS
+async function runAddFriendFriends(page, row) {
   const total = String(row.total || "").trim();
   const delayMin = Number(row.delay_min || 4000);
   const delayMax = Number(row.delay_max || 8000);
-  console.log("Delay XLSX:", delayMin, delayMax);
-  console.log("TOTAL:", row.total);
+  const linkTargetUsernameUrl = String(row.link_targetUsername || "").trim();
   
-  if (!total) {
-  console.log("⚠️ linkTargetUsername kosong, skip");
-  return;
-  }
+  if (!total || !linkTargetUsernameUrl) return;
 
-
-  // 1️⃣ BUKA HOME FB (WAJIB)
   await page.goto("https://m.facebook.com", { waitUntil: "domcontentloaded" });
-  console.log(" buka Facebook ");
+  await delay(3000);
+
+  await page.goto(linkTargetUsernameUrl, { waitUntil: "networkidle2" });
+  await page.waitForTimeout(3000);
+
+  const okFriends = await page.evaluate(() => {
+    const spans = [...document.querySelectorAll("span")];
+    const target = spans.find(s => {
+      const t = (s.innerText || "").trim().toLowerCase();
+      if (!t || /^\d+$/.test(t)) return false;
+      return t === "friends" || t === "teman";
+    });
+    if (!target) return false;
+    target.click();
+    return true;
+  });
+
+  if (okFriends) {
+    await page.waitForTimeout(2000);
+    await addFriendByUsernameFollowing(page, total, delayMin, delayMax);
+  }
+}
+
+// CONFIRM
+async function runConfirm(page, row) {
+  const total = String(row.total || "").trim();
+  const delayMin = Number(row.delay_min || 4000);
+  const delayMax = Number(row.delay_max || 8000);
+  
+  if (!total) return;
+
+  await page.goto("https://m.facebook.com", { waitUntil: "domcontentloaded" });
   await delay(3000);
   await page.goto("https://m.facebook.com/friends/");
-  console.log("link frends request dibuka");
   await confirmFriendRequests(page, total, delayMin, delayMax);
 }
-// ==== Fungsi Confirm (ganti Add Friend) ====
+
 async function confirmFriendRequests(page, total, delayMin, delayMax) {
   let clicked = 0;
-
   while (clicked < total) {
-    // ambil tombol confirm
     const buttons = await page.$x(
       "//div[@role='button']//span[" +
         "contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'), 'konfirmasi')" +
@@ -1785,211 +782,46 @@ async function confirmFriendRequests(page, total, delayMin, delayMax) {
         "]/ancestor::div[@role='button']"
     );
 
-    if (!buttons.length) {
-      console.log("🛑 Tidak ada tombol Confirm lagi");
-      break;
-    }
-    // scroll ke tombol
-    await buttons[0].evaluate(el => el.scrollIntoView({ block: "center" }));
-    await page.waitForTimeout(500);
-
-    // klik tombol confirm
+    if (!buttons.length) break;
     await buttons[0].click();
     clicked++;
-    console.log(`✅ Confirm ke-${clicked} dari ${total}`);
-
-    // delay acak
-    const delay = randomDelay(delayMin, delayMax);
-    console.log(`⏱️ Delay ${delay} ms sebelum klik berikutnya`);
-    await page.waitForTimeout(delay);
-
-    // scroll halaman sedikit
+    const delayTime = randomDelay(delayMin, delayMax);
+    await page.waitForTimeout(delayTime);
     await page.evaluate(() => window.scrollBy(0, window.innerHeight * 0.35));
     await page.waitForTimeout(1000);
   }
-
-  console.log(`🎯 Total Confirm selesai: ${clicked}`);
-
 }
 
-//FUNGSI addFriendFollowers 
+// ADDFRIEND FOLLOWERS
 async function runAddFriendFollowers(page, row) {
-  console.log("🧪 ROW RAW:", row);
-  console.log("🧪 Object keys:", Object.keys(row));
- console.log("🧪 LINK DIRECT:", row.link_targetUsername);
-  
-  for (const k in row) {
-  console.log("FIELD:", `[${k}]`);
-  }
-  
-  console.log(`\n📝 Mulai addFriendFollowers → ${row.account}`);
-  const account = row.account;
-  console.log(`\n📝 Mulai addFriendFollowers → ${account}`);
   const total = String(row.total || "").trim();
   const delayMin = Number(row.delay_min || 4000);
   const delayMax = Number(row.delay_max || 8000);
-  console.log("Delay XLSX:", delayMin, delayMax);
-  console.log("TOTAL:", row.total);
   const linkTargetUsernameUrl = String(row.link_targetUsername || "").trim();
-  console.log("LINK:", row.link_targetUsername);
   
-  console.log("🧪 LINK DIRECT:", row.link_targetUsername);
-console.log("🧪 LINK LOWER:", row.link_targetUsername);
+  if (!total || !linkTargetUsernameUrl) return;
 
-  
-  
-  if (!total || !linkTargetUsernameUrl) {
-  console.log("⚠️ linkTargetUsername kosong, skip");
-  return;
-  }
-
-
-  // 1️⃣ BUKA HOME FB (WAJIB)
   await page.goto("https://m.facebook.com", { waitUntil: "domcontentloaded" });
-  
   await delay(3000);
-// bikin array target (kalau cuma 1 link tetap aman)
-const targets = [linkTargetUsernameUrl];
-
-for (const profile of targets) {
-
-  // 1️⃣ buka profil target
-  await page.goto(profile, { waitUntil: "networkidle2" });
-  console.log("👤 Profil dibuka:", profile);
-
+  await page.goto(linkTargetUsernameUrl, { waitUntil: "networkidle2" });
   await page.waitForTimeout(3000);
 
-  // 2️⃣ tap span followers / pengikut
-  const ok = await page.evaluate(() => {
+  await page.evaluate(() => {
     const spans = [...document.querySelectorAll("span")];
-
     const target = spans.find(s => {
       const t = (s.innerText || "").toLowerCase();
       return t.includes("followers") || t.includes("pengikut");
     });
-
-    if (!target) return false;
-
-    target.scrollIntoView({ block: "center", behavior: "smooth" });
-
-    const events = [
-      new TouchEvent("touchstart", { bubbles: true, cancelable: true }),
-      new TouchEvent("touchend", { bubbles: true, cancelable: true }),
-      new PointerEvent("pointerdown", { bubbles: true }),
-      new PointerEvent("pointerup", { bubbles: true }),
-      new MouseEvent("mousedown", { bubbles: true }),
-      new MouseEvent("mouseup", { bubbles: true }),
-      new MouseEvent("click", { bubbles: true })
-    ];
-
-    events.forEach(e => target.dispatchEvent(e));
-
-    return true;
+    if (target) target.click();
   });
 
-  if (!ok) {
-    console.log("❌ span followers / pengikut tidak ditemukan");
-    continue;
-  }
-
-  console.log("📂 Halaman followers dibuka (via tap span)");
-
-  // tunggu halaman followers load
   await page.waitForTimeout(3000);
+  await addFriendByUsernameFollowing(page, total, delayMin, delayMax);
 }
 
-// setelah buka followers → baru add friend
-await addFriendByUsernameFollowers(page,total,delayMin, delayMax);
-
-  // FUNGSI ADDFRIEND by target username followers
-async function addFriendByUsernameFollowers(page, total,delayMin, delayMax) {
-  try {
-    const LIMIT = Number(total) || 0;
-
-    if (LIMIT <= 0) {
-      console.log("⚠️ LIMIT tidak valid:", total);
-      return 0;
-    }
-
-    console.log(`🚀 Mulai add friend (followers list), target: ${LIMIT}`);
-
-    await page.evaluate(() => window.scrollTo(0, 0));
-    await page.waitForTimeout(2000);
-
-    let clicked = 0;
-
-    while (clicked < LIMIT) {
-      const found = await page.evaluate(() => {
-        function humanClick(el) {
-          el.scrollIntoView({ block: "center", behavior: "instant" });
-          ["pointerdown","touchstart","mousedown","mouseup","touchend","click"]
-            .forEach(type =>
-              el.dispatchEvent(new Event(type, { bubbles: true, cancelable: true }))
-            );
-        }
-
-        const buttons = [...document.querySelectorAll('div[role="button"]')]
-          .filter(btn => {
-            const text = (btn.innerText || "").toLowerCase();
-            const aria = (btn.getAttribute("aria-label") || "").toLowerCase();
-
-            return (
-              text.includes("add friend") ||
-              text.includes("tambah teman") ||
-              text.includes("tambahkan teman") ||
-              aria.startsWith("send a friend request") ||
-              aria.startsWith("kirim permintaan pertemanan")
-            );
-          });
-
-        // skip tombol Add Friend di profil
-        const listButtons = buttons.slice(1);
-
-        for (const btn of listButtons) {
-          if (btn.dataset.clicked) continue;
-
-          btn.dataset.clicked = "true";
-          humanClick(btn);
-          return true;
-        }
-
-        return false;
-      });
-
-      if (!found) {
-        console.log("⚠️ Tidak ada Add Friend lagi di followers");
-        break;
-      }
-
-      clicked++;
-      console.log(`✅ Klik Add Friend ke-${clicked}`);
-
-    const delay = randomDelay(delayMin, delayMax);
-    console.log(`⏱️ Delay ${delay} ms sebelum klik berikutnya`);
-    await page.waitForTimeout(delay);
-      
-      await page.evaluate(() =>
-        window.scrollBy(0, window.innerHeight * 0.8)
-      );
-      await page.waitForTimeout(3000);
-    }
-
-    console.log(`🎯 Selesai. Total Add Friend: ${clicked}`);
-    return clicked;
-
-  } catch (err) {
-    console.error("❌ Error addFriendByUsernameFollowers:", err.message);
-    return 0;
-  }
-}
-
-}
-
-//FUNGSI POSTING STATUS 
+// POSTING STATUS
 async function runStatus(page, row) {
-  console.log(`\n📝 Post STATUS → ${row.account}`);
   const account = row.account;
-  console.log(`\n📝 Post STATUS → ${account}`);
   const caption = row.caption;
   const mediaUrl = row.media_url || row.github_release;
   const delayMikir = Number(row.delay_mikir);
@@ -1999,292 +831,54 @@ async function runStatus(page, row) {
   const pauseMin = Number(row.pause_min);
   const pauseMax = Number(row.pause_max);
 
+  if (!caption && !mediaUrl) return;
 
-  if (!caption && !mediaUrl) {
-    console.log("⚠️ Status kosong, skip");
-    return;
-  }
-
-  // 1️⃣ BUKA HOME FB (WAJIB)
   await page.goto("https://m.facebook.com", { waitUntil: "domcontentloaded" });
-  
   await delay(3000);
   
-async function clickComposerStatus(page) {
-  const ok = await page.evaluate(() => {
-    const keywords = [
-      "what's on your mind",
-      "apa yang anda pikirkan",
-      "tulis sesuatu",
-      "buat postingan"
-    ];
-
-    const btn = [...document.querySelectorAll('div[role="button"]')]
-      .find(el =>
-        keywords.some(k =>
-          (el.innerText || "").toLowerCase().includes(k)
-        )
-      );
-
-    if (!btn) return false;
-
-    btn.scrollIntoView({ block: "center" });
-
-    [
-      "pointerdown",
-      "touchstart",
-      "mousedown",
-      "mouseup",
-      "touchend",
-      "click"
-    ].forEach(e =>
-      btn.dispatchEvent(new Event(e, { bubbles: true, cancelable: true }))
-    );
-
-    return true;
+  await page.waitForSelector('div[role="button"][data-mcomponent="ServerTextArea"]', { timeout: 20000 });
+  await page.evaluate(() => {
+    const el = document.querySelector('div[role="button"][data-mcomponent="ServerTextArea"]');
+    if (el) el.click();
   });
 
-  console.log(
-    ok ? "✅ Composer STATUS diklik" : "❌ Tombol STATUS tidak ditemukan"
-  );
-  return ok;
-}
-  
-  // 3️⃣ TUNGGU TEXTBOX
   await page.waitForTimeout(2000);
-
-  
-
-// 1️⃣ Klik placeholder composer
- await page.waitForSelector(
-    'div[role="button"][data-mcomponent="ServerTextArea"]',
-     { timeout: 20000 }
-    );
-
-    await page.evaluate(() => {
-     const el = document.querySelector(
-        'div[role="button"][data-mcomponent="ServerTextArea"]'
-     );
-     if (!el) return;
-
-     el.scrollIntoView({ block: "center" });
-
-    ["touchstart","touchend","mousedown","mouseup","click"]
-        .forEach(e =>
-        el.dispatchEvent(new Event(e, { bubbles: true }))
-        );
-     });
-
-  
-   await page.waitForFunction(() => {
-     return (
-     document.querySelector('div[contenteditable="true"][role="textbox"]') ||
-       document.querySelector('div[contenteditable="true"]') ||
-      document.querySelector('textarea') ||
-       document.querySelector('textarea[role="combobox"]') ||
-       document.querySelector('div[data-mcomponent="ServerTextArea"]') ||
-       document.querySelector('[aria-label]')
-    );
-  }, { timeout: 30000 });
-
-  console.log("✅ Composer textbox terdeteksi");
-  
-  // await debugComposerAll(page);
-
   const boxHandle = await page.evaluateHandle(() => {
-  return (
-    document.querySelector('div[contenteditable="true"][role="textbox"]') ||
-    document.querySelector('div[contenteditable="true"]') ||
-    document.querySelector('textarea') ||
-    document.querySelector('textarea[role="combobox"]') ||
-    document.querySelector('div[data-mcomponent="ServerTextArea"]') ||
-    document.querySelector('[aria-label]')
-  );
-});
- const box = boxHandle.asElement();
-  if (!box) {
-   throw new Error("❌ Composer textbox tidak valid");
-  }
-
-    await box.focus();
-    
-    await page.keyboard.down("Control");
-   await page.keyboard.press("A");
-    await page.keyboard.up("Control");
-  await page.keyboard.press("Backspace");
-
-  // 🔥 PAKAI FUNGSI AMAN 
-  //await typeCaptionUltimate(page, caption);
-  let captionResult;
-try {
-  captionResult = await typeCaptionUltimate(page,
-  caption,
-  delayMikir,
-  delayKetikMin,
-  delayKetikMax,
-  pauseChance,
-  pauseMin,
-  pauseMax);
-} catch (e) {
-  console.log("⚠️ Caption fatal error, skip caption:", e.message);
-}
-
-console.log(
-  captionResult?.ok
-    ? "📝 Caption berhasil"
-    : "📝 Caption dilewati"
-);
-
-
-  await page.keyboard.press("Space");
-  await page.keyboard.press("Backspace");
-
-   //console.log("✅ Caption diketik");
-
-    
- await delay(3000);
-
-  // ===== 3️⃣ Download + upload media
- const today = process.env.DATE || new Date().toISOString().split("T")[0];
- // HARUS sama dengan nama file di Release!
-
-const originalName = mediaUrl.split("?")[0].split("/").pop();
- 
-  const fileName = `${account}_${Date.now()}_${originalName}`;
-console.log(`✅ Posting selesai untuk ${account}`);
-
- // download media → simpan return value ke filePat
-const filePath = await downloadMedia(mediaUrl, fileName);
-console.log(`✅ Media ${fileName} berhasil di-download.`);
-
-const stats = fs.statSync(filePath);
-if (stats.size === 0) {
-  throw new Error(`❌ File ${fileName} kosong! Download gagal.`);
-}
-
-
-// upload ke Facebook
-
+    return document.querySelector('div[contenteditable="true"][role="textbox"]') || document.querySelector('div[contenteditable="true"]') || document.querySelector('textarea');
+  });
   
-await uploadMedia(page, filePath, fileName, "Photos");
-   
-// Cari tombol POST dengan innerText
-await page.evaluate(() => {
-  const keywords = [
-    "post", 
-    "Posting",
-    "POST",
-    "POSTING",
-    "posting",    // ID
-    "bagikan"     // ID (kadang muncul)
-  ];
-
-  const buttons = [...document.querySelectorAll('div[role="button"]')];
-
-  const postBtn = buttons.find(btn => {
-    const text = (btn.innerText || "")
-      .replace(/\s+/g, " ")
-      .trim()
-      .toLowerCase();
-
-    return keywords.some(k => text === k || text.includes(k));
-  });
-
-  if (!postBtn) return false;
-
-  postBtn.scrollIntoView({ block: "center" });
-  postBtn.click();
-
-  return true;
-});
-
-console.log("✅ Klik POST (EN+ID)");
-await delay(3000);
-console.log(`✅ Posting selesai untuk ${account}`);
-}
-
-//--ACAK JEDA LINK GRUPNYA --//
-let lastDelay = null;
-
-function pickRandomNoRepeat(arr) {
-  if (arr.length === 1) return arr[0];
-
-  let picked;
-  do {
-    picked = arr[Math.floor(Math.random() * arr.length)];
-  } while (picked === lastDelay);
-
-  lastDelay = picked;
-  return picked;
-}
-
-
-// ===== HELPER =====
-function getTodayWIB() {
-  return new Date(
-    new Date().toLocaleString("en-US", {
-      timeZone: "Asia/Jakarta"
-    })
-  );
-}
-
-function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-function urlExists(url) {
-  return new Promise(resolve => {
-    https.get(
-      url,
-      {
-        headers: {
-          "User-Agent": "Mozilla/5.0",
-          "Accept": "*/*"
-        }
-      },
-      res => {
-        resolve(res.statusCode >= 200 && res.statusCode < 400);
-      }
-    ).on("error", () => resolve(false));
-  });
-}
-
-
-
-//VERSI BARU BUAT TEST
-function readTemplate(file) {
-  if (!fs.existsSync(file)) {
-    throw new Error("❌ File XLSX tidak ditemukan: " + file);
+  const box = boxHandle.asElement();
+  if (box) {
+    await box.focus();
+    await typeCaptionUltimate(page, caption, delayMikir, delayKetikMin, delayKetikMax, pauseChance, pauseMin, pauseMax);
   }
 
-  const wb = XLSX.readFile(file);
-  const result = {};
+  await delay(3000);
 
-  for (const sheetName of wb.SheetNames) {
-    const sheet = wb.Sheets[sheetName];
-    const rows = XLSX.utils.sheet_to_json(sheet, {
-      defval: "",
-      raw: false
-    });
-
-    result[sheetName.trim()] = rows.map(row => {
-      const clean = {};
-      for (const k in row) {
-        clean[k.trim()] =
-          typeof row[k] === "string" ? row[k].trim() : row[k];
-      }
-      return clean;
-    });
+  if (mediaUrl) {
+    const originalName = mediaUrl.split("?")[0].split("/").pop();
+    const fileName = `${account}_${Date.now()}_${originalName}`;
+    const filePath = await downloadMedia(mediaUrl, fileName);
+    await uploadMedia(page, filePath, fileName);
   }
 
-  return result;
+  await page.evaluate(() => {
+    const keywords = ["post", "posting", "bagikan"];
+    const buttons = [...document.querySelectorAll('div[role="button"]')];
+    const postBtn = buttons.find(btn => {
+      const text = (btn.innerText || "").toLowerCase();
+      return keywords.some(k => text.includes(k));
+    });
+    if (postBtn) postBtn.click();
+  });
+
+  await delay(3000);
 }
 
-//--FUNGSI RUN ACCOUNT--//
-
+// RUN ACCOUNT (GROUP)
 async function runAccount(page, row, accountName, today) {
- console.log("\n🧪 runAccount row:", row);
   const account = row.account;
   const caption = row.caption;
-  const jam_post = row.jam_post;
   const mediaUrl = row.media_url || row.github_release;
   const delayMikir = Number(row.delay_mikir);
   const delayKetikMin = Number(row.delay_ketik_min);
@@ -2293,685 +887,156 @@ async function runAccount(page, row, accountName, today) {
   const pauseMin = Number(row.pause_min);
   const pauseMax = Number(row.pause_max);
 
+  const accountNameClean = accountName || row.account;
+  const selectedGroupsRaw = Object.entries(selectedData).find(
+    ([key]) => normalizeName(key) === normalizeName(accountNameClean)
+  )?.[1] || [];
 
-  // ===== PARSE DELAY GRUP DARI XLSX =====
-  const delayGroupList = String(row.delay_grup || "")
-  .replace(/\./g, ",")  // ganti titik jadi koma
-  .split(/,/)           // split koma
-  .map(v => parseInt(v.trim(), 10))
-  .filter(v => !isNaN(v) && v > 0);
+  const selectedGroups = selectedGroupsRaw.filter(
+    g => normalizeTanggal(g.tanggal) === today
+  );
 
-  const defaultDelayGroup = 5000; // fallback kalau kosong
+  if (!account || !caption || !mediaUrl || selectedGroups.length === 0) return;
 
-  //DARI ROW TEMPLATE XLSX 
- //tlxconst groups = String(row.grup_link || "")
-  //tlx.split(",")
- //tlx .map(g => g.replace(/[\s\r\n]+/g, "").trim()) // hapus spasi, CR, LF
-  //tlx .filter(Boolean);
-  
-  //DARI docs/selected.json
-// ambil dari selected.json berdasarkan account
-const accountNameClean = accountName || row.account;
-
-// 🔥 ambil berdasarkan nama (ANTI SALAH NAMA)
-const selectedGroupsRaw = Object.entries(selectedData).find(
-  ([key]) => normalizeName(key) === normalizeName(accountNameClean)
-)?.[1] || [];
-
-// 🔥 filter tanggal dari selected.json
-const selectedGroups = selectedGroupsRaw.filter(
-  g => normalizeTanggal(g.tanggal) === today
-);
-
-console.log(`📂 Selected JSON grup: ${selectedGroups.length}`);
-//sampai sini template xlsx/tlx
-   if (!account || !caption || !mediaUrl ||  selectedGroups.length === 0){//tlx groups.length === 0) {
-    console.log("⚠️ Row XLSX tidak lengkap/Tidak ada grup dari selected.json, skip:", row);
-    return;
-  }
-
-  console.log(`🧠 runAccount (XLSX) → ${account}`);
-  //console.log(`🔗 Grup: ${groups.length}`);
-    //template xlsx 
-  //for (let i = 0; i < groups.length; i++) {
-    //let groupUrl = groups[i];
-
-  //dari selected json
-for (let i = 0; i < selectedGroups.length; i++) {
-  let groupUrl = selectedGroups[i].group_link;
-  const groupName = selectedGroups[i].group_name;
-
-  //tetap 
+  for (let i = 0; i < selectedGroups.length; i++) {
+    let groupUrl = selectedGroups[i].group_link;
     const groupData = groupsDB[groupUrl] || {};
- //template xlsx 
-    //console.log(`\n📌 [${account}] Grup ${i + 1}/${groups.length}`);
-// console.log(`➡️ ${groupUrl}`);
-    
-// selected.json
-console.log(`\n📌 [${account}] Grup ${i + 1}/${selectedGroups.length}`);
-console.log(`➡️ ${groupName}`);
-console.log(`🔗 ${groupUrl}`);
-  
-// ✅ Validasi URL grup
+
     if (!groupUrl.startsWith("http")) {
       groupUrl = "https://m.facebook.com/" + groupUrl.replace(/^\/+/, "");
     }
 
-    if (!groupUrl.includes("/groups/")) {
-      console.log("❌ URL grup tidak valid, skip:", groupUrl);
-      continue; // skip kalau bukan URL grup
-    }
-  //template xlsx 
-    //console.log(`\n📌 [${account}] Membuka grup ${i + 1}/${groups.length}`);
-   // console.log("➡️", groupUrl);
+    if (!groupUrl.includes("/groups/")) continue;
 
-  //selected json 
-  console.log(`\n📌 [${account}] Membuka grup ${i + 1}/${selectedGroups.length}`);
-console.log("➡️", groupUrl);
-    // ===== Buka grup
     await page.goto(groupUrl, { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(4000);
-    // DEBUG SETELAH PAGE SIAP
-    //BARU YANG PAKAI DOLAR
-// ambil info grup DI SINI
-//const groupInfo = await page.evaluate(() => {
- //const rawTitle = document.title || "Unknown Group";
 
-  //const name = rawTitle
-    //.replace(/\s*\|\s*Facebook/i, "")
-   // .trim();
-  
- // const img =
-  //  document.querySelector('img[src*="scontent"]') ||
-   // document.querySelector("img");
+    docsData.push({
+      account: row.account,
+      tanggal: today,
+      jam_post: row.jam_post,
+      mode: "group",
+      group_link: groupUrl,
+      group_name: groupData.name || groupUrl,
+      group_photo: groupData.photo || null,
+      caption: row.caption,
+      delay_group: row.delay_grup,
+      delay_akun: row.delay_akun,
+      status: "done"
+    });
 
- /// return {
-   // name: name,
-  //  photo: img ? img.src : null
-//  };
-//});
-
-// PUSH KE FOLDER DOCS 
- docsData.push({
-  account: row.account,
-  tanggal: today,
-  jam_post: row.jam_post,
-  mode: "group",
-  group_link: groupUrl,
-   //===INI JIKA SCRAPE ===//
-  //group_name: groupInfo.name,
- // group_photo: groupInfo.photo,
-   ///===INI JIKA TANPA SCRAPE===//
-  group_name: groupData.name || groupUrl,
-  group_photo: groupData.photo || null,
-  caption: row.caption,
-  delay_group: row.delay_grup,
-  delay_akun: row.delay_akun,
-  status: "done"
-});
-    //$ SAMPAI SINI
-
-  await page.evaluate(() => {
-  const hits = [];
-
-  document.querySelectorAll("span").forEach(s => {
-    const t = s.textContent?.trim();
-    if (t && /write|tulis|pikirkan|mind|status/i.test(t)) {
-      hits.push(t);
-    }
-  });
-
-  console.log("SPAN_HITS:", JSON.stringify(hits));
-});
-
-  // ===== 1️⃣ Coba klik "View Discussions" (optional)
-const clickedView = await page.evaluate(() => {
-  const span = [...document.querySelectorAll("span")]
-    .find(s => /view|lihat/i.test(s.innerText));
-
-  if (!span) {
-    console.log("ℹ️ Tidak ada tombol View Discussions");
-    return false;
-  }
-
-  const btn = span.closest('[data-focusable="true"]');
-
-  if (btn) {
-    btn.click();
-    console.log("✅ Klik View Discussions");
-    return true;
-  }
-
-  console.log("⚠️ Span ketemu tapi tidak bisa diklik");
-  return false;
-});
-
-// kalau tadi klik → tunggu
-if (clickedView) {
-  await page.waitForTimeout(3000);
-  console.log("⏳ Tunggu setelah klik View Discussions");
- }
-    console.log("✅ berhasil klik View Discussions");
-          
-await page.waitForTimeout(2000);
-    console.log("tunggu 2 detik");
-    
-    // ===== 1️⃣ Klik composer / write something
-    let writeClicked =
-    await safeClickXpath(page, "//*[contains(text(),'Write something')]", "Composer") ||
-    await safeClickXpath(page, "//*[contains(text(),'Tulis sesuatu')]", "Composer") ||
-    await safeClickXpath(page, "//*[contains(text(),'Tulis sesuatu...')]", "Composer");
-    
     await page.waitForTimeout(2000);
-   // 1️⃣ Klik placeholder composer
-     await page.waitForSelector(
-     'div[role="button"][data-mcomponent="ServerTextArea"]',
-      { timeout: 10000 }
-   );
+    
+    await page.waitForSelector('div[role="button"][data-mcomponent="ServerTextArea"]', { timeout: 10000 }).catch(() => {});
+    await page.evaluate(() => {
+      const el = document.querySelector('div[role="button"][data-mcomponent="ServerTextArea"]');
+      if (el) el.click();
+    });
+
+    await page.waitForTimeout(2000);
+    await typeCaptionUltimate(page, caption, delayMikir, delayKetikMin, delayKetikMax, pauseChance, pauseMin, pauseMax);
+    await delay(3000);
+
+    const originalName = mediaUrl.split("?")[0].split("/").pop();
+    const fileName = `${account}_${Date.now()}_${originalName}`;
+    const filePath = await downloadMedia(mediaUrl, fileName);
+    await uploadMedia(page, filePath, fileName);
 
     await page.evaluate(() => {
-     const el = document.querySelector(
-       'div[role="button"][data-mcomponent="ServerTextArea"]'
-      );
-      if (!el) return;
+      const keywords = ["post", "posting", "bagikan"];
+      const buttons = [...document.querySelectorAll('div[role="button"]')];
+      const postBtn = buttons.find(btn => {
+        const text = (btn.innerText || "").toLowerCase();
+        return keywords.some(k => text.includes(k));
+      });
+      if (postBtn) postBtn.click();
+    });
 
-    el.scrollIntoView({ block: "center" });
-
-       ["touchstart","touchend","mousedown","mouseup","click"]
-        .forEach(e =>
-          el.dispatchEvent(new Event(e, { bubbles: true }))
-       );
-       });
-
-  
-await page.waitForFunction(() => {
-  return (
-    document.querySelector('div[contenteditable="true"][role="textbox"]') ||
-    document.querySelector('div[contenteditable="true"]') ||
-    document.querySelector('textarea') ||
-    document.querySelector('textarea[role="combobox"]') ||
-    document.querySelector('div[data-mcomponent="ServerTextArea"]') ||
-    document.querySelector('[aria-label]')
-  );
-}, { timeout: 30000 });
-
-console.log("✅ Composer textbox terdeteksi");
-
-  const boxHandle = await page.evaluateHandle(() => {
-   return (
-      document.querySelector('div[contenteditable="true"][role="textbox"]') ||
-      document.querySelector('div[contenteditable="true"]') ||
-      document.querySelector('textarea') ||
-      document.querySelector('textarea[role="combobox"]') ||
-      document.querySelector('div[data-mcomponent="ServerTextArea"]') ||
-      document.querySelector('[aria-label]')
-    );
-  });
-const box = boxHandle.asElement();
-  if (!box) {
-    throw new Error("❌ Composer textbox tidak valid");
-  }
-
-   await box.focus();
-    
-   await page.keyboard.down("Control");
-   await page.keyboard.press("A");
-   await page.keyboard.up("Control");
-   await page.keyboard.press("Backspace");
-
-     let captionResult;
-try {
-  captionResult = await typeCaptionUltimate(page,
-  caption,
-  delayMikir,
-  delayKetikMin,
-  delayKetikMax,
-  pauseChance,
-  pauseMin,
-  pauseMax);
-} catch (e) {
-  console.log("⚠️ Caption fatal error, skip caption:", e.message);
-}
-
-console.log(
-  captionResult?.ok
-    ? "📝 Caption berhasil"
-    : "📝 Caption dilewati"
-);
-
-
-   await page.keyboard.press("Space");
-   await page.keyboard.press("Backspace");
-
-   console.log("✅ Caption diketik");
-
-    
-  await delay(3000); // kasih waktu 3 detik minimal
-
-
-  // ===== 3️⃣ Download + upload media
- const todayEv = process.env.DATE || new Date().toISOString().split("T")[0];
- // HARUS sama dengan nama file di Release!
-
-const originalName = mediaUrl.split("?")[0].split("/").pop();
- 
-  const fileName = `${account}_${Date.now()}_${originalName}`;
-console.log(`✅ Posting selesai untuk ${account}`);
-
- // download media → simpan return value ke filePat
-const filePath = await downloadMedia(mediaUrl, fileName);
-console.log(`✅ Media ${fileName} berhasil di-download.`);
-
-const stats = fs.statSync(filePath);
-if (stats.size === 0) {
-  throw new Error(`❌ File ${fileName} kosong! Download gagal.`);
-}
-
-
-// upload ke Facebook
-
-  
-await uploadMedia(page, filePath, fileName, "Photos");
-   
-// Cari tombol POST dengan innerText
-await page.evaluate(() => {
-  const keywords = [
-    "post", 
-    "Posting",
-    "POST",
-    "POSTING",
-    "posting",    // ID
-    "bagikan"     // ID (kadang muncul)
-  ];
-
-  const buttons = [...document.querySelectorAll('div[role="button"]')];
-
-  const postBtn = buttons.find(btn => {
-    const text = (btn.innerText || "")
-      .replace(/\s+/g, " ")
-      .trim()
-      .toLowerCase();
-
-    return keywords.some(k => text === k || text.includes(k));
-  });
-
-  if (!postBtn) return false;
-
-  postBtn.scrollIntoView({ block: "center" });
-  postBtn.click();
-
-  return true;
-});
-
-console.log("✅ Klik POST (EN+ID)");
-await delay(3000);
-console.log(`✅ Posting selesai untuk ${account}`);
-    
-  //----FUNGSI MELAKUKAN LIKE POSTINGAN DI LINK GRUP ---////
-    
- // await page.goto(groupUrl, { waitUntil: "networkidle2" });
-  //console.log(" Mulai akan lakukan like postingan");
-    
-  //let max = 10;        // jumlah like maksimal
-  //let delayMs = 3000;  // delay antar aksi (ms)
-  //let clicked = 0;
-
- // async function delay(ms) {
-   // return new Promise(res => setTimeout(res, ms));
- // }
-
- // while (clicked < max) {
-    //const button = await page.$(
-      //'div[role="button"][aria-label*="Like"],div[role="button"][aria-label*="like"], div[role="button"][aria-label*="Suka"]'
-  // );
-
-  //if (button) {
-     // await button.tap(); // ✅ simulate tap (touchscreen)
-      //clicked++;
-    //  console.log(`👍 Klik tombol Like ke-${clicked}`);
-    //} else {
-      //console.log("🔄 Tidak ada tombol Like, scroll...");
-   // }
-
-    // Scroll sedikit biar postingan baru muncul
-    //await page.evaluate(() => window.scrollBy(0, 500));
-  // await delay(delayMs);
- //}
-
- //console.log(`🎉 Selesai! ${clicked} tombol Like sudah diklik.`);
-
-
-
-
-// ⏳ JEDA ANTAR GRUP (ACAK, TANPA PENGULANGAN)
-const delayGrup =
-  delayGroupList.length > 0
-    ? pickRandomNoRepeat(delayGroupList)
-    : defaultDelayGroup;
-
-console.log(`🎲 Delay grup (acak): ${delayGrup} ms`);
-await delay(delayGrup);
-
-}
-  
-}
-
-//--FUNGSI KLIK ELEMEN WRITE SOMETHING --//
-async function safeClickEl(el) {
-  if (!el) return false;
-  try {
-    await el.click();
-    return true;
-  } catch (e) {
-    console.log("⚠️ Gagal klik element:", e.message);
-    return false;
+    await delay(3000);
   }
 }
 
-// ===== Klik composer aman pakai trigger React
-
-
-
-      
-
-
-// ===== Fungsi klik by XPath
-  async function safeClickXpath(page, xpath, desc = "elemen") {
-    try {
-      const el = await page.waitForXPath(xpath, { visible: true, timeout: 8000 });
-     await el.click();
-      console.log(`✅ Klik ${desc}`);
-     return true;
-    } catch (e) {
-     console.log(`❌ Gagal klik ${desc}:`, e.message);
-      return false;
-    }
-  }
-
-// ===== Fungsi scan elemen verbose
-async function scanAllElementsVerbose(page, label = "Scan") {
-  console.log(`\n🔎 ${label} (50 elemen pertama)`);
-  const elements = await page.evaluate(() => {
-    return [...document.querySelectorAll("div, span, a, button, textarea, input")]
-      .slice(0, 50)
-      .map((el, i) => ({
-        index: i,
-        tag: el.tagName,
-        txt: (el.innerText || "").trim(),
-        aria: el.getAttribute("aria-label"),
-        placeholder: el.getAttribute("placeholder"),
-        role: el.getAttribute("role"),
-        href: el.getAttribute("href"),
-        contenteditable: el.getAttribute("contenteditable"),
-        classes: el.className
-      }));
-  });
-   elements.forEach(el => console.log(`#${el.index}`, el));
-  return elements;
-}
-
-// ===== Fungsi download media dari GitHub Release
-const mediaFolder = path.join(__dirname, "media");
-if (!fs.existsSync(mediaFolder)) fs.mkdirSync(mediaFolder);
-
+// DOWNLOAD MEDIA
 async function downloadMedia(url, filename) {
   const mediaFolder = path.join(__dirname, "media");
   if (!fs.existsSync(mediaFolder)) fs.mkdirSync(mediaFolder, { recursive: true });
 
   const filePath = path.join(mediaFolder, filename);
-  const options = {
-    headers: { "User-Agent": "Mozilla/5.0 (PuppeteerBot)" }
-  };
+  const options = { headers: { "User-Agent": "Mozilla/5.0 (PuppeteerBot)" } };
 
   return new Promise((resolve, reject) => {
-    const request = https.get(url, options, (res) => {
-    console.log("🌐 GET:", url);
-    console.log("🔢 Status:", res.statusCode);
-    console.log("📎 Location:", res.headers.location || "(tidak ada)");
-      
-      // 🔁 Handle redirect (301, 302)
+    https.get(url, options, (res) => {
       if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-        console.log("🔁 Redirect ke:", res.headers.location);
         return resolve(downloadMedia(res.headers.location, filename));
       }
-
-      // ❌ Handle error status
       if (res.statusCode !== 200) {
-        reject(new Error(`❌ Gagal download media: ${res.statusCode}`));
-        return;
+        return reject(new Error(`Gagal download media: ${res.statusCode}`));
       }
 
-      // 💾 Tulis file ke disk
       const file = fs.createWriteStream(filePath);
       res.pipe(file);
-
-      file.on("finish", () => {
-        file.close(() => {
-          try {
-            const stats = fs.statSync(filePath);
-            if (stats.size === 0) {
-              reject(new Error(`❌ File ${filename} kosong! Download gagal.`));
-              return;
-            }
-            console.log(`✅ Media selesai diunduh (${(stats.size / 1024).toFixed(2)} KB): ${filePath}`);
-            resolve(filePath);
-          } catch (err) {
-            reject(err);
-          }
-        });
-      });
-    });
-
-    request.on("error", (err) => {
-      console.log("❌ Error saat download:", err.message);
-      reject(err);
-    });
+      file.on("finish", () => file.close(() => resolve(filePath)));
+    }).on("error", reject);
   });
 }
 
+// UPLOAD MEDIA
 async function uploadMedia(page, filePath, fileName) {
-  console.log(`🚀 Mulai upload media: ${fileName}`);
-
   const ext = path.extname(fileName).toLowerCase();
   const isVideo = [".mp4", ".mov"].includes(ext);
 
-  console.log(`🧩 Deteksi ekstensi ${ext} -> isVideo=${isVideo}`);
-
-  // ---- Klik tombol Photos / Foto / Video sesuai ekstensi ----
   try {
     if (isVideo) {
-      // klik tombol Video (mencari span dengan teks "Video" lalu klik parent button)
-      const clickedVideo = await page.evaluate(() => {
+      await page.evaluate(() => {
         const span = [...document.querySelectorAll("span")].find(s => s.textContent && s.textContent.trim().toLowerCase() === "video");
-        if (!span) return false;
-        const button = span.closest('div[role="button"], button');
-        if (!button) return false;
-        button.scrollIntoView({ block: "center", behavior: "instant" });
-        ["pointerdown","touchstart","mousedown","mouseup","touchend","click"].forEach(type => {
-          button.dispatchEvent(new Event(type, { bubbles: true, cancelable: true }));
-        });
-        return true;
-      });
-      console.log("🎬 Klik tombol Video:", clickedVideo);
-    } else {
-      // klik tombol Photos/Foto
-      const clickedPhotos = await page.evaluate(() => {
-        const buttons = [...document.querySelectorAll('div[role="button"]')];
-        const btn = buttons.find(b => {
-          const text = (b.innerText || b.textContent || "").toLowerCase();
-          const aria = (b.getAttribute && (b.getAttribute("aria-label") || "")).toLowerCase();
-          return text.includes("photos") || text.includes("Koleksi foto") || text.includes("foto") || aria.includes("photo") || aria.includes("foto");
-        });
-        if (!btn) return false;
-        btn.scrollIntoView({ block: "center", behavior: "instant" });
-        btn.focus && btn.focus();
-        ["pointerdown","pointerup","touchstart","touchend","mousedown","mouseup","click"].forEach(type => {
-          btn.dispatchEvent(new Event(type, { bubbles: true, cancelable: true }));
-        });
-        return true;
-      });
-      console.log("🖼 Klik tombol Photos/Foto:", clickedPhotos);
-    }
-  } catch (e) {
-    console.log("⚠️ Error saat klik tombol media:", e.message);
-  }
-
-  // beri waktu agar input file muncul
-  await page.waitForTimeout(1500 + Math.floor(Math.random() * 2500));
-
-  // ---- Temukan input file ----
-  const fileInput = (await page.$('input[type="file"][accept="image/*"]')) ||
-                    (await page.$('input[type="file"][accept*="video/*"]')) ||
-                    (await page.$('input[type="file"]'));
-  if (!fileInput) {
-    console.log("❌ Input file tidak ditemukan setelah klik tombol media — mencoba fallback scanning...");
-    // coba cari input secara dinamis via evaluate (fallback)
-    const inputFound = await page.evaluate(() => !!document.querySelector('input[type="file"]'));
-    if (!inputFound) {
-      console.log("❌ Tidak ada input[type=file] di DOM. Upload gagal.");
-      return false;
-    }
-  }
-
-  // ---- Siapkan MIME type ----
-  const mimeType =
-    ext === ".jpg" || ext === ".jpeg" ? "image/jpeg" :
-    ext === ".png" ? "image/png" :
-    ext === ".gif" ? "image/gif" :
-    ext === ".webp" ? "image/webp" :
-    isVideo ? "video/mp4" :
-    "application/octet-stream";
-
-  // baca file dan ubah jadi base64 untuk inject via browser File API
-  const fileNameOnly = path.basename(filePath);
-  let fileBuffer;
-  try {
-    fileBuffer = fs.readFileSync(filePath);
-  } catch (e) {
-    console.log("❌ Gagal baca file dari disk:", e.message);
-    return false;
-  }
-  const base64Data = fileBuffer.toString("base64");
-
-  // ---- Inject File object ke input agar React/JSX detect ----
-  try {
-    await page.evaluate(
-      async ({ fileNameOnly, base64Data, mimeType }) => {
-        const byteCharacters = atob(base64Data);
-        const byteNumbers = new Array(byteCharacters.length);
-        for (let i = 0; i < byteCharacters.length; i++) {
-          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        if (span) {
+          const btn = span.closest('div[role="button"], button');
+          if (btn) btn.click();
         }
-        const byteArray = new Uint8Array(byteNumbers);
-        const blob = new Blob([byteArray], { type: mimeType });
-        const file = new File([blob], fileNameOnly, { type: mimeType });
-
-        const input = document.querySelector('input[type="file"]');
-        if (!input) throw new Error("❌ Input file tidak ditemukan (runtime)");
-
-        const dt = new DataTransfer();
-        dt.items.add(file);
-        input.files = dt.files;
-
-        // dispatch events so React detects change
-        ["input", "change"].forEach(evt => input.dispatchEvent(new Event(evt, { bubbles: true })));
-        // extra events sometimes helpful
-        ["focus", "blur", "keydown", "keyup"].forEach(evt => input.dispatchEvent(new Event(evt, { bubbles: true })));
-
-        console.log("⚡ File injected ke React dengan File API browser (in-page)");
-      },
-      { fileNameOnly, base64Data, mimeType }
-    );
-  } catch (e) {
-    console.log("❌ Gagal inject File ke input:", e.message);
-    return false;
-  }
-
-  console.log(`✅ File ${fileNameOnly} berhasil diinject sebagai File object (mime=${mimeType})`);
-
-  // ---- Trigger extra events to be safe ----
-  try {
-    await page.evaluate(() => {
-      const input = document.querySelector('input[type="file"]');
-      if (input) {
-        const events = ["input", "change", "focus", "blur", "keydown", "keyup"];
-        events.forEach(evt => input.dispatchEvent(new Event(evt, { bubbles: true, cancelable: true })));
-      }
-    });
-    console.log("⚡ Event React input/change/keydown/keyup dikirim (extra)");
-  } catch (e) {
-    // ignore
-  }
-
-  // ---- Tunggu preview (foto / video) ----
-  try {
-    if (!isVideo) {
-      console.log("⏳ Tunggu foto preview...");
-      await page.waitForSelector(
-        [
-          'div[data-mcomponent="ServerImageArea"] img[scr^="data:image"]',
-          'img[src^="data:image"]',
-          'img[src^="blob:"]',
-        ].join(","),
-        { timeout: 60000 }
-      );
-      console.log("✅ Foto preview ready");
+      });
     } else {
-      console.log("⏳ Tunggu preview video ...");
-      // tunggu placeholder/thumbnail berubah
-      await page.waitForSelector('div[data-mcomponent="ImageArea"] img[data-type="image"], div[data-mcomponent="ServerImageArea"] img', { timeout: 120000 });
-      await page.waitForFunction(() => {
-        const thumbs = [...document.querySelectorAll('div[data-mcomponent="ImageArea"] img[data-type="image"], div[data-mcomponent="ServerImageArea"] img')];
-        return thumbs.some(img =>
-          img.src &&
-          !img.src.includes("rsrc.php") &&
-          !img.src.startsWith("data:,") &&
-          (img.src.includes("fbcdn.net") || img.src.startsWith("blob:") || img.src.startsWith("data:image"))
-        );
-      }, { timeout: 60000 });
-      console.log("✅ Video preview/thumbnail ready");
+      await page.evaluate(() => {
+        const buttons = [...document.querySelectorAll('div[role="button"]')];
+        const btn = buttons.find(b => (b.innerText || "").toLowerCase().includes("foto"));
+        if (btn) btn.click();
+      });
     }
+  } catch (e) {}
 
-    // ekstra buffer waktu agar Facebook selesai memproses preview/encode
-    await page.waitForTimeout(2000 + Math.floor(Math.random() * 3000));
-    console.log("⏳ Buffer tambahan selesai");
-  } catch (e) {
-    console.log("⚠️ Preview tidak muncul dalam batas waktu, lanjutkan tetap mencoba (", e.message, ")");
-  }
+  await page.waitForTimeout(2000);
+  const fileInput = await page.$('input[type="file"]');
+  if (!fileInput) return false;
 
- // Tambah buffer agar Facebook encode selesai
+  const fileBuffer = fs.readFileSync(filePath);
+  const base64Data = fileBuffer.toString("base64");
+  const mimeType = isVideo ? "video/mp4" : "image/jpeg";
+
+  await page.evaluate(async ({ fileNameOnly, base64Data, mimeType }) => {
+    const byteCharacters = atob(base64Data);
+    const byteArray = new Uint8Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteArray[i] = byteCharacters.charCodeAt(i);
+    }
+    const blob = new Blob([byteArray], { type: mimeType });
+    const file = new File([blob], fileNameOnly, { type: mimeType });
+
+    const input = document.querySelector('input[type="file"]');
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    input.files = dt.files;
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  }, { fileNameOnly: path.basename(filePath), base64Data, mimeType });
+
   await page.waitForTimeout(5000);
-  console.log("⏳ Tambahan waktu encode 5 detik selesai");
-
-
-  // 6️⃣ Screenshot hasil preview
-  const screenshotPath = path.join(__dirname, "media", "after_upload.png");
-  await page.screenshot({ path: screenshotPath, fullPage: true });
-  console.log(`📸 Screenshot preview media tersimpan: ${screenshotPath}`);
-
-  const exists = fs.existsSync(screenshotPath);
-  console.log(exists ? "✅ Screenshot tersimpan dengan baik" : "❌ Screenshot gagal disimpan");
-
-   return true; //selesai 
+  return true;
 }
 
-
-module.exports = { uploadMedia };
-
- // 7️⃣ Optional: upload screenshot ke artifact GitHub
-  if (process.env.GITHUB_ACTIONS) {
-    console.log(`📤 Screenshot siap di-upload ke artifact (gunakan actions/upload-artifact di workflow)`);
-  }
-                                          
-
-// 🕒 Fungsi delay
 function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// ===== Main Puppeteer
-
-      (async () => {
+// MAIN ENTRY POINT
+(async () => {
   try {
     console.log("🚀 Start bot...");
     const mode = process.argv[2];
