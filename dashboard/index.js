@@ -45,41 +45,54 @@ let docsData = [];
 if (fs.existsSync(dataPath)) {
   try {
     docsData = JSON.parse(fs.readFileSync(dataPath, "utf8"));
+
+    // 🛡️ jaga kalau file rusak
     if (!Array.isArray(docsData)) {
       docsData = [];
     }
+
   } catch (err) {
     console.log("⚠️ data.json rusak, reset ulang");
     docsData = [];
   }
+
 } else {
+  // 3. Kalau belum ada → buat file kosong SEKALI
   fs.writeFileSync(dataPath, JSON.stringify([], null, 2));
 }
 
-// Parser jam
+//Parser jam 👇//
 function cocokJam(rowJam) {
   const now = new Date(
     new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" })
   );
 
   const [h, m] = rowJam.split(":").map(Number);
+
   const target = new Date(now);
   target.setHours(h, m, 0, 0);
 
   const selisih = Math.abs(now - target) / 1000 / 60; // menit
+
   return selisih <= 180; // toleransi 180 menit (3 jam)
 }
+//sampai sini 👆///
 
-// ACAK AKUN
+//ACAK AKUN
 function shuffleArray(arr) {
   const shuffled = [...arr];
+
   for (let i = shuffled.length - 1; i > 0; i--) {
     const rand = crypto.randomBytes(4).readUInt32BE(0);
     const j = rand % (i + 1);
+
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
+
   return shuffled;
 }
+
+//NORMALISASI TANGGAL DOCS/SELECTED.JSON
 
 function normalizeName(name) {
   return String(name || "").trim().toLowerCase();
@@ -87,14 +100,16 @@ function normalizeName(name) {
 
 function normalizeTanggal(tgl) {
   if (!tgl) return "";
+
   if (tgl.includes("/")) {
     const [d, m, y] = tgl.split("/");
     return `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
   }
+
   return tgl;
 }
 
-// HELPER ISI CAPTION 
+//HELPER ISI CAPTION 
 async function clearComposer(page) {
   await page.keyboard.down("Control");
   await page.keyboard.press("A");
@@ -103,7 +118,15 @@ async function clearComposer(page) {
   await page.waitForTimeout(300);
 }
 
-async function typeCaptionFB(page, caption, delayMikir, delayKetikMin, delayKetikMax, pauseChance, pauseMin, pauseMax) {
+
+async function typeCaptionFB(page,
+  caption,
+  delayMikir,
+  delayKetikMin,
+  delayKetikMax,
+  pauseChance,
+  pauseMin,
+  pauseMax) {
   delayMikir = Number(delayMikir);
   delayKetikMin = Number(delayKetikMin);
   delayKetikMax = Number(delayKetikMax);
@@ -113,6 +136,7 @@ async function typeCaptionFB(page, caption, delayMikir, delayKetikMin, delayKeti
 
   console.log("✍️ Ketik caption (FB stable)");
 
+  // 1️⃣ Tunggu overlay loading hilang
   await page.waitForFunction(() => {
     return !(
       document.querySelector('[aria-label="Loading"]') ||
@@ -121,28 +145,41 @@ async function typeCaptionFB(page, caption, delayMikir, delayKetikMin, delayKeti
     );
   }, { timeout: 30000 });
 
+  // 2️⃣ Bangunin editor (WAJIB di FB)
   await page.keyboard.type(" ");
   await page.waitForTimeout(150);
   await page.keyboard.press("Backspace");
+
   await page.waitForTimeout(delayMikir);
   
+  // 3️⃣ Ketik caption ala manusia
   for (const ch of caption) {
-    const delayHuruf = Math.floor(Math.random() * (delayKetikMax - delayKetikMin + 1)) + delayKetikMin;
+
+    const delayHuruf =
+      Math.floor(Math.random() * (delayKetikMax - delayKetikMin + 1)) + delayKetikMin;
+
     await page.keyboard.type(ch, { delay: delayHuruf });
 
+    // pause random dari XLSX
     if (Math.random() < pauseChance) {
-      const pause = Math.floor(Math.random() * (pauseMax - pauseMin + 1)) + pauseMin;
+      const pause =
+        Math.floor(Math.random() * (pauseMax - pauseMin + 1)) + pauseMin;
+
       await page.waitForTimeout(pause);
     }
-  }
+ }
 
+  // 4️⃣ Commit React
   await page.keyboard.press("Space");
   await page.keyboard.press("Backspace");
 
   console.log("✅ Caption berhasil diketik captiontypeFB");
-  return { ok: true, method: "typeCaptionFB" };
+
+return { ok: true, method: "typeCaptionFB" };
+
 }
 
+//Validasinya 
 async function validateCaption(page, caption) {
   return await page.evaluate(text => {
     const el =
@@ -152,7 +189,12 @@ async function validateCaption(page, caption) {
 
     if (!el) return false;
 
-    const domVal = el.textContent || el.innerText || el.value || "";
+    const domVal =
+      el.textContent ||
+      el.innerText ||
+      el.value ||
+      "";
+
     const dataText = el.getAttribute("data-text") || "";
 
     return (
@@ -162,8 +204,10 @@ async function validateCaption(page, caption) {
   }, caption);
 }
 
+//ISI CAPTION type manusia tahan update 
 async function typeCaptionStable(page, caption) {
   let typed = false;
+
   try {
     await page.evaluate(() => {
       const candidates = [
@@ -188,7 +232,9 @@ async function typeCaptionStable(page, caption) {
     await page.waitForTimeout(1500);
 
     const focused = await page.evaluate(() => {
-      const els = document.querySelectorAll('div[contenteditable="true"], textarea');
+      const els = document.querySelectorAll(
+        'div[contenteditable="true"], textarea'
+      );
       for (const el of els) {
         el.click();
         el.focus();
@@ -203,7 +249,10 @@ async function typeCaptionStable(page, caption) {
 
     typed = true;
     for (const char of caption) {
-      await page.keyboard.type(char, { delay: 80 + Math.random() * 120 });
+      await page.keyboard.type(char, {
+        delay: 80 + Math.random() * 120
+      });
+
       if (Math.random() < 0.05) {
         await page.waitForTimeout(300 + Math.random() * 600);
       }
@@ -214,16 +263,19 @@ async function typeCaptionStable(page, caption) {
     await page.keyboard.press("Backspace");
 
     const ok = await validateCaption(page, caption);
+
     if (ok) {
       return { ok: true, typed: true, step: "stable_ok" };
     }
 
     return { ok: false, typed: true, step: "validation_failed" };
+
   } catch (err) {
     return { ok: false, typed, step: "exception", error: err.message };
   }
 }
 
+//isi caption klik placeholder 
 async function activateComposerAndFillCaption(page, caption) {
   return await page.evaluate((text) => {
     const placeholderKeywords = [
@@ -243,7 +295,13 @@ async function activateComposerAndFillCaption(page, caption) {
 
     if (btn) {
       ["mousedown", "mouseup", "click"].forEach(type =>
-        btn.dispatchEvent(new MouseEvent(type, { bubbles: true, cancelable: true, view: window }))
+        btn.dispatchEvent(
+          new MouseEvent(type, {
+            bubbles: true,
+            cancelable: true,
+            view: window
+          })
+        )
       );
     }
 
@@ -257,6 +315,7 @@ async function activateComposerAndFillCaption(page, caption) {
       if (!tb) continue;
 
       tb.focus();
+
       if ("value" in tb) {
         tb.value = "";
       } else {
@@ -274,16 +333,25 @@ async function activateComposerAndFillCaption(page, caption) {
         tb.dispatchEvent(new Event("change", { bubbles: true }));
       }
 
-      return { ok: true, step: "activate+fill", selector: s };
+      return {
+        ok: true,
+        step: "activate+fill",
+        selector: s
+      };
     }
 
-    return { ok: false, step: "textbox_not_found" };
+    return {
+      ok: false,
+      step: "textbox_not_found"
+    };
   }, caption);
 }
 
 async function typeByExecCommand(page, caption) {
   await page.evaluate(text => {
-    const el = document.querySelector('div[contenteditable="true"][role="textbox"], div[contenteditable="true"], textarea');
+    const el = document.querySelector(
+      'div[contenteditable="true"][role="textbox"], div[contenteditable="true"], textarea'
+    );
     if (!el) return;
     el.focus();
     document.execCommand("insertText", false, text);
@@ -307,7 +375,9 @@ async function typeByInputEvents(page, caption) {
     return document.activeElement === el;
   }, selector);
 
-  if (!focused) return false;
+  if (!focused) {
+    return false;
+  }
 
   for (const char of caption) {
     await page.evaluate((ch, sel) => {
@@ -328,11 +398,13 @@ async function typeByInputEvents(page, caption) {
   await page.keyboard.press("Space");
   await page.keyboard.press("Backspace");
 
-  return await page.evaluate(sel => {
+  const ok = await page.evaluate(sel => {
     const el = document.querySelector(sel);
     if (!el) return false;
     return (el.innerText && el.innerText.trim().length > 0);
   }, selector);
+
+  return ok;
 }
 
 async function typeByKeyboard(page, caption) {
@@ -343,34 +415,66 @@ async function typeByKeyboard(page, caption) {
   await page.waitForTimeout(300 + Math.random() * 400);
 
   for (const char of caption) {
-    await page.keyboard.type(char, { delay: 80 + Math.random() * 70 });
+    await page.keyboard.type(char, {
+      delay: 80 + Math.random() * 70
+    });
+
     if (Math.random() < 0.1) {
       await page.waitForTimeout(400 + Math.random() * 900);
     }
   }
 }
 
-async function typeCaptionUltimate(page, caption, delayMikir, delayKetikMin, delayKetikMax, pauseChance, pauseMin, pauseMax) {
+async function typeCaptionUltimate(page,
+  caption,
+  delayMikir,
+  delayKetikMin,
+  delayKetikMax,
+  pauseChance,
+  pauseMin,
+  pauseMax) {
+  
   let fbResult;
   try {
-    fbResult = await typeCaptionFB(page, caption, delayMikir, delayKetikMin, delayKetikMax, pauseChance, pauseMin, pauseMax);
+    fbResult = await typeCaptionFB(
+      page,
+      caption,
+      delayMikir,
+      delayKetikMin,
+      delayKetikMax,
+      pauseChance,
+      pauseMin,
+      pauseMax
+    );
   } catch (e) {}
 
-  if (fbResult?.ok) return fbResult;
-
+  if (fbResult?.ok) {
+    return fbResult;
+  }
+     
   const stable = await typeCaptionStable(page, caption);
-  if (stable?.ok) return stable;
-  if (stable?.typed) return { ok: true, method: "StableTyped" };
+  if (stable?.ok) {
+    return stable;
+  }
 
+  if (stable?.typed) {
+    return { ok: true, method: "StableTyped" };
+  }
+  
   const comboResult = await activateComposerAndFillCaption(page, caption);
   await page.waitForTimeout(2000);
-  if (comboResult?.ok) return;
+
+  if (comboResult?.ok) {
+    return;
+  }
 
   await clearComposer(page);
   try {
     await typeCaptionSafe(page, caption);
     await page.waitForTimeout(400);
-    if (await validateCaption(page, caption)) return;
+    if (await validateCaption(page, caption)) {
+      return;
+    }
   } catch (e) {} 
 
   const methods = [
@@ -391,7 +495,9 @@ async function typeCaptionUltimate(page, caption, delayMikir, delayKetikMin, del
     await page.keyboard.press("Space");
     await page.keyboard.press("Backspace");
 
-    if (await validateCaption(page, caption)) return;
+    if (await validateCaption(page, caption)) {
+      return;
+    }
   }
 
   return { ok: false, reason: "caption_blocked" };
@@ -399,6 +505,7 @@ async function typeCaptionUltimate(page, caption, delayMikir, delayKetikMin, del
 
 async function typeCaptionSafe(page, caption) {
   const selector = 'div[contenteditable="true"][role="textbox"], div[contenteditable="true"], textarea';
+
   await page.keyboard.press("Space");
   await page.waitForTimeout(200);
   await page.keyboard.press("Backspace");
@@ -420,30 +527,37 @@ function randomDelay(min, max) {
 
 function parseTanggalXLSX(tgl) {
   if (!tgl) return null;
+
   if (typeof tgl === "string" && tgl.includes("-")) {
     return tgl.slice(0, 10);
   }
+
   if (typeof tgl === "string" && tgl.includes("/")) {
     const parts = tgl.split("/");
+
     if (parts[0].length === 4) {
       return `${parts[0]}-${parts[1].padStart(2, "0")}-${parts[2].padStart(2, "0")}`;
     }
+
     if (parts[2].length === 4) {
       return `${parts[2]}-${parts[1].padStart(2, "0")}-${parts[0].padStart(2, "0")}`;
     }
+
     const [m, d, y] = parts;
     const year = Number(y) < 100 ? 2000 + Number(y) : Number(y);
+
     return `${year}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
   }
+
   return null;
 }
 
-// LIKELINKPOST
+// ====== RUN LIKELINKPOST ======
 async function runLikeLinkPosts(page, row) {
   const account = row.account;
   const total = Number(row.total) || 1;
   const delayMin = Number(row.delay_min) || 4000;
-  const delayMax = Number(row.delay_max) || 8000;
+  const delayMax = Number(row.delay_max || 8000);
 
   const groups = String(row.link_group || "")
     .split(",")
@@ -465,8 +579,8 @@ async function linkPost(page, groupUrl, total, delayMin, delayMax) {
   try {
     await page.goto(groupUrl, { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(4000);
-    let clicked = 0;
 
+    let clicked = 0;
     while (clicked < total) {
       const liked = await page.evaluate(() => {
         function humanClick(el) {
@@ -493,14 +607,14 @@ async function linkPost(page, groupUrl, total, delayMin, delayMax) {
       }
 
       clicked++;
-      const delayTime = Math.floor(Math.random() * (delayMax - delayMin + 1)) + delayMin;
-      await page.waitForTimeout(delayTime);
+      const delay = Math.floor(Math.random() * (delayMax - delayMin + 1)) + delayMin;
+      await page.waitForTimeout(delay);
       await page.evaluate(() => window.scrollBy(0, window.innerHeight * 0.5));
     }
   } catch (err) {}
 }
 
-// LIKELINKGROUPS
+//FUNGSI LIKELINKGROUP
 async function runLikeLinkGroups(page, row) {
   const account = row.account;
   const total = Number(row.total || 0);
@@ -521,12 +635,13 @@ async function runLikeLinkGroups(page, row) {
     if (!groupUrl.startsWith("http")) {
       groupUrl = "https://m.facebook.com/" + groupUrl.replace(/^\/+/, "");
     }
+
     if (!groupUrl.includes("/groups/")) continue;
 
     await page.goto(groupUrl, { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(4000);
-    let clicked = 0;
 
+    let clicked = 0;
     while (clicked < total) {
       const liked = await page.evaluate(() => {
         const btn = [...document.querySelectorAll('div[role="button"]')]
@@ -548,15 +663,15 @@ async function runLikeLinkGroups(page, row) {
       }
 
       clicked++;
-      const delayTime = Math.floor(Math.random() * (delayMax - delayMin + 1)) + delayMin;
-      await page.waitForTimeout(delayTime);
+      const delay = Math.floor(Math.random() * (delayMax - delayMin + 1)) + delayMin;
+      await page.waitForTimeout(delay);
       await page.evaluate(() => window.scrollBy(0, window.innerHeight * 0.6));
       await page.waitForTimeout(2000);
     }
   }
 }
 
-// UNDFRIEND
+//FUNGSI UNDFRIEND 
 async function runUndfriends(page, row) {
   const total = String(row.total || "").trim();
   const delayMin = Number(row.delay_min || 4000);
@@ -577,6 +692,7 @@ async function runUndfriends(page, row) {
   });
 
   await page.waitForTimeout(1000);
+
   await page.evaluate(() => {
     const spans = [...document.querySelectorAll("span")];
     const target = spans.find(s => {
@@ -595,6 +711,7 @@ async function unfriend(page, total, delayMin, delayMax) {
   try {
     const LIMIT = Number(total) || 1;
     let done = 0;
+
     await page.waitForTimeout(3000);
 
     while (done < LIMIT) {
@@ -650,15 +767,15 @@ async function unfriend(page, total, delayMin, delayMax) {
       });
 
       done++;
-      const delayTime = randomDelay(delayMin, delayMax);
-      await page.waitForTimeout(delayTime);
+      const delay = randomDelay(delayMin, delayMax);
+      await page.waitForTimeout(delay);
       await page.evaluate(() => window.scrollBy(0, window.innerHeight * 0.7));
       await page.waitForTimeout(2000);
     }
   } catch (err) {}
 }
 
-// ADDFRIEND FOLLOWING
+//FUNGSI addFriendFollowing
 async function runAddFriendFollowings(page, row) {
   const total = String(row.total || "").trim();
   const delayMin = Number(row.delay_min || 4000);
@@ -717,15 +834,15 @@ async function addFriendByUsernameFollowing(page, total, delayMin, delayMax) {
 
       if (!found) break;
       clicked++;
-      const delayTime = randomDelay(delayMin, delayMax);
-      await page.waitForTimeout(delayTime);
+      const delay = randomDelay(delayMin, delayMax);
+      await page.waitForTimeout(delay);
       await page.evaluate(() => window.scrollBy(0, window.innerHeight * 0.8));
       await page.waitForTimeout(3000);
     }
   } catch (err) {}
 }
 
-// ADDFRIEND FRIENDS
+//FUNGSI addFriendFriendlist 
 async function runAddFriendFriends(page, row) {
   const total = String(row.total || "").trim();
   const delayMin = Number(row.delay_min || 4000);
@@ -758,7 +875,7 @@ async function runAddFriendFriends(page, row) {
   }
 }
 
-// CONFIRM
+//FUNGSI confirm 
 async function runConfirm(page, row) {
   const total = String(row.total || "").trim();
   const delayMin = Number(row.delay_min || 4000);
@@ -785,14 +902,14 @@ async function confirmFriendRequests(page, total, delayMin, delayMax) {
     if (!buttons.length) break;
     await buttons[0].click();
     clicked++;
-    const delayTime = randomDelay(delayMin, delayMax);
-    await page.waitForTimeout(delayTime);
+    const delay = randomDelay(delayMin, delayMax);
+    await page.waitForTimeout(delay);
     await page.evaluate(() => window.scrollBy(0, window.innerHeight * 0.35));
     await page.waitForTimeout(1000);
   }
 }
 
-// ADDFRIEND FOLLOWERS
+//FUNGSI addFriendFollowers 
 async function runAddFriendFollowers(page, row) {
   const total = String(row.total || "").trim();
   const delayMin = Number(row.delay_min || 4000);
@@ -819,7 +936,7 @@ async function runAddFriendFollowers(page, row) {
   await addFriendByUsernameFollowing(page, total, delayMin, delayMax);
 }
 
-// POSTING STATUS
+//FUNGSI POSTING STATUS 
 async function runStatus(page, row) {
   const account = row.account;
   const caption = row.caption;
@@ -843,8 +960,11 @@ async function runStatus(page, row) {
   });
 
   await page.waitForTimeout(2000);
+
   const boxHandle = await page.evaluateHandle(() => {
-    return document.querySelector('div[contenteditable="true"][role="textbox"]') || document.querySelector('div[contenteditable="true"]') || document.querySelector('textarea');
+    return document.querySelector('div[contenteditable="true"][role="textbox"]') || 
+           document.querySelector('div[contenteditable="true"]') || 
+           document.querySelector('textarea');
   });
   
   const box = boxHandle.asElement();
@@ -875,7 +995,7 @@ async function runStatus(page, row) {
   await delay(3000);
 }
 
-// RUN ACCOUNT (GROUP)
+//--FUNGSI RUN ACCOUNT--//
 async function runAccount(page, row, accountName, today) {
   const account = row.account;
   const caption = row.caption;
@@ -956,7 +1076,7 @@ async function runAccount(page, row, accountName, today) {
   }
 }
 
-// DOWNLOAD MEDIA
+// ===== FUNGSI DOWNLOAD MEDIA =====
 async function downloadMedia(url, filename) {
   const mediaFolder = path.join(__dirname, "media");
   if (!fs.existsSync(mediaFolder)) fs.mkdirSync(mediaFolder, { recursive: true });
@@ -980,7 +1100,7 @@ async function downloadMedia(url, filename) {
   });
 }
 
-// UPLOAD MEDIA
+// ===== FUNGSI UPLOAD MEDIA =====
 async function uploadMedia(page, filePath, fileName) {
   const ext = path.extname(fileName).toLowerCase();
   const isVideo = [".mp4", ".mov"].includes(ext);
@@ -1035,7 +1155,7 @@ function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// MAIN ENTRY POINT
+// ===== MAIN PUPPETEER =====
 (async () => {
   try {
     console.log("🚀 Start bot...");
@@ -1075,7 +1195,7 @@ function delay(ms) {
       args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"]
     });
 
-    // Jalankan akun secara bersamaan (Paralel)
+    // 🔁 JALANKAN AKUN SECARA BERSAMAAN (PARALEL) MENGGUNAKAN PROMISE.ALL
     await Promise.all(
       accounts.map(async (acc) => {
         let context = null;
@@ -1085,26 +1205,105 @@ function delay(ms) {
           context = await browser.createIncognitoBrowserContext();
           page = await context.newPage();
 
-          await page.setUserAgent("Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36");
-          await page.setViewport({ width: 360, height: 825, hasTouch: true, isMobile: true });
+          // ===== PATCH BUG userAgentData FACEBOOK (WAJIB)
+          await page.evaluateOnNewDocument(() => {
+            try {
+              if (navigator.userAgentData) {
+                navigator.userAgentData.getHighEntropyValues = () => {
+                  return Promise.resolve({
+                    architecture: "arm",
+                    model: "",
+                    platform: "Android",
+                    platformVersion: "10",
+                    uaFullVersion: "120.0.0.0"
+                  });
+                };
+              }
+            } catch (e) {}
+          });
+          
+          await page.setBypassCSP(true);
 
-          const today = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" })).toISOString().slice(0, 10);
+          await page.setUserAgent(
+            "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 " +
+            "(KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36"
+          );
+          await page.setViewport({
+            width: 360,
+            height: 825,
+            hasTouch: true,
+            deviceScaleFactor: 2,
+            isMobile: true
+          });
 
-          const rowsStatusForAccount = statusRows.filter(r => r.account === acc.account && parseTanggalXLSX(r.tanggal) === today);
-          const rowsForAccount = groupRows.filter(r => r.account === acc.account && parseTanggalXLSX(r.tanggal) === today && (!r.jam_post || cocokJam(r.jam_post)));
-          const rowsAddFriendFollowersForAccount = addFriendFollowersRows.filter(r => r.account === acc.account && parseTanggalXLSX(r.tanggal) === today);
-          const rowsAddFriendFollowingForAccount = addFriendFollowingRows.filter(r => r.account === acc.account && parseTanggalXLSX(r.tanggal) === today);
-          const rowsAddFriendFriendsForAccount = addFriendListRows.filter(r => r.account === acc.account && parseTanggalXLSX(r.tanggal) === today);
-          const rowsUndfriendForAccount = undFriendRows.filter(r => r.account === acc.account && parseTanggalXLSX(r.tanggal) === today);
-          const rowsConfirmForAccount = confirmRows.filter(r => r.account === acc.account && parseTanggalXLSX(r.tanggal) === today);
-          const rowsLikeGroupForAccount = likeGroupRows.filter(r => r.account === acc.account && parseTanggalXLSX(r.tanggal) === today);
-          const rowsLikeLinkPostForAccount = likeLinkPostRows.filter(r => r.account === acc.account && parseTanggalXLSX(r.tanggal) === today);
+          await page.evaluateOnNewDocument(() => {
+            Object.defineProperty(navigator, "webdriver", { get: () => false });
+            window.navigator.chrome = { runtime: {} };
+            Object.defineProperty(navigator, "languages", { get: () => ["id-ID", "id"] });
+            Object.defineProperty(navigator, "plugins", { get: () => [1, 2, 3, 4, 5] });
+          });
+
+          const today = new Date(
+            new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" })
+          ).toISOString().slice(0, 10);
+
+          const rowsStatusForAccount = statusRows.filter(row => {
+            if (row.account !== acc.account) return false;
+            return parseTanggalXLSX(row.tanggal) === today;
+          });
+
+          const rowsForAccount = groupRows.filter(row => {
+            if (row.account !== acc.account) return false;
+            const rowDate = parseTanggalXLSX(row.tanggal);
+            if (rowDate !== today) return false;
+            if (row.jam_post && !cocokJam(row.jam_post)) return false;
+            return true;
+          });
+
+          const rowsAddFriendFollowersForAccount = addFriendFollowersRows.filter(row => {
+            if (row.account !== acc.account) return false;
+            return parseTanggalXLSX(row.tanggal) === today;
+          });
+
+          const rowsAddFriendFollowingForAccount = addFriendFollowingRows.filter(row => {
+            if (row.account !== acc.account) return false;
+            return parseTanggalXLSX(row.tanggal) === today;
+          });
+
+          const rowsAddFriendFriendsForAccount = addFriendListRows.filter(row => {
+            if (row.account !== acc.account) return false;
+            return parseTanggalXLSX(row.tanggal) === today;
+          });
+
+          const rowsUndfriendForAccount = undFriendRows.filter(row => {
+            if (row.account !== acc.account) return false;
+            return parseTanggalXLSX(row.tanggal) === today;
+          });
+
+          const rowsConfirmForAccount = confirmRows.filter(row => {
+            if (row.account !== acc.account) return false;
+            return parseTanggalXLSX(row.tanggal) === today;
+          });   
+
+          const rowsLikeGroupForAccount = likeGroupRows.filter(row => {
+            if (row.account !== acc.account) return false;
+            return parseTanggalXLSX(row.tanggal) === today;
+          });
+
+          const rowsLikeLinkPostForAccount = likeLinkPostRows.filter(row => {
+            if (row.account !== acc.account) return false;
+            return parseTanggalXLSX(row.tanggal) === today;
+          });
 
           if (
-            rowsForAccount.length === 0 && rowsStatusForAccount.length === 0 && 
-            rowsAddFriendFollowersForAccount.length === 0 && rowsAddFriendFollowingForAccount.length === 0 && 
-            rowsAddFriendFriendsForAccount.length === 0 && rowsUndfriendForAccount.length === 0 && 
-            rowsConfirmForAccount.length === 0 && rowsLikeGroupForAccount.length === 0 && 
+            rowsForAccount.length === 0 && 
+            rowsStatusForAccount.length === 0 && 
+            rowsAddFriendFollowersForAccount.length === 0 && 
+            rowsAddFriendFollowingForAccount.length === 0 && 
+            rowsAddFriendFriendsForAccount.length === 0 &&
+            rowsUndfriendForAccount.length === 0 && 
+            rowsConfirmForAccount.length === 0 && 
+            rowsLikeGroupForAccount.length === 0 && 
             rowsLikeLinkPostForAccount.length === 0
           ) {
             console.log(`⏭️ [${acc.account}] Tidak ada jadwal hari ini, skip.`);
@@ -1114,35 +1313,58 @@ function delay(ms) {
           }
 
           await page.goto("https://m.facebook.com", { waitUntil: "domcontentloaded" });
-          await page.waitForTimeout(2000);
+          await page.waitForTimeout(3000);
           
           await page.setCookie(
             ...acc.cookies.map(c => ({
-              name: c.name, value: c.value, domain: ".facebook.com", path: "/", secure: true
+              name: c.name,
+              value: c.value,
+              domain: ".facebook.com",
+              path: "/",
+              secure: true
             }))
           );
 
           if (mode === "status") {
-            for (const row of rowsStatusForAccount) await runStatus(page, row);
+            for (const row of rowsStatusForAccount) {
+              await runStatus(page, row);
+            }
           } else if (mode === "group") {
-            for (const row of rowsForAccount) await runAccount(page, row, acc.account, today);
+            for (const row of rowsForAccount) {
+              await runAccount(page, row, acc.account, today);   
+            }
           } else if (mode === "addfriendfollowers") {
-            for (const row of rowsAddFriendFollowersForAccount) await runAddFriendFollowers(page, row);
+            for (const row of rowsAddFriendFollowersForAccount) {
+              await runAddFriendFollowers(page, row);
+            }
           } else if (mode === "addfriendfollowing") {
-            for (const row of rowsAddFriendFollowingForAccount) await runAddFriendFollowings(page, row);
+            for (const row of rowsAddFriendFollowingForAccount) {
+              await runAddFriendFollowings(page, row);
+            }
           } else if (mode === "addfriendfriends") {
-            for (const row of rowsAddFriendFriendsForAccount) await runAddFriendFriends(page, row);
+            for (const row of rowsAddFriendFriendsForAccount) {
+              await runAddFriendFriends(page, row);
+            }
           } else if (mode === "undfriend") {
-            for (const row of rowsUndfriendForAccount) await runUndfriends(page, row);
+            for (const row of rowsUndfriendForAccount) {
+              await runUndfriends(page, row);
+            }
           } else if (mode === "confirm") {
-            for (const row of rowsConfirmForAccount) await runConfirm(page, row);
+            for (const row of rowsConfirmForAccount) {
+              await runConfirm(page, row);
+            }
           } else if (mode === "likelinkpost") {
-            for (const row of rowsLikeLinkPostForAccount) await runLikeLinkPosts(page, row);
+            for (const row of rowsLikeLinkPostForAccount) {
+              await runLikeLinkPosts(page, row);
+            }
           } else if (mode === "likegroup") {
-            for (const row of rowsLikeGroupForAccount) await runLikeLinkGroups(page, row);
+            for (const row of rowsLikeGroupForAccount) {
+              await runLikeLinkGroups(page, row);
+            }
           }
 
           console.log(`✅ Selesai diproses untuk akun: ${acc.account}`);
+
         } catch (err) {
           console.error(`❌ Error pada akun ${acc.account}:`, err.message);
         } finally {
@@ -1156,7 +1378,7 @@ function delay(ms) {
     console.log("✅ data.json berhasil diperbarui");
 
     await browser.close();
-    console.log("🎉 Semua akun selesai dijalankan bersamaan");
+    console.log("🎉 Semua akun selesai dijalankan secara paralel");
   } catch (err) {
     console.error("❌ Error utama:", err);
   }
