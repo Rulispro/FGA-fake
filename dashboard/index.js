@@ -2974,7 +2974,7 @@ function delay(ms) {
 (async () => {
   try {
     console.log("🚀 Start bot...");
-   //cek mode buat workflows masing-masing 
+    //cek mode buat workflows masing-masing
     const mode = process.argv[2];
     console.log("🎯 MODE:", mode);
 
@@ -2982,28 +2982,23 @@ function delay(ms) {
       console.log("⚠️ Tidak ada mode → stop bot");
       process.exit(0);
     }
-
     const rawAccounts = JSON.parse(
       fs.readFileSync(__dirname + "/accounts.json", "utf8")
     );
 
-// 🔀 SHUFFLE AKUN DI SINI
-const accounts = shuffleArray(rawAccounts);
+    // 🔀 SHUFFLE AKUN DI SINI
+    const accounts = shuffleArray(rawAccounts);
 
-console.log("🔀 Urutan akun setelah shuffle:");
-accounts.forEach((a, i) => {
-  console.log(`${i + 1}. ${a.account}`);
-});
-    
-    
+    console.log("🔀 Urutan akun setelah shuffle:");
+    accounts.forEach((a, i) => {
+      console.log(`${i + 1}. ${a.account}`);
+    });
+
     // ✅ BACA TEMPLATE SEKALI DI AWAL
     const TEMPLATE_PATH = "./dashboard/template1.xlsx";
-
     if (!fs.existsSync(TEMPLATE_PATH)) {
       throw new Error("❌ template1.xlsx tidak ditemukan");
     }
-
-
     const templates = readTemplate(TEMPLATE_PATH);
     console.log("📑 Sheet terbaca:", Object.keys(templates));
     const groupRows = templates.postGroup || [];
@@ -3014,7 +3009,8 @@ accounts.forEach((a, i) => {
     const undFriendRows = templates.undFriend || [];
     const confirmRows = templates.confirm || [];
     const likeLinkPostRows = templates.likelinkpost || [];
-    const likeGroupRows= templates.likeGroup || []; 
+    const likeGroupRows = templates.likeGroup || [];
+
     const browser = await puppeteer.launch({
       headless: "new",
       defaultViewport: { width: 390, height: 844, isMobile: true, hasTouch: true },
@@ -3027,360 +3023,313 @@ accounts.forEach((a, i) => {
       ],
     });
 
-    // 🔁 LOOP PER AKUN
-    for (const acc of accounts) {
-      console.log(`\n🚀 Start akun: ${acc.account}`);
-    //tes baru dihapus sementara 👇//
-      //const context = await browser.createIncognitoBrowserContext();
-   //   const page = await context.newPage();
-      //👆//
-      const page = await browser.newPage();
-      // ===== PATCH BUG userAgentData FACEBOOK (WAJIB)
-      await page.evaluateOnNewDocument(() => {
-        try {
-        if (navigator.userAgentData) {
-         navigator.userAgentData.getHighEntropyValues = () => {
-         return Promise.resolve({
-          architecture: "arm",
-          model: "",
-          platform: "Android",
-          platformVersion: "10",
-          uaFullVersion: "120.0.0.0"
-           });
-           };
-         }
-        } catch (e) {
-    // silent
+    // 🔁 JALANKAN SEMUA AKUN DI TAB MASING-MASING SECARA BERSAMAAN // <-- DIUBAH
+    await Promise.all(
+      accounts.map(async (acc, index) => { // <-- DIUBAH
+        // Beri jeda bertahap saat membuka tab agar CPU/RAM tidak langsung melonjak drastis // <-- DIUBAH
+        await delay(index * 2000); // <-- DIUBAH
+
+        console.log(`\n🚀 Start akun: ${acc.account}`);
+
+        // Buat context terpisah per tab agar cookie tiap akun tidak saling menimpa // <-- DIUBAH
+        const context = browser.createBrowserContext // <-- DIUBAH
+          ? await browser.createBrowserContext()
+          : await browser.createIncognitoBrowserContext();
+        const page = await context.newPage(); // <-- DIUBAH
+
+        try { // <-- DIUBAH (pembungkus agar jika 1 tab error, tab lain tetap jalan)
+          // ===== PATCH BUG userAgentData FACEBOOK (WAJIB)
+          await page.evaluateOnNewDocument(() => {
+            try {
+              if (navigator.userAgentData) {
+                navigator.userAgentData.getHighEntropyValues = () => {
+                  return Promise.resolve({
+                    architecture: "arm",
+                    model: "",
+                    platform: "Android",
+                    platformVersion: "10",
+                    uaFullVersion: "120.0.0.0"
+                  });
+                };
+              }
+            } catch (e) {
+              // silent
+            }
+          });
+
+          await page.setBypassCSP(true);
+          // 🔊 Monitor console
+          // page.on("console", msg => console.log(`📢 [${acc.account}]`, msg.text()));
+          //page.on("pageerror", err => console.log("💥 [Browser Error]", err.message));
+
+          // ===== Recorder PER AKUN
+          //const recorder = new PuppeteerScreenRecorder(page);
+          // await recorder.start(`recording_${acc.account}.mp4`);
+
+          // ===== Anti-detect (KODE KAMU, TETAP)
+          await page.setUserAgent(
+            "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 " +
+            "(KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36"
+          );
+          await page.setViewport({
+            width: 360,
+            height: 825,
+            hasTouch: true,
+            deviceScaleFactor: 2,
+            isMobile: true
+          });
+          await page.evaluateOnNewDocument(() => {
+            Object.defineProperty(navigator, "webdriver", { get: () => false });
+            window.navigator.chrome = { runtime: {} };
+            Object.defineProperty(navigator, "languages", { get: () => ["id-ID", "id"] });
+            Object.defineProperty(navigator, "plugins", { get: () => [1, 2, 3, 4, 5] });
+          });
+
+          const today = new Date(
+            new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" })
+          ).toISOString().slice(0, 10);
+          console.log("📅 TODAY (WIB):", today);
+          console.log("📋 Semua status rows:", statusRows);
+
+          //filter status
+          const rowsStatusForAccount = statusRows.filter(row => {
+            if (row.account !== acc.account) return false;
+            const rowDate = parseTanggalXLSX(row.tanggal);
+            return rowDate === today;
+          });
+
+          ///pakai jam 👇/////
+          const rowsForAccount = groupRows.filter(row => {
+            if (row.account !== acc.account) return false;
+            const rowDate = parseTanggalXLSX(row.tanggal);
+            if (rowDate !== today) return false;
+
+            // 🔥 kalau ada jam → cek
+            if (row.jam_post && !cocokJam(row.jam_post)) return false;
+
+            return true;
+          });
+          ////👆/////
+
+          //filter addFriendFollowers
+          const rowsAddFriendFollowersForAccount = addFriendFollowersRows.filter(row => {
+            if (row.account !== acc.account) return false;
+            const rowDate = parseTanggalXLSX(row.tanggal);
+            return rowDate === today;
+          });
+          //filter addFriendFollowing
+          const rowsAddFriendFollowingForAccount = addFriendFollowingRows.filter(row => {
+            if (row.account !== acc.account) return false;
+            const rowDate = parseTanggalXLSX(row.tanggal);
+            return rowDate === today;
+          });
+          //filter friends
+          const rowsAddFriendFriendsForAccount = addFriendListRows.filter(row => {
+            if (row.account !== acc.account) return false;
+            const rowDate = parseTanggalXLSX(row.tanggal);
+            return rowDate === today;
+          });
+          //filter unfriend
+          const rowsUndfriendForAccount = undFriendRows.filter(row => {
+            if (row.account !== acc.account) return false;
+            const rowDate = parseTanggalXLSX(row.tanggal);
+            return rowDate === today;
+          });
+          //filter confirm
+          const rowsConfirmForAccount = confirmRows.filter(row => {
+            if (row.account !== acc.account) return false;
+            const rowDate = parseTanggalXLSX(row.tanggal);
+            return rowDate === today;
+          });
+          //filter likeGroup
+          const rowsLikeGroupForAccount = likeGroupRows.filter(row => {
+            if (row.account !== acc.account) return false;
+            const rowDate = parseTanggalXLSX(row.tanggal);
+            return rowDate === today;
+          });
+          //filter likelinkpost
+          const rowsLikeLinkPostForAccount = likeLinkPostRows.filter(row => {
+            if (row.account !== acc.account) return false;
+            const rowDate = parseTanggalXLSX(row.tanggal);
+            return rowDate === today;
+          });
+
+          console.log(`ACCOUNT JSON: [${acc.account}]`);
+          console.log(`📋 Row untuk ${acc.account}:`, rowsForAccount.length);
+          //baru
+          console.log(`📋 Group row ${acc.account}:`, rowsForAccount.length);
+          console.log(`📋 Status row ${acc.account}:`, rowsStatusForAccount.length);
+          console.log(`📋 addFriendFollowers row ${acc.account}:`, rowsAddFriendFollowersForAccount.length);
+          console.log(`📋 addFriendFollowings row ${acc.account}:`, rowsAddFriendFollowingForAccount.length);
+          console.log(`📋 addFriendListRows row ${acc.account}:`, rowsAddFriendFriendsForAccount.length);
+          console.log(`📋 undfriend row ${acc.account}:`, rowsUndfriendForAccount.length);
+          console.log(`📋 confirm row ${acc.account}:`, rowsConfirmForAccount.length);
+          console.log(`📋 likelinkpost row ${acc.account}:`, rowsLikeLinkPostForAccount.length);
+          console.log(`📋 likeGroup row ${acc.account}:`, rowsLikeGroupForAccount.length);
+
+          // kalau dua-duanya kosong → skip akun
+          if (
+            rowsForAccount.length === 0 &&
+            rowsStatusForAccount.length === 0 &&
+            rowsAddFriendFollowersForAccount.length === 0 &&
+            rowsAddFriendFollowingForAccount.length === 0 &&
+            rowsAddFriendFriendsForAccount.length === 0 &&
+            rowsUndfriendForAccount.length === 0 &&
+            rowsConfirmForAccount.length === 0 &&
+            rowsLikeGroupForAccount.length === 0 &&
+            rowsLikeLinkPostForAccount.length === 0
+          ) {
+            console.log(`⏭️ [${acc.account}] Tidak ada jadwal hari ini`);
+            return; // <-- DIUBAH (pengganti 'continue' di dalam .map)
+          }
+
+          await page.goto("https://m.facebook.com", { waitUntil: "domcontentloaded" });
+          console.log(`👉 [${acc.account}] BUKA FACEBOOK.COM`);
+
+          await page.waitForTimeout(3000);
+          console.log(`👉 [${acc.account}] Tunggu 3 detik`);
+          await page.setCookie(
+            ...acc.cookies.map(c => ({
+              name: c.name,
+              value: c.value,
+              domain: ".facebook.com",
+              path: "/",
+              secure: true
+            }))
+          );
+
+          if (mode === "status") {
+            console.log("📌 MODE STATUS");
+            for (const row of rowsStatusForAccount) {
+              await runStatus(page, row);
+            }
+          } else if (mode === "group") {
+            console.log("📌 MODE GROUP");
+            for (const row of rowsForAccount) {
+              await runAccount(page, row, acc.account || acc.username, today);
+            }
+          } else if (mode === "addfriendfollowers") {
+            for (const row of rowsAddFriendFollowersForAccount) {
+              await runAddFriendFollowers(page, row);
+            }
+          } else if (mode === "addfriendfollowing") {
+            for (const row of rowsAddFriendFollowingForAccount) {
+              await runAddFriendFollowings(page, row);
+            }
+          } else if (mode === "addfriendfriends") {
+            for (const row of rowsAddFriendFriendsForAccount) {
+              await runAddFriendFriends(page, row);
+            }
+          } else if (mode === "undfriend") {
+            for (const row of rowsUndfriendForAccount) {
+              await runUndfriends(page, row);
+            }
+          } else if (mode === "confirm") {
+            for (const row of rowsConfirmForAccount) {
+              await runConfirm(page, row);
+            }
+          } else if (mode === "likelinkpost") {
+            for (const row of rowsLikeLinkPostForAccount) {
+              await runLikeLinkPosts(page, row);
+            }
+          } else if (mode === "likegroup") {
+            for (const row of rowsLikeGroupForAccount) {
+              await runLikeLinkGroups(page, row);
+            }
+          }
+
+          // ===== Stop recorder
+          //await recorder.stop();
+          //console.log(`🎬 Rekaman selesai: recording_${acc.account}.mp4`);
+
+          console.log(`✅ Posting selesai untuk ${acc.account}`);
+          const delayRow = rowsForAccount.find(r => r.delay_akun);
+          const delayAkun = Number(delayRow?.delay_akun) || 10000;
+
+          console.log(
+            "🕒 Delay dari row tanggal:",
+            delayRow?.delay_akun,
+            "→ dipakai:",
+            delayAkun
+          );
+
+          await delay(delayAkun);
+          console.log(
+            "DEBUG tanggal:",
+            rowsForAccount.map(r => ({
+              tanggal_raw: r.tanggal,
+              tanggal_parse: parseTanggalXLSX(r.tanggal),
+              delay_akun: r.delay_akun
+            }))
+          );
+        } catch (accErr) { // <-- DIUBAH
+          console.error(`❌ Error pada tab akun ${acc.account}:`, accErr); // <-- DIUBAH
+        } finally { // <-- DIUBAH
+          await page.close().catch(() => {}); // <-- DIUBAH
+          await context.close().catch(() => {}); // <-- DIUBAH
         }
-       });
-      
-      await page.setBypassCSP(true);
+      })
+    ); // <-- DIUBAH (penutup Promise.all)
 
-      // 🔊 Monitor console
-     // page.on("console", msg => console.log(`📢 [${acc.account}]`, msg.text()));
-      //page.on("pageerror", err => console.log("💥 [Browser Error]", err.message));
-
-      // ===== Recorder PER AKUN
-     //const recorder = new PuppeteerScreenRecorder(page);
-   //  await recorder.start(`recording_${acc.account}.mp4`);
-
-      // ===== Anti-detect (KODE KAMU, TETAP)
-      await page.setUserAgent(
-        "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 " +
-        "(KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36"
-      );
-      await page.setViewport({
-        width: 360,
-        height: 825,
-        hasTouch: true,
-        deviceScaleFactor: 2,
-        isMobile: true
-      });
-
-      await page.evaluateOnNewDocument(() => {
-        Object.defineProperty(navigator, "webdriver", { get: () => false });
-        window.navigator.chrome = { runtime: {} };
-        Object.defineProperty(navigator, "languages", { get: () => ["id-ID", "id"] });
-        Object.defineProperty(navigator, "plugins", { get: () => [1, 2, 3, 4, 5] });
-      });
-
-
-      const today = new Date(
-  new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" })
-).toISOString().slice(0, 10);
-      console.log("📅 TODAY (WIB):", today);
-console.log("📋 Semua status rows:", statusRows);
-     
-     //filter status 
-      const rowsStatusForAccount = statusRows.filter(row => {
-  if (row.account !== acc.account) return false;
-
-  const rowDate = parseTanggalXLSX(row.tanggal);
-  return rowDate === today;
-});
-      
-   //coba baru filter grup darinrow template xlsx 
-    // const rowsForAccount = groupRows.filter(row => {
-   // if (row.account !== acc.account) return false;
-  //  const rowDate = parseTanggalXLSX(row.tanggal);
-//  return rowDate === today;
-// });
-
-      //tanggal dari selected.json 👇////
-//const rowsForAccount = groupRows.filter(row => {
- /// return row.account === acc.account;
-
-
-
-//  return true;
-///});
-
-      ///👆////
-
-      ///pakai jam 👇/////
-        const rowsForAccount = groupRows.filter(row => {
-  if (row.account !== acc.account) return false;
-
-  const rowDate = parseTanggalXLSX(row.tanggal);
-  if (rowDate !== today) return false;
-
-  // 🔥 kalau ada jam → cek
-  if (row.jam_post && !cocokJam(row.jam_post)) return false;
-
-  return true;
-});
-      ////👆/////
-      
-      //filter addFriendFollowers 
-    const rowsAddFriendFollowersForAccount = addFriendFollowersRows.filter(row => {
-  if (row.account !== acc.account) return false;
-
-  const rowDate = parseTanggalXLSX(row.tanggal);
-  return rowDate === today;
-});
-      //filter addFriendFollowing
-      const rowsAddFriendFollowingForAccount = addFriendFollowingRows.filter(row => {
-  if (row.account !== acc.account) return false;
-
-  const rowDate = parseTanggalXLSX(row.tanggal);
-  return rowDate === today;
-});
-      //filter friends
-      const rowsAddFriendFriendsForAccount = addFriendListRows.filter(row => {
-  if (row.account !== acc.account) return false;
-
-  const rowDate = parseTanggalXLSX(row.tanggal);
-  return rowDate === today;
-});
-     //filter unfriend 
-      const rowsUndfriendForAccount = undFriendRows.filter(row => {
-  if (row.account !== acc.account) return false;
-
-  const rowDate = parseTanggalXLSX(row.tanggal);
-  return rowDate === today;
-});
-      //filter confirm 
-      const rowsConfirmForAccount = confirmRows.filter(row => {
-  if (row.account !== acc.account) return false;
-
-  const rowDate = parseTanggalXLSX(row.tanggal);
-  return rowDate === today;
-});   
-      //filter likeGroup 
-      const rowsLikeGroupForAccount = likeGroupRows.filter(row => {
-  if (row.account !== acc.account) return false;
-
-  const rowDate = parseTanggalXLSX(row.tanggal);
-  return rowDate === today;
-});
-     //filter likelinkpost 
-      const rowsLikeLinkPostForAccount = likeLinkPostRows.filter(row => {
-  if (row.account !== acc.account) return false;
-
-  const rowDate = parseTanggalXLSX(row.tanggal);
-  return rowDate === today;
-});
-
-console.log("ACCOUNT JSON:", `[${acc.account}]`);
-console.log(`📋 Row untuk ${acc.account}:`, rowsForAccount.length);
-      //baru 
-console.log(`📋 Group row ${acc.account}:`, rowsForAccount.length);
-console.log(`📋 Status row ${acc.account}:`, rowsStatusForAccount.length);
-console.log(`📋 addFriendFollowers row ${acc.account}:`, rowsAddFriendFollowersForAccount.length);
-console.log(`📋 addFriendFollowings row ${acc.account}:`, rowsAddFriendFollowingForAccount.length); 
-console.log(`📋 addFriendListRows row ${acc.account}:`, rowsAddFriendFriendsForAccount.length);
-console.log(`📋 undfriend row ${acc.account}:`, rowsUndfriendForAccount.length);
-console.log(`📋 confirm row ${acc.account}:`, rowsConfirmForAccount.length);
-console.log(`📋 likelinkpost row ${acc.account}:`, rowsLikeLinkPostForAccount.length);
-console.log(`📋 likeGroup row ${acc.account}:`, rowsLikeGroupForAccount.length);
-
-
-// kalau dua-duanya kosong → skip akun
-if (rowsForAccount.length === 0 && rowsStatusForAccount.length === 0  && rowsAddFriendFollowersForAccount.length === 0 && rowsAddFriendFollowingForAccount.length === 0 && rowsAddFriendFriendsForAccount.length === 0
-  && rowsUndfriendForAccount.length === 0 && rowsConfirmForAccount.length === 0 && rowsLikeGroupForAccount.length === 0 && rowsLikeLinkPostForAccount.length === 0) {
-  console.log("⏭️ Tidak ada jadwal group & status & addFriendFollowers & addFriendFollowing &  addFriendFriends & unfriend & confirm & likelinkpost & likeGroup hari ini");
-  continue;
-}
-      
-
-await page.goto("https://m.facebook.com", { waitUntil: "domcontentloaded" });
-    console.log("👉 BUKA FACEBOOK.COM");
-
-      await page.waitForTimeout(3000);
-      console.log("👉 Tunggu 3 detik")
-      
-      await page.setCookie(
-     ...acc.cookies.map(c => ({
-       name: c.name,
-       value: c.value,
-       domain: ".facebook.com",
-       path: "/",
-      secure: true
-     }))
-     );
-
-    
-      
-if (mode === "status") {
-  console.log("📌 MODE STATUS");
-
-  for (const row of rowsStatusForAccount) {
-    await runStatus(page, row);
-  }
-}
-
-else if (mode === "group") {
-  console.log("📌 MODE GROUP");
-
- //lama tapi jalan
- //for(const row of rowsForAccount) {
-   //await runAccount(page, row);
- //}
-///$BARU YANG PAKAI DOLAR
-  for (const row of rowsForAccount) {
-  await runAccount(page, row, acc.account || acc.username, today);   
- }
-  //dari selected json
-  ////const row = rowsForAccount[0]; // ambil 1 saja
-
-///if (row) {
-  ////await runAccount(page, row, acc.account, today);
-////}
-}
-  
-
-else if (mode === "addfriendfollowers") {
-  for (const row of rowsAddFriendFollowersForAccount) {
-    await runAddFriendFollowers(page, row);
-  }
-}
-
-else if (mode === "addfriendfollowing") {
-  for (const row of rowsAddFriendFollowingForAccount) {
-    await runAddFriendFollowings(page, row);
-  }
-}
-
-else if (mode === "addfriendfriends") {
-  for (const row of rowsAddFriendFriendsForAccount) {
-    await runAddFriendFriends(page, row);
-  }
-}
-
-else if (mode === "undfriend") {
-  for (const row of rowsUndfriendForAccount) {
-    await runUndfriends(page, row);
-  }
-}
-
-else if (mode === "confirm") {
-  for (const row of rowsConfirmForAccount) {
-    await runConfirm(page, row);
-  }
-}
-
-else if (mode === "likelinkpost") {
-  for (const row of rowsLikeLinkPostForAccount) {
-    await runLikeLinkPosts(page, row);
-  }
-}
-
-else if (mode === "likegroup") {
-  for (const row of rowsLikeGroupForAccount) {
-    await runLikeLinkGroups(page, row);
-  }
-}
-
-      
-      
-      // ===== Stop recorder
-     //await recorder.stop();
-     //console.log(`🎬 Rekaman selesai: recording_${acc.account}.mp4`);
-
-      await page.close();
-      //hapus sementara 👇
-   //   await context.close();
-      //👆//
-      
-      console.log(`✅ Posting selesai untuk ${acc.account}`);
-    //await delay(6000); // jeda aman antar akun
-     const delayRow = rowsForAccount.find(r => r.delay_akun);
-    const delayAkun = Number(delayRow?.delay_akun) || 10000;
-   console.log(
-  "🕒 Delay dari row tanggal:",
-  delayRow?.delay_akun,
-  "→ dipakai:",
-  delayAkun
-);
-
-await delay(delayAkun);
-console.log(
-  "DEBUG tanggal:",
-  rowsForAccount.map(r => ({
-    tanggal_raw: r.tanggal,
-    tanggal_parse: parseTanggalXLSX(r.tanggal),
-    delay_akun: r.delay_akun
-  }))
-);
-      
-    }
-//BARU $
+    //BARU $
     fs.writeFileSync(
-  "./docs/data.json",
-  JSON.stringify(docsData, null, 2)
-);
+      "./docs/data.json",
+      JSON.stringify(docsData, null, 2)
+    );
 
-console.log("✅ data.json berhasil dibuat");
+    console.log("✅ data.json berhasil dibuat");
     //$
-    //cek buat lihat schedule 
+    //cek buat lihat schedule
     const scheduleData = {};
 
-for (const row of groupRows) {
-  const date = parseTanggalXLSX(row.tanggal);
+    for (const row of groupRows) {
+      const date = parseTanggalXLSX(row.tanggal);
 
-  if (!scheduleData[date]) {
-    scheduleData[date] = [];
-  }
+      if (!scheduleData[date]) {
+        scheduleData[date] = [];
+      }
 
-  scheduleData[date].push({
-    account: row.account,
-    group_name: row.nama_grup || row.group_name || "-",
-    group_link: row.link || row.group_link || "-",
-    caption: row.caption || "-",
-    photo: row.foto || row.photo || ""
-  });
-}
+      scheduleData[date].push({
+        account: row.account,
+        group_name: row.nama_grup || row.group_name || "-",
+        group_link: row.link || row.group_link || "-",
+        caption: row.caption || "-",
+        photo: row.foto || row.photo || ""
+      });
+    }
 
-const scheduleByDate = {};
+    const scheduleByDate = {};
 
-groupRows.forEach(row => {
-  const date = parseTanggalXLSX(row.tanggal);
+    groupRows.forEach(row => {
+      const date = parseTanggalXLSX(row.tanggal);
 
-  if (!scheduleByDate[date]) {
-    scheduleByDate[date] = [];
-  }
+      if (!scheduleByDate[date]) {
+        scheduleByDate[date] = [];
+      }
 
-  scheduleByDate[date].push({
-    account: row.account,
-    group_name: row.group_name || "Unknown Group",
-    caption: row.caption || "",
-    group_link: row.grup_link,
-    photo: row.group_photo || ""
-  });
-});
+      scheduleByDate[date].push({
+        account: row.account,
+        group_name: row.group_name || "Unknown Group",
+        caption: row.caption || "",
+        group_link: row.grup_link,
+        photo: row.group_photo || ""
+      });
+    });
 
-fs.writeFileSync(
-  "./docs/schedule.json",
-  JSON.stringify(scheduleByDate, null, 2)
-);
+    fs.writeFileSync(
+      "./docs/schedule.json",
+      JSON.stringify(scheduleByDate, null, 2)
+    );
 
-console.log("✅ schedule.json berhasil dibuat (group by date)");
+    console.log("✅ schedule.json berhasil dibuat (group by date)");
 
     //sampai sini
     await browser.close();
     console.log("🎉 Semua akun selesai");
+
   } catch (err) {
     console.error("❌ Error utama:", err);
   }
 })();
+
 
